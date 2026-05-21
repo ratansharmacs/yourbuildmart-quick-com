@@ -6,12 +6,14 @@ export function SectionHeader({
   title,
   subtitle,
   viewAllTo,
+  viewAllText = "View All",
   align = "center",
 }: {
   eyebrow?: string;
   title: string;
   subtitle?: string;
   viewAllTo?: string;
+  viewAllText?: string;
   align?: "center" | "left";
 }) {
   const center = align === "center";
@@ -29,7 +31,7 @@ export function SectionHeader({
           to={viewAllTo}
           className="absolute right-0 top-2 hidden items-center gap-1 text-sm font-medium text-brand hover:underline md:flex"
         >
-          View All <ArrowRight className="h-4 w-4" />
+          {viewAllText} <ArrowRight className="h-4 w-4" />
         </Link>
       )}
     </div>

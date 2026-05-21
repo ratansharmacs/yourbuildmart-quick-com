@@ -30,7 +30,7 @@ export const Route = createFileRoute("/")({
 
 function HomePage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen overflow-x-clip bg-background">
       <Navbar />
       <MobileTopCategories />
       <Hero />
@@ -74,8 +74,8 @@ function Hero() {
           </div>
         </div>
 
-        <div className="relative z-10 -mt-3 flex justify-center">
-          <Link to="/cart" className="flex items-center gap-2 rounded-full bg-brand px-3 py-2 text-brand-foreground shadow-lg">
+        <div className="fixed left-1/2 z-50 w-[calc(100%-2rem)] max-w-[220px] -translate-x-1/2 md:hidden" style={{ top: "clamp(210px, 36vh, 320px)" }}>
+          <Link to="/cart" className="flex w-full items-center justify-center gap-2 rounded-full bg-brand px-3 py-2 text-brand-foreground shadow-lg">
             <div className="flex -space-x-2">
               <span className="grid h-7 w-7 place-items-center rounded-full border-2 border-brand bg-white text-[10px] text-brand">1</span>
               <span className="grid h-7 w-7 place-items-center rounded-full border-2 border-brand bg-white text-[10px] text-brand">2</span>
@@ -86,7 +86,7 @@ function Hero() {
           </Link>
         </div>
 
-        <div className="relative z-10 -mt-1 mb-2 flex justify-center md:hidden">
+        <div className="relative z-10 mt-11 mb-2 flex justify-center md:hidden">
           <div className="grid w-full max-w-[393px] grid-cols-3 rounded-full bg-[#ffd3a5]/95 p-1.5 text-center shadow-md backdrop-blur">
             <button className="flex flex-col items-center gap-1 rounded-full bg-white px-2 py-2 text-[10px] font-medium text-orange">
               <House className="h-4 w-4" />
@@ -159,18 +159,27 @@ function Stat({ value, label }: { value: string; label: string }) {
 function Categories() {
   return (
     <section className="container-page hidden pb-3 pt-1 md:block md:pb-4 md:pt-1">
-      <div className="grid grid-cols-3 gap-4 md:grid-cols-6">
-        {categories.map((c) => (
-          <Link key={c.name} to="/products" className="group flex flex-col items-center gap-2">
-            <div className="grid h-20 w-20 place-items-center rounded-2xl border border-border bg-card p-2 transition group-hover:scale-105 md:h-24 md:w-24">
-              <img
-                src={c.icon}
-                alt={c.name}
-                className="h-12 w-12 object-contain md:h-14 md:w-14"
-                loading="lazy"
-              />
+      <div className="grid grid-cols-6 overflow-hidden rounded-2xl border border-[#DEE7E9] bg-white">
+        {categories.map((c, i) => (
+          <Link key={c.name} to="/products" className="group relative flex items-center gap-3 px-4 py-6">
+            <img
+              src={c.icon}
+              alt={c.name}
+              className="h-14 w-14 shrink-0 object-contain transition group-hover:scale-105"
+              loading="lazy"
+            />
+            <div className="min-w-0">
+              <p className="truncate text-[1.06rem] font-bold text-foreground">{c.name}</p>
+              <span className="mt-1 inline-flex items-center rounded-md bg-[#EEF5F6] px-2.5 py-1 text-sm font-medium text-[#5F7177] transition group-hover:-translate-y-0.5 group-hover:bg-[#E3EFF1] group-hover:shadow-sm">
+                View All <ArrowRight className="ml-1 h-3.5 w-3.5" />
+              </span>
             </div>
-            <span className="text-xs font-medium text-foreground">{c.name}</span>
+            {i < categories.length - 1 && (
+              <span
+                aria-hidden
+                className="pointer-events-none absolute right-0 top-1/2 h-12 w-px -translate-y-1/2 bg-gradient-to-b from-transparent via-border/65 to-transparent"
+              />
+            )}
           </Link>
         ))}
       </div>
@@ -186,7 +195,7 @@ function FeaturedProducts() {
       className="container-page relative overflow-hidden rounded-2xl pb-7 pt-1 md:pb-8 md:pt-7"
       style={{
         backgroundImage:
-          "radial-gradient(circle at 20% 50%, rgba(250, 237, 225, 0.5) 0%, rgba(250, 237, 225, 0) 36%), radial-gradient(circle at 50% 50%, rgba(250, 237, 225, 0.42) 0%, rgba(250, 237, 225, 0) 40%), radial-gradient(circle at 80% 50%, rgba(250, 237, 225, 0.5) 0%, rgba(250, 237, 225, 0) 36%), linear-gradient(90deg, #FFFFFF 0%, #FAEDE1 50%, #FFFFFF 100%)",
+          "radial-gradient(circle at 20% 50%, rgba(219, 236, 239, 0.66) 0%, rgba(219, 236, 239, 0) 35%), radial-gradient(circle at 50% 50%, rgba(207, 229, 233, 0.58) 0%, rgba(207, 229, 233, 0) 40%), radial-gradient(circle at 80% 50%, rgba(219, 236, 239, 0.66) 0%, rgba(219, 236, 239, 0) 35%), linear-gradient(90deg, #F2F7F8 0%, #E7F1F3 50%, #F2F7F8 100%)",
       }}
     >
       <div className="mb-3 rounded-2xl border border-orange/20 bg-[--peach] p-3 md:hidden">
@@ -207,7 +216,7 @@ function FeaturedProducts() {
           <h2 className="text-xl leading-none text-brand">Featured Products</h2>
           <p className="mt-1 text-[10px] text-muted-foreground">Discover our best-selling construction materials at best prices</p>
         </div>
-        <Link to="/products" className="text-[10px] font-medium text-brand">View All</Link>
+        <Link to="/products" className="text-[10px] font-medium text-brand">View All Products</Link>
       </div>
 
       <div className="hidden md:block">
@@ -216,25 +225,45 @@ function FeaturedProducts() {
           title="Featured Products"
           subtitle="Discover our best-selling construction materials at unbeatable prices"
           viewAllTo="/products"
+          viewAllText="View All Products"
         />
       </div>
-      <div className="mb-4 flex justify-center md:mb-6">
-        <div className="inline-flex rounded-full border border-border bg-card p-1">
-          {(["cement", "hardware", "wires"] as const).map((t) => (
-            <button
-              key={t}
-              onClick={() => setTab(t)}
-              className={`rounded-full px-4 py-1.5 text-xs font-medium capitalize transition md:px-5 md:text-sm ${
-                tab === t ? "bg-brand text-brand-foreground" : "text-muted-foreground"
-              }`}
-            >
-              {t}
-            </button>
-          ))}
+      <div className="mt-4 flex items-center justify-center">
+        <div className="inline-flex items-center rounded-full border border-[#D8E5E8] bg-[#F7FAFB] p-1 shadow-sm">
+          <button
+            className={`rounded-full px-6 py-2 text-sm font-medium transition ${
+              tab === "cement" ? "bg-[#235758] text-white shadow-sm" : "text-[#5F7177] hover:text-[#235758]"
+            }`}
+            onClick={() => setTab("cement")}
+          >
+            Cement
+          </button>
+          <button
+            className={`rounded-full px-6 py-2 text-sm font-medium transition ${
+              tab === "hardware" ? "bg-[#235758] text-white shadow-sm" : "text-[#5F7177] hover:text-[#235758]"
+            }`}
+            onClick={() => setTab("hardware")}
+          >
+            Hardware
+          </button>
+          <button
+            className={`rounded-full px-6 py-2 text-sm font-medium transition ${
+              tab === "wires" ? "bg-[#235758] text-white shadow-sm" : "text-[#5F7177] hover:text-[#235758]"
+            }`}
+            onClick={() => setTab("wires")}
+          >
+            Wires
+          </button>
         </div>
       </div>
 
-        <ProductStrip products={list} />
+      <div className="mt-4 flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-3 md:overflow-visible lg:grid-cols-4">
+        {list.map((p) => (
+          <div key={p.id} className="min-w-[240px] md:min-w-0">
+            <ProductCard product={p} />
+          </div>
+        ))}
+      </div>
     </section>
   );
 }
@@ -317,7 +346,7 @@ function Testimonials() {
       <div className="relative md:hidden">
         <button
           onClick={() => setActiveReview((prev) => (prev - 1 + items.length) % items.length)}
-          className="absolute left-[-12px] top-1/2 z-10 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-orange text-orange-foreground"
+          className="absolute left-1 top-1/2 z-10 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-orange text-orange-foreground"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
@@ -334,7 +363,7 @@ function Testimonials() {
         </div>
         <button
           onClick={() => setActiveReview((prev) => (prev + 1) % items.length)}
-          className="absolute right-[-12px] top-1/2 z-10 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-orange text-orange-foreground"
+          className="absolute right-1 top-1/2 z-10 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-orange text-orange-foreground"
         >
           <ChevronRight className="h-4 w-4" />
         </button>
@@ -370,13 +399,13 @@ function Testimonials() {
 function MobileTopCategories() {
   return (
     <section className="container-page pb-1 pt-0 md:hidden">
-      <div className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {categories.map((c) => (
           <Link key={`mobile-${c.name}`} to="/products" className="shrink-0 text-center">
-            <div className="mx-auto grid h-11 w-11 place-items-center rounded-xl border border-border bg-card p-1.5">
-              <img src={c.icon} alt={c.name} className="h-7 w-7 object-contain" loading="lazy" />
+            <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl border border-[#D8E5E8] bg-[#EEF5F6] p-2">
+              <img src={c.icon} alt={c.name} className="h-11 w-11 object-contain" loading="lazy" />
             </div>
-            <span className="mt-1 block text-[10px] font-medium text-foreground">{c.name}</span>
+            <span className="mt-1.5 block text-xs font-medium text-foreground">{c.name}</span>
           </Link>
         ))}
       </div>
@@ -393,13 +422,16 @@ function MobileCategoriesSection() {
         </div>
         <Link to="/categories" className="text-[10px] font-medium text-brand">View All</Link>
       </div>
-      <div className="flex gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {categories.map((c) => (
           <Link key={`secondary-${c.name}`} to="/categories" className="shrink-0 text-center">
-            <div className="mx-auto grid h-12 w-12 place-items-center rounded-full border border-border bg-card p-1.5">
-              <img src={c.icon} alt={c.name} className="h-7 w-7 object-contain" loading="lazy" />
+            <div className="mx-auto grid h-20 w-20 place-items-center rounded-full border border-[#D8E5E8] bg-[#EEF5F6] p-2">
+              <img src={c.icon} alt={c.name} className="h-[52px] w-[52px] object-contain" loading="lazy" />
             </div>
-            <span className="mt-1 block text-[10px] font-medium text-foreground">{c.name}</span>
+            <div className="mt-1.5">
+              <span className="block text-xs font-bold text-foreground">{c.name}</span>
+              <button className="mt-1 block rounded bg-[#EEF5F6] px-2 py-1 text-xs font-medium text-[#235758] hover:bg-[#E3EFF1]">View All</button>
+            </div>
           </Link>
         ))}
       </div>

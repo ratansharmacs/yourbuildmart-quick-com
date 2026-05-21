@@ -21,13 +21,14 @@ export function Navbar() {
   };
 
   return (
-    <header
-      className="sticky top-0 z-40 border-b border-border backdrop-blur"
-      style={{
-        background: "linear-gradient(90deg, #FFFFFF 0%, #FAEDE1 100%)",
-      }}
-    >
-      <div className="container-page py-0">
+    <>
+      <header
+        className="fixed inset-x-0 top-0 z-50 overflow-x-clip border-b border-border backdrop-blur"
+        style={{
+          background: "linear-gradient(90deg, #FFFFFF 0%, #FAEDE1 100%)",
+        }}
+      >
+        <div className="container-page py-0">
         <div className="pb-1 pt-1 md:hidden">
           <div className="leading-tight text-muted-foreground">
             <p className="text-[10px] font-medium text-foreground">Delivery in 8 minutes</p>
@@ -35,8 +36,8 @@ export function Navbar() {
           </div>
         </div>
 
-        <div className="flex h-12 items-center gap-3 md:h-14 md:gap-6">
-          <Link to="/"><Logo /></Link>
+        <div className="flex h-12 min-w-0 items-center gap-3 md:h-14 md:gap-6">
+          <Link to="/" className="shrink-0"><Logo /></Link>
 
           <nav className="hidden flex-1 items-center justify-between px-6 lg:flex xl:px-8">
             {navItems.map((n, i) => (
@@ -47,13 +48,13 @@ export function Navbar() {
                   n.label === "Hot Deals"
                     ? "text-[#EA8429]"
                     : n.label === "Flash Sale"
-                      ? "text-[#C3E4E5]"
+                      ? "font-medium text-[#EA8429]"
                       : "text-foreground/80"
                 }`}
                 activeProps={{ className: "text-brand font-semibold" }}
               >
                 {n.label === "Hot Deals" && <span className="text-xs text-[#EA8429]">🔥</span>}
-                {n.label === "Flash Sale" && <span className="text-xs text-[#C3E4E5]">⚡</span>}
+                {n.label === "Flash Sale" && <span className="text-xs text-[#EA8429]">⚡</span>}
                 {n.label}
               </Link>
             ))}
@@ -100,21 +101,27 @@ export function Navbar() {
             />
           </div>
 
-          <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex w-full gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {navItems.map((n) => (
               <Link
                 key={n.label}
                 to={n.to}
-                className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border bg-card px-3 py-1.5 text-xs text-foreground"
+                className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-3 py-1.5 text-xs ${
+                  n.label === "Flash Sale"
+                    ? "border-orange/30 bg-orange/10 text-orange"
+                    : "border-border bg-card text-foreground"
+                }`}
               >
                 {n.label === "Hot Deals" && <span className="text-[10px] text-[#EA8429]">🔥</span>}
-                {n.label === "Flash Sale" && <span className="text-[10px] text-[#C3E4E5]">⚡</span>}
+                {n.label === "Flash Sale" && <span className="text-[10px] text-[#EA8429]">⚡</span>}
                 {n.label}
               </Link>
             ))}
           </div>
         </div>
-      </div>
-    </header>
+        </div>
+      </header>
+      <div aria-hidden className="h-[176px] md:h-14" />
+    </>
   );
 }

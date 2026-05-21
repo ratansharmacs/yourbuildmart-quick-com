@@ -50,7 +50,7 @@ function ProductDetailPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen overflow-x-clip bg-background pb-24 md:pb-0">
       <Navbar />
 
       {/* Gallery + Info */}
@@ -90,17 +90,6 @@ function ProductDetailPage() {
                 <p className="text-xs text-muted-foreground">Total</p>
                 <p className="text-[30px] leading-none text-brand">₹{Math.round(product.price * qty)}</p>
               </div>
-            </div>
-            <div className="mt-3 grid grid-cols-2 gap-2">
-              <button className="flex items-center justify-center gap-1.5 rounded-lg border border-orange bg-white py-2.5 text-sm font-medium text-orange">
-                <Heart className="h-3.5 w-3.5" /> Buy Now
-              </button>
-              <button
-                onClick={() => addToCart(product, qty)}
-                className="flex items-center justify-center gap-1.5 rounded-lg bg-brand py-2.5 text-sm font-medium text-brand-foreground"
-              >
-                <ShoppingBag className="h-3.5 w-3.5" /> Add to Cart
-              </button>
             </div>
           </div>
 
@@ -329,6 +318,21 @@ function ProductDetailPage() {
           ))}
         </div>
       </section>
+
+      <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 p-3 backdrop-blur md:hidden">
+        <div className="container-page flex items-center gap-3">
+          <div className="min-w-0">
+            <p className="text-[10px] text-muted-foreground">Total</p>
+            <p className="truncate text-lg font-semibold text-brand">₹{Math.round(product.price * qty)}</p>
+          </div>
+          <button
+            onClick={() => addToCart(product, qty)}
+            className="ml-auto inline-flex items-center justify-center gap-2 rounded-full bg-brand px-5 py-3 text-sm font-medium text-brand-foreground"
+          >
+            <ShoppingBag className="h-4 w-4" /> Add to Cart
+          </button>
+        </div>
+      </div>
 
       <Newsletter />
       <Footer />
