@@ -4,12 +4,12 @@ import { Logo } from "./Logo";
 import { useShop } from "@/context/shop-context";
 
 const navItems = [
-  { to: "/", label: "Hot Deals", icon: true },
-  { to: "/products", label: "Cement & Concrete" },
-  { to: "/products", label: "Hardware" },
-  { to: "/products", label: "Electrical" },
-  { to: "/products", label: "Plumbing" },
-  { to: "/products", label: "Flash Sale", icon: true },
+  { to: "/hot-deals", label: "Hot Deals", icon: true },
+  { to: "/cement-concrete", label: "Cement & Concrete" },
+  { to: "/hardware", label: "Hardware" },
+  { to: "/electrical", label: "Electrical" },
+  { to: "/plumbing", label: "Plumbing" },
+  { to: "/flash-sale", label: "Flash Sale", icon: true },
 ];
 
 export function Navbar() {
@@ -81,9 +81,9 @@ export function Navbar() {
             <button className="grid h-9 w-9 place-items-center rounded-full hover:bg-secondary">
               <Heart className="h-5 w-5 text-brand" />
             </button>
-            <button className="grid h-9 w-9 place-items-center rounded-full hover:bg-secondary">
+            <Link to="/profile" className="grid h-9 w-9 place-items-center rounded-full hover:bg-secondary">
               <User className="h-5 w-5 text-brand" />
-            </button>
+            </Link>
           </div>
         </div>
 

@@ -9,15 +9,112 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WhyChooseUsRouteImport } from './routes/why-choose-us'
+import { Route as TestimonialsRouteImport } from './routes/testimonials'
+import { Route as TermsAndConditionsRouteImport } from './routes/terms-and-conditions'
+import { Route as ShopAllRouteImport } from './routes/shop-all'
+import { Route as ShippingPolicyRouteImport } from './routes/shipping-policy'
+import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ProductsRouteImport } from './routes/products'
+import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
+import { Route as PlumbingRouteImport } from './routes/plumbing'
+import { Route as HotDealsRouteImport } from './routes/hot-deals'
+import { Route as HardwareRouteImport } from './routes/hardware'
+import { Route as FlashSaleRouteImport } from './routes/flash-sale'
+import { Route as FaqsRouteImport } from './routes/faqs'
+import { Route as ElectricalRouteImport } from './routes/electrical'
+import { Route as ContactUsRouteImport } from './routes/contact-us'
+import { Route as CementConcreteRouteImport } from './routes/cement-concrete'
 import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as CartRouteImport } from './routes/cart'
+import { Route as AboutUsRouteImport } from './routes/about-us'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductsProductIdRouteImport } from './routes/products.$productId'
 
+const WhyChooseUsRoute = WhyChooseUsRouteImport.update({
+  id: '/why-choose-us',
+  path: '/why-choose-us',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TestimonialsRoute = TestimonialsRouteImport.update({
+  id: '/testimonials',
+  path: '/testimonials',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsAndConditionsRoute = TermsAndConditionsRouteImport.update({
+  id: '/terms-and-conditions',
+  path: '/terms-and-conditions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShopAllRoute = ShopAllRouteImport.update({
+  id: '/shop-all',
+  path: '/shop-all',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShippingPolicyRoute = ShippingPolicyRouteImport.update({
+  id: '/shipping-policy',
+  path: '/shipping-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RefundPolicyRoute = RefundPolicyRouteImport.update({
+  id: '/refund-policy',
+  path: '/refund-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductsRoute = ProductsRouteImport.update({
   id: '/products',
   path: '/products',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlumbingRoute = PlumbingRouteImport.update({
+  id: '/plumbing',
+  path: '/plumbing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HotDealsRoute = HotDealsRouteImport.update({
+  id: '/hot-deals',
+  path: '/hot-deals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HardwareRoute = HardwareRouteImport.update({
+  id: '/hardware',
+  path: '/hardware',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FlashSaleRoute = FlashSaleRouteImport.update({
+  id: '/flash-sale',
+  path: '/flash-sale',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqsRoute = FaqsRouteImport.update({
+  id: '/faqs',
+  path: '/faqs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ElectricalRoute = ElectricalRouteImport.update({
+  id: '/electrical',
+  path: '/electrical',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactUsRoute = ContactUsRouteImport.update({
+  id: '/contact-us',
+  path: '/contact-us',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CementConcreteRoute = CementConcreteRouteImport.update({
+  id: '/cement-concrete',
+  path: '/cement-concrete',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CategoriesRoute = CategoriesRouteImport.update({
@@ -28,6 +125,11 @@ const CategoriesRoute = CategoriesRouteImport.update({
 const CartRoute = CartRouteImport.update({
   id: '/cart',
   path: '/cart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutUsRoute = AboutUsRouteImport.update({
+  id: '/about-us',
+  path: '/about-us',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -43,59 +145,295 @@ const ProductsProductIdRoute = ProductsProductIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about-us': typeof AboutUsRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
+  '/cement-concrete': typeof CementConcreteRoute
+  '/contact-us': typeof ContactUsRoute
+  '/electrical': typeof ElectricalRoute
+  '/faqs': typeof FaqsRoute
+  '/flash-sale': typeof FlashSaleRoute
+  '/hardware': typeof HardwareRoute
+  '/hot-deals': typeof HotDealsRoute
+  '/plumbing': typeof PlumbingRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/products': typeof ProductsRouteWithChildren
+  '/profile': typeof ProfileRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/shipping-policy': typeof ShippingPolicyRoute
+  '/shop-all': typeof ShopAllRoute
+  '/terms-and-conditions': typeof TermsAndConditionsRoute
+  '/testimonials': typeof TestimonialsRoute
+  '/why-choose-us': typeof WhyChooseUsRoute
   '/products/$productId': typeof ProductsProductIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about-us': typeof AboutUsRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
+  '/cement-concrete': typeof CementConcreteRoute
+  '/contact-us': typeof ContactUsRoute
+  '/electrical': typeof ElectricalRoute
+  '/faqs': typeof FaqsRoute
+  '/flash-sale': typeof FlashSaleRoute
+  '/hardware': typeof HardwareRoute
+  '/hot-deals': typeof HotDealsRoute
+  '/plumbing': typeof PlumbingRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/products': typeof ProductsRouteWithChildren
+  '/profile': typeof ProfileRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/shipping-policy': typeof ShippingPolicyRoute
+  '/shop-all': typeof ShopAllRoute
+  '/terms-and-conditions': typeof TermsAndConditionsRoute
+  '/testimonials': typeof TestimonialsRoute
+  '/why-choose-us': typeof WhyChooseUsRoute
   '/products/$productId': typeof ProductsProductIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about-us': typeof AboutUsRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
+  '/cement-concrete': typeof CementConcreteRoute
+  '/contact-us': typeof ContactUsRoute
+  '/electrical': typeof ElectricalRoute
+  '/faqs': typeof FaqsRoute
+  '/flash-sale': typeof FlashSaleRoute
+  '/hardware': typeof HardwareRoute
+  '/hot-deals': typeof HotDealsRoute
+  '/plumbing': typeof PlumbingRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/products': typeof ProductsRouteWithChildren
+  '/profile': typeof ProfileRoute
+  '/refund-policy': typeof RefundPolicyRoute
+  '/shipping-policy': typeof ShippingPolicyRoute
+  '/shop-all': typeof ShopAllRoute
+  '/terms-and-conditions': typeof TermsAndConditionsRoute
+  '/testimonials': typeof TestimonialsRoute
+  '/why-choose-us': typeof WhyChooseUsRoute
   '/products/$productId': typeof ProductsProductIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/about-us'
     | '/cart'
     | '/categories'
+    | '/cement-concrete'
+    | '/contact-us'
+    | '/electrical'
+    | '/faqs'
+    | '/flash-sale'
+    | '/hardware'
+    | '/hot-deals'
+    | '/plumbing'
+    | '/privacy-policy'
     | '/products'
+    | '/profile'
+    | '/refund-policy'
+    | '/shipping-policy'
+    | '/shop-all'
+    | '/terms-and-conditions'
+    | '/testimonials'
+    | '/why-choose-us'
     | '/products/$productId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/cart' | '/categories' | '/products' | '/products/$productId'
+  to:
+    | '/'
+    | '/about-us'
+    | '/cart'
+    | '/categories'
+    | '/cement-concrete'
+    | '/contact-us'
+    | '/electrical'
+    | '/faqs'
+    | '/flash-sale'
+    | '/hardware'
+    | '/hot-deals'
+    | '/plumbing'
+    | '/privacy-policy'
+    | '/products'
+    | '/profile'
+    | '/refund-policy'
+    | '/shipping-policy'
+    | '/shop-all'
+    | '/terms-and-conditions'
+    | '/testimonials'
+    | '/why-choose-us'
+    | '/products/$productId'
   id:
     | '__root__'
     | '/'
+    | '/about-us'
     | '/cart'
     | '/categories'
+    | '/cement-concrete'
+    | '/contact-us'
+    | '/electrical'
+    | '/faqs'
+    | '/flash-sale'
+    | '/hardware'
+    | '/hot-deals'
+    | '/plumbing'
+    | '/privacy-policy'
     | '/products'
+    | '/profile'
+    | '/refund-policy'
+    | '/shipping-policy'
+    | '/shop-all'
+    | '/terms-and-conditions'
+    | '/testimonials'
+    | '/why-choose-us'
     | '/products/$productId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutUsRoute: typeof AboutUsRoute
   CartRoute: typeof CartRoute
   CategoriesRoute: typeof CategoriesRoute
+  CementConcreteRoute: typeof CementConcreteRoute
+  ContactUsRoute: typeof ContactUsRoute
+  ElectricalRoute: typeof ElectricalRoute
+  FaqsRoute: typeof FaqsRoute
+  FlashSaleRoute: typeof FlashSaleRoute
+  HardwareRoute: typeof HardwareRoute
+  HotDealsRoute: typeof HotDealsRoute
+  PlumbingRoute: typeof PlumbingRoute
+  PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   ProductsRoute: typeof ProductsRouteWithChildren
+  ProfileRoute: typeof ProfileRoute
+  RefundPolicyRoute: typeof RefundPolicyRoute
+  ShippingPolicyRoute: typeof ShippingPolicyRoute
+  ShopAllRoute: typeof ShopAllRoute
+  TermsAndConditionsRoute: typeof TermsAndConditionsRoute
+  TestimonialsRoute: typeof TestimonialsRoute
+  WhyChooseUsRoute: typeof WhyChooseUsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/why-choose-us': {
+      id: '/why-choose-us'
+      path: '/why-choose-us'
+      fullPath: '/why-choose-us'
+      preLoaderRoute: typeof WhyChooseUsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/testimonials': {
+      id: '/testimonials'
+      path: '/testimonials'
+      fullPath: '/testimonials'
+      preLoaderRoute: typeof TestimonialsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms-and-conditions': {
+      id: '/terms-and-conditions'
+      path: '/terms-and-conditions'
+      fullPath: '/terms-and-conditions'
+      preLoaderRoute: typeof TermsAndConditionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shop-all': {
+      id: '/shop-all'
+      path: '/shop-all'
+      fullPath: '/shop-all'
+      preLoaderRoute: typeof ShopAllRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shipping-policy': {
+      id: '/shipping-policy'
+      path: '/shipping-policy'
+      fullPath: '/shipping-policy'
+      preLoaderRoute: typeof ShippingPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refund-policy': {
+      id: '/refund-policy'
+      path: '/refund-policy'
+      fullPath: '/refund-policy'
+      preLoaderRoute: typeof RefundPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/products': {
       id: '/products'
       path: '/products'
       fullPath: '/products'
       preLoaderRoute: typeof ProductsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy-policy': {
+      id: '/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof PrivacyPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plumbing': {
+      id: '/plumbing'
+      path: '/plumbing'
+      fullPath: '/plumbing'
+      preLoaderRoute: typeof PlumbingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hot-deals': {
+      id: '/hot-deals'
+      path: '/hot-deals'
+      fullPath: '/hot-deals'
+      preLoaderRoute: typeof HotDealsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hardware': {
+      id: '/hardware'
+      path: '/hardware'
+      fullPath: '/hardware'
+      preLoaderRoute: typeof HardwareRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/flash-sale': {
+      id: '/flash-sale'
+      path: '/flash-sale'
+      fullPath: '/flash-sale'
+      preLoaderRoute: typeof FlashSaleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faqs': {
+      id: '/faqs'
+      path: '/faqs'
+      fullPath: '/faqs'
+      preLoaderRoute: typeof FaqsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/electrical': {
+      id: '/electrical'
+      path: '/electrical'
+      fullPath: '/electrical'
+      preLoaderRoute: typeof ElectricalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact-us': {
+      id: '/contact-us'
+      path: '/contact-us'
+      fullPath: '/contact-us'
+      preLoaderRoute: typeof ContactUsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cement-concrete': {
+      id: '/cement-concrete'
+      path: '/cement-concrete'
+      fullPath: '/cement-concrete'
+      preLoaderRoute: typeof CementConcreteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/categories': {
@@ -110,6 +448,13 @@ declare module '@tanstack/react-router' {
       path: '/cart'
       fullPath: '/cart'
       preLoaderRoute: typeof CartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about-us': {
+      id: '/about-us'
+      path: '/about-us'
+      fullPath: '/about-us'
+      preLoaderRoute: typeof AboutUsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -143,9 +488,26 @@ const ProductsRouteWithChildren = ProductsRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutUsRoute: AboutUsRoute,
   CartRoute: CartRoute,
   CategoriesRoute: CategoriesRoute,
+  CementConcreteRoute: CementConcreteRoute,
+  ContactUsRoute: ContactUsRoute,
+  ElectricalRoute: ElectricalRoute,
+  FaqsRoute: FaqsRoute,
+  FlashSaleRoute: FlashSaleRoute,
+  HardwareRoute: HardwareRoute,
+  HotDealsRoute: HotDealsRoute,
+  PlumbingRoute: PlumbingRoute,
+  PrivacyPolicyRoute: PrivacyPolicyRoute,
   ProductsRoute: ProductsRouteWithChildren,
+  ProfileRoute: ProfileRoute,
+  RefundPolicyRoute: RefundPolicyRoute,
+  ShippingPolicyRoute: ShippingPolicyRoute,
+  ShopAllRoute: ShopAllRoute,
+  TermsAndConditionsRoute: TermsAndConditionsRoute,
+  TestimonialsRoute: TestimonialsRoute,
+  WhyChooseUsRoute: WhyChooseUsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

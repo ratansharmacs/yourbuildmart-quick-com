@@ -36,6 +36,31 @@ export function Newsletter() {
 }
 
 export function Footer() {
+  const quickLinks = [
+    { label: "Shop All", to: "/shop-all" },
+    { label: "About Us", to: "/about-us" },
+    { label: "Why Choose Us", to: "/why-choose-us" },
+    { label: "Testimonials", to: "/testimonials" },
+    { label: "FAQs", to: "/faqs" },
+    { label: "Contact us", to: "/contact-us" },
+  ] as const;
+
+  const policyLinks = [
+    { label: "Terms & Conditions", to: "/terms-and-conditions" },
+    { label: "Privacy Policy", to: "/privacy-policy" },
+    { label: "Refund Policy", to: "/refund-policy" },
+    { label: "Shipping Policy", to: "/shipping-policy" },
+  ] as const;
+
+  const contactLinks = [
+    { label: "care@yourbuildmart.com", href: "mailto:care@yourbuildmart.com" },
+    { label: "+91 9313984685", href: "tel:+919313984685" },
+    { label: "Why Choose Us", to: "/why-choose-us" },
+    { label: "Testimonials", to: "/testimonials" },
+    { label: "FAQs", to: "/faqs" },
+    { label: "Contact us", to: "/contact-us" },
+  ] as const;
+
   return (
     <footer className="bg-brand text-brand-foreground">
       <div className="container-page hidden gap-10 py-14 md:grid md:grid-cols-4">
@@ -46,12 +71,9 @@ export function Footer() {
           </p>
           <p className="text-sm opacity-80">(219) 555-0114 or Proxy@gmail.com</p>
         </div>
-        <FooterCol title="Quick Links" links={["Shop All", "About Us", "Why Choose Us", "Testimonials", "FAQs", "Contact us"]} />
-        <FooterCol title="Policies" links={["Terms & Conditions", "Privacy Policy", "Refund Policy", "Shipping Policy"]} />
-        <FooterCol
-          title="Contact"
-          links={["care@yourbuildmart.com", "+91 9313984685", "Why Choose Us", "Testimonials", "FAQs", "Contact us"]}
-        />
+        <FooterCol title="Quick Links" links={quickLinks} />
+        <FooterCol title="Policies" links={policyLinks} />
+        <FooterCol title="Contact" links={contactLinks} />
       </div>
 
       <div className="container-page py-5 md:hidden">
@@ -81,14 +103,38 @@ function MobileFooterRow({ title }: { title: string }) {
   );
 }
 
-function FooterCol({ title, links }: { title: string; links: string[] }) {
+type FooterLinkItem = {
+  label: string;
+  to?:
+    | "/shop-all"
+    | "/about-us"
+    | "/why-choose-us"
+    | "/testimonials"
+    | "/faqs"
+    | "/contact-us"
+    | "/terms-and-conditions"
+    | "/privacy-policy"
+    | "/refund-policy"
+    | "/shipping-policy";
+  href?: string;
+};
+
+function FooterCol({ title, links }: { title: string; links: readonly FooterLinkItem[] }) {
   return (
     <div>
       <h4 className="font-display text-base text-brand-foreground">{title}</h4>
       <ul className="mt-4 space-y-2.5 text-sm opacity-85">
         {links.map((l) => (
-          <li key={l}>
-            <Link to="/" className="transition hover:opacity-100 hover:underline">{l}</Link>
+          <li key={l.label}>
+            {l.to ? (
+              <Link to={l.to} className="transition hover:opacity-100 hover:underline">
+                {l.label}
+              </Link>
+            ) : (
+              <a href={l.href} className="transition hover:opacity-100 hover:underline">
+                {l.label}
+              </a>
+            )}
           </li>
         ))}
       </ul>

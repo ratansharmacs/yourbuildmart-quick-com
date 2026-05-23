@@ -1,0 +1,137 @@
+import type { ReactNode } from "react";
+import { Link } from "@tanstack/react-router";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { Footer, Newsletter } from "@/components/site/Footer";
+import { Navbar } from "@/components/site/Navbar";
+import { ProductCard } from "@/components/site/ProductCard";
+import type { Product } from "@/components/site/data";
+
+type Stat = {
+  label: string;
+  value: string;
+};
+
+type InfoSection = {
+  title: string;
+  description: string;
+  bullets?: string[];
+};
+
+export function InfoPageTemplate({
+  title,
+  subtitle,
+  stats,
+  sections,
+  ctaText,
+  ctaTo,
+  footerNote,
+}: {
+  title: string;
+  subtitle: string;
+  stats?: Stat[];
+  sections: InfoSection[];
+  ctaText?: string;
+  ctaTo?: "/products" | "/shop-all" | "/contact-us";
+  footerNote?: string;
+}) {
+  return (
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <section className="bg-gradient-to-b from-[--peach] to-background pb-10 pt-8 md:pb-12 md:pt-12">
+        <div className="container-page">
+          <span className="inline-flex items-center rounded-full bg-orange/15 px-3 py-1 text-xs font-medium text-orange">
+            YourBuildMart
+          </span>
+          <h1 className="mt-4 text-4xl leading-tight md:text-5xl">{title}</h1>
+          <p className="mt-3 max-w-3xl text-sm text-muted-foreground md:text-base">{subtitle}</p>
+
+          {stats?.length ? (
+            <div className="mt-6 grid gap-3 sm:grid-cols-3">
+              {stats.map((stat) => (
+                <div key={stat.label} className="rounded-2xl border border-border bg-card p-4">
+                  <p className="text-2xl text-brand">{stat.value}</p>
+                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          ) : null}
+
+          <div className="mt-8 grid gap-4 md:grid-cols-2">
+            {sections.map((section) => (
+              <article key={section.title} className="rounded-2xl border border-border bg-card p-5 md:p-6">
+                <h2 className="text-2xl">{section.title}</h2>
+                <p className="mt-2 text-sm text-muted-foreground">{section.description}</p>
+                {section.bullets?.length ? (
+                  <ul className="mt-4 space-y-2">
+                    {section.bullets.map((bullet) => (
+                      <li key={bullet} className="flex items-start gap-2 text-sm text-foreground/90">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+                        <span>{bullet}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </article>
+            ))}
+          </div>
+
+          {ctaText && ctaTo ? (
+            <div className="mt-8">
+              <Link
+                to={ctaTo}
+                className="inline-flex items-center gap-2 rounded-full bg-orange px-5 py-2.5 text-sm font-medium text-orange-foreground transition hover:opacity-90"
+              >
+                {ctaText}
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          ) : null}
+
+          {footerNote ? <p className="mt-4 text-xs text-muted-foreground">{footerNote}</p> : null}
+        </div>
+      </section>
+      <Newsletter />
+      <Footer />
+    </div>
+  );
+}
+
+export function ProductShowcaseTemplate({
+  title,
+  subtitle,
+  products,
+  badge,
+  topContent,
+}: {
+  title: string;
+  subtitle: string;
+  products: Product[];
+  badge?: string;
+  topContent?: ReactNode;
+}) {
+  return (
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <section className="bg-gradient-to-b from-[--peach] to-background py-10 md:py-12">
+        <div className="container-page">
+          {badge ? (
+            <span className="inline-flex items-center rounded-full bg-orange/15 px-3 py-1 text-xs font-medium text-orange">
+              {badge}
+            </span>
+          ) : null}
+          <h1 className="mt-4 text-4xl leading-tight md:text-5xl">{title}</h1>
+          <p className="mt-3 max-w-2xl text-sm text-muted-foreground md:text-base">{subtitle}</p>
+          {topContent ? <div className="mt-6">{topContent}</div> : null}
+
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {products.map((product, index) => (
+              <ProductCard key={`${product.id}-${index}`} product={product} />
+            ))}
+          </div>
+        </div>
+      </section>
+      <Newsletter />
+      <Footer />
+    </div>
+  );
+}
