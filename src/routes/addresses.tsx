@@ -1,0 +1,25 @@
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { Footer } from "@/components/site/Footer";
+import { Navbar } from "@/components/site/Navbar";
+import { useAuth } from "@/context/auth-context";
+import { api, type AddressRequest, type CustomerAddress } from "@/lib/api";
+
+export const Route = createFileRoute("/addresses")({ component: AddressesPage });
+const blank: AddressRequest = { addressType: "HOME", contactName: "", mobile: "", line1: "", line2: "", city: "", state: "", postalCode: "", countryId: 101, isDefault: false };
+function AddressesPage() {
+  const { isAuthenticated } = useAuth();
+  const client = useQueryClient();
+  const addresses = useQuery({ queryKey: ["addresses"], queryFn: api.addresses, enabled: isAuthenticated });
+  const [form, setForm] = useState<AddressRequest>(blank);
+  const [editing, setEditing] = useState<number>();
+  const [message, setMessage] = useState("");
+  const save = useMutation({ mutationFn: () => editing ? api.updateAddress(editing, form) : api.createAddress(form), onSuccess: async () => { setForm(blank); setEditing(undefined); setMessage("Address saved."); await client.invalidateQueries({ queryKey: ["addresses"] }); }, onError: (error) => setMessage(error.message) });
+  const editAddress = (address: CustomerAddress) => { const { id: _id, customerProfileId: _profile, ...values } = address; setForm(values); setEditing(address.id); };
+  if (!isAuthenticated) return <div className="flex min-h-dvh flex-col"><Navbar /><main className="container-page flex-1 py-16 text-center"><h1 className="text-4xl">Login to manage addresses</h1><Link to="/login" className="mt-6 inline-flex rounded-full bg-brand px-5 py-2 text-white">Login</Link></main><Footer /></div>;
+  return <div className="flex min-h-dvh flex-col"><Navbar /><main className="container-page flex-1 py-10"><h1 className="text-4xl">My Addresses</h1><p className="mt-2 text-muted-foreground">Manage delivery and billing addresses.</p><section className="mt-8 grid gap-4 md:grid-cols-2">{addresses.data?.map((address) => <article key={address.id} className="rounded-2xl border border-border bg-card p-5"><div className="flex justify-between"><strong>{address.contactName || address.addressType}</strong>{address.isDefault ? <span className="rounded-full bg-secondary px-2 py-1 text-xs">Default</span> : null}</div><p className="mt-2 text-sm">{[address.line1, address.line2, address.city, address.state, address.postalCode].filter(Boolean).join(", ")}</p><p className="mt-1 text-sm text-muted-foreground">{address.mobile}</p><div className="mt-4 flex gap-4 text-sm"><button onClick={() => editAddress(address)} className="text-brand">Edit</button><button onClick={async () => { await api.deleteAddress(address.id); await client.invalidateQueries({ queryKey: ["addresses"] }); }} className="text-red-600">Delete</button></div></article>)}</section>
+    <form onSubmit={(event) => { event.preventDefault(); save.mutate(); }} className="mt-8 max-w-4xl rounded-2xl border border-border bg-card p-6"><h2 className="text-2xl">{editing ? "Edit Address" : "Add New Address"}</h2><div className="mt-5 grid gap-4 md:grid-cols-2"><Field label="Address Type" value={form.addressType} onChange={(value) => setForm({ ...form, addressType: value })} /><Field label="Contact Name" value={form.contactName} onChange={(value) => setForm({ ...form, contactName: value })} /><Field label="Mobile" value={form.mobile} onChange={(value) => setForm({ ...form, mobile: value })} /><Field label="Address Line 1" required wide value={form.line1} onChange={(value) => setForm({ ...form, line1: value })} /><Field label="Address Line 2" wide value={form.line2} onChange={(value) => setForm({ ...form, line2: value })} /><Field label="City" value={form.city} onChange={(value) => setForm({ ...form, city: value })} /><Field label="State" value={form.state} onChange={(value) => setForm({ ...form, state: value })} /><Field label="Postal Code" value={form.postalCode} onChange={(value) => setForm({ ...form, postalCode: value })} /><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={form.isDefault} onChange={(event) => setForm({ ...form, isDefault: event.target.checked })} /> Set as default</label></div><button disabled={save.isPending} className="mt-5 rounded-xl bg-brand px-6 py-3 text-white">{save.isPending ? "Saving..." : "Save Address"}</button>{message ? <p className="mt-3 text-sm text-brand">{message}</p> : null}</form>
+  </main><Footer /></div>;
+}
+function Field({ label, value, onChange, required, wide }: { label: string; value?: string; onChange: (value: string) => void; required?: boolean; wide?: boolean }) { return <label className={wide ? "md:col-span-2" : ""}><span className="mb-1 block text-sm">{label}</span><input required={required} value={value || ""} onChange={(event) => onChange(event.target.value)} className="h-11 w-full rounded-lg border border-border px-3" /></label>; }

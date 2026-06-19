@@ -1,0 +1,142 @@
+Auth APIs (/api/auth) — Public (no auth required)
+1. Login with Password
+POST /api/auth/login
+{
+  "identifier": "email@example.com | 9876543210",
+  "password": "Test@123",
+  "loginMethod": "PASSWORD"
+}
+Response (200):
+{
+  "token": "eyJhbG...",
+  "username": "email@example.com",
+  "role": "ROLE_CUSTOMER",
+  "personId": 101,
+  "tenantId": 201,
+  "tenantType": "CUSTOMER",
+  "permissions": { "featureName": { "actionName": true } }
+}
+Errors: 401 Invalid Credentials | 429 Too many failed attempts
+2. Login with OTP
+Step 1 — Request OTP:
+POST /api/auth/otp/request
+{
+  "identifier": "email@example.com | 9876543210",
+  "purpose": "LOGIN"
+}
+Response (200):
+{
+  "identifier": "email@example.com",
+  "purpose": "LOGIN",
+  "channel": "EMAIL",
+  "maskedDestination": "e***@example.com",
+  "expiresAt": "2025-06-10T12:05:00",
+  "resendAvailableAt": "2025-06-10T11:55:45",
+}
+Step 2 — Login:
+POST /api/auth/login
+{
+  "identifier": "email@example.com | 9876543210",
+  "otp": "123456",
+  "loginMethod": "OTP"
+}
+Response: Same as password login.
+Auto-guest creation: If the user doesn't exist, OTP login auto-creates a "Guest" customer account and returns a valid token. No separate signup needed.
+3. Forgot Password — Request Reset OTP
+POST /api/auth/otp/request
+{
+  "identifier": "email@example.com | 9876543210",
+  "purpose": "FORGOT_PASSWORD"
+}
+Response: Same OtpChallengeResponse as above.
+4. Forgot Password — Reset
+POST /api/auth/password/forgot/reset
+{
+  "identifier": "email@example.com | 9876543210",
+  "otp": "123456",
+  "newPassword": "NewPass@123"
+}
+Response (200):
+{ "message": "Password updated successfully" }
+Customer Account APIs (/api/customer-account) — Auth required (Bearer token)
+5. Get Profile
+GET /api/customer-account/profile
+Response (200):
+{
+  "success": true,
+  "message": "Customer profile fetched successfully",
+  "data": {
+    "id": 1,
+    "personId": 101,
+    "customerCode": "CUST-101",
+    "displayName": "John Doe",
+    "email": "john@example.com",
+    "mobile": "9876543210",
+    "gstin": null,
+    "pan": null,
+    "creditLimit": null,
+    "paymentTermsDays": null,
+    "notes": null,
+    "emailVerified": true,
+    "mobileVerified": false,
+    "passwordSet": true,
+    "passwordSetAt": "2025-06-10T10:00:00"
+  }
+}
+6. Update Full Profile
+PUT /api/customer-account/profile
+{
+  "displayName": "John Doe",
+  "email": "john@example.com",
+  "mobile": "9876543210",
+  "gstin": "22AAAAA0000A1Z5",
+  "pan": "ABCDE1234F",
+  "creditLimit": 50000,
+  "paymentTermsDays": 30,
+  "notes": "Preferred customer"
+}
+Response: CustomerProfileResponse
+7. Update Basic Profile (with OTP verification for contact changes)
+PUT /api/customer-account/profile/basic
+{
+  "name": "John Doe",
+  "email": "newemail@example.com",
+  "emailOtp": "123456",
+  "mobile": "9999999999",
+  "mobileOtp": "654321"
+}
+emailOtp is required only when changing email. mobileOtp is required only when changing mobile.
+8. Request Contact Change OTP
+POST /api/customer-account/security/contact-otp
+{
+  "identifier": "newemail@example.com | 9999999999",
+  "purpose": "CHANGE_EMAIL | CHANGE_MOBILE"
+}
+Response: OtpChallengeResponse
+9. Update Password (logged-in user)
+POST /api/customer-account/security/password
+{
+  "currentPassword": "OldPass@123",
+  "newPassword": "NewPass@456"
+}
+currentPassword is optional if the user has no password set (OTP-only user).
+Summary Flow Diagram
+New customer:
+  OTP Login (POST /api/auth/login, method=OTP)
+    → if user not found → auto-creates Guest → returns token
+
+Existing customer:
+  Password Login: POST /api/auth/login (method=PASSWORD)
+  OTP Login:      POST /api/auth/otp/request (purpose=LOGIN)
+                   → POST /api/auth/login (method=OTP)
+
+Forgot Password:
+  Step 1: POST /api/auth/otp/request (purpose=FORGOT_PASSWORD)
+  Step 2: POST /api/auth/password/forgot/reset
+
+Account Management (auth required):
+  GET    /api/customer-account/profile
+  PUT    /api/customer-account/profile
+  PUT    /api/customer-account/profile/basic
+  POST   /api/customer-account/security/contact-otp
+  POST   /api/customer-account/security/password

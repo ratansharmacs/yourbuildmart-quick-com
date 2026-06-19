@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ProductShowcaseTemplate } from "@/components/site/PageTemplates";
-import { cementProducts } from "@/components/site/data";
+import { LiveCategoryPage } from "@/components/site/PageTemplates";
 
 export const Route = createFileRoute("/cement-concrete")({
   head: () => ({
@@ -13,13 +12,5 @@ export const Route = createFileRoute("/cement-concrete")({
 });
 
 function CementConcretePage() {
-  const products = [...cementProducts, ...cementProducts];
-  return (
-    <ProductShowcaseTemplate
-      badge="Category"
-      title="Cement & Concrete"
-      subtitle="High-performance cement options suitable for all stages of construction."
-      products={products}
-    />
-  );
+  return <LiveCategoryPage title="Cement & Concrete" subtitle="High-performance cement options suitable for all stages of construction." matches={["cement", "concrete"]} />;
 }

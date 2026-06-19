@@ -5,6 +5,9 @@ import { Footer, Newsletter } from "@/components/site/Footer";
 import { Navbar } from "@/components/site/Navbar";
 import { ProductCard } from "@/components/site/ProductCard";
 import type { Product } from "@/components/site/data";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
+import { catalogProductToCard } from "@/lib/product-adapter";
 
 type Stat = {
   label: string;
@@ -134,4 +137,18 @@ export function ProductShowcaseTemplate({
       <Footer />
     </div>
   );
+}
+
+export function LiveCategoryPage({ title, subtitle, matches }: { title: string; subtitle: string; matches: string[] }) {
+  const categories = useQuery({ queryKey: ["categories"], queryFn: api.categories });
+  const category = categories.data?.find((item) => matches.some((match) => item.name.toLowerCase().includes(match)));
+  const products = useQuery({
+    queryKey: ["nav-category-products", category?.id], enabled: Boolean(category),
+    queryFn: async () => {
+      const page = await api.productsByCategory(category!.id, { page: 0, size: 100, sortBy: "crtDt", direction: "DESC" });
+      const content = await Promise.all(page.content.map(async (product) => { try { return { ...product, ...(await api.product(product.id)) }; } catch { return product; } }));
+      return { ...page, content };
+    },
+  });
+  return <ProductShowcaseTemplate badge="Category" title={category?.name || title} subtitle={category?.description || subtitle} products={(products.data?.content || []).map(catalogProductToCard)} topContent={categories.isLoading || products.isLoading ? <p>Loading products...</p> : !category ? <p className="text-sm text-muted-foreground">This category is not currently available from the backend.</p> : undefined} />;
 }

@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as WhyChooseUsRouteImport } from './routes/why-choose-us'
 import { Route as TestimonialsRouteImport } from './routes/testimonials'
 import { Route as TermsAndConditionsRouteImport } from './routes/terms-and-conditions'
@@ -19,6 +20,8 @@ import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as PlumbingRouteImport } from './routes/plumbing'
+import { Route as OrdersRouteImport } from './routes/orders'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as HotDealsRouteImport } from './routes/hot-deals'
 import { Route as HardwareRouteImport } from './routes/hardware'
 import { Route as FlashSaleRouteImport } from './routes/flash-sale'
@@ -28,10 +31,20 @@ import { Route as ContactUsRouteImport } from './routes/contact-us'
 import { Route as CementConcreteRouteImport } from './routes/cement-concrete'
 import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as CartRouteImport } from './routes/cart'
+import { Route as AddressesRouteImport } from './routes/addresses'
 import { Route as AboutUsRouteImport } from './routes/about-us'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductsProductIdRouteImport } from './routes/products.$productId'
+import { Route as CheckoutShippingRouteImport } from './routes/checkout.shipping'
+import { Route as CheckoutReviewRouteImport } from './routes/checkout.review'
+import { Route as CategoryCategoryIdRouteImport } from './routes/category.$categoryId'
+import { Route as BrandBrandIdRouteImport } from './routes/brand.$brandId'
 
+const WishlistRoute = WishlistRouteImport.update({
+  id: '/wishlist',
+  path: '/wishlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WhyChooseUsRoute = WhyChooseUsRouteImport.update({
   id: '/why-choose-us',
   path: '/why-choose-us',
@@ -82,6 +95,16 @@ const PlumbingRoute = PlumbingRouteImport.update({
   path: '/plumbing',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrdersRoute = OrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HotDealsRoute = HotDealsRouteImport.update({
   id: '/hot-deals',
   path: '/hot-deals',
@@ -127,6 +150,11 @@ const CartRoute = CartRouteImport.update({
   path: '/cart',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AddressesRoute = AddressesRouteImport.update({
+  id: '/addresses',
+  path: '/addresses',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AboutUsRoute = AboutUsRouteImport.update({
   id: '/about-us',
   path: '/about-us',
@@ -142,10 +170,31 @@ const ProductsProductIdRoute = ProductsProductIdRouteImport.update({
   path: '/$productId',
   getParentRoute: () => ProductsRoute,
 } as any)
+const CheckoutShippingRoute = CheckoutShippingRouteImport.update({
+  id: '/checkout/shipping',
+  path: '/checkout/shipping',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutReviewRoute = CheckoutReviewRouteImport.update({
+  id: '/checkout/review',
+  path: '/checkout/review',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CategoryCategoryIdRoute = CategoryCategoryIdRouteImport.update({
+  id: '/category/$categoryId',
+  path: '/category/$categoryId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BrandBrandIdRoute = BrandBrandIdRouteImport.update({
+  id: '/brand/$brandId',
+  path: '/brand/$brandId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about-us': typeof AboutUsRoute
+  '/addresses': typeof AddressesRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
   '/cement-concrete': typeof CementConcreteRoute
@@ -155,6 +204,8 @@ export interface FileRoutesByFullPath {
   '/flash-sale': typeof FlashSaleRoute
   '/hardware': typeof HardwareRoute
   '/hot-deals': typeof HotDealsRoute
+  '/login': typeof LoginRoute
+  '/orders': typeof OrdersRoute
   '/plumbing': typeof PlumbingRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/products': typeof ProductsRouteWithChildren
@@ -165,11 +216,17 @@ export interface FileRoutesByFullPath {
   '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/testimonials': typeof TestimonialsRoute
   '/why-choose-us': typeof WhyChooseUsRoute
+  '/wishlist': typeof WishlistRoute
+  '/brand/$brandId': typeof BrandBrandIdRoute
+  '/category/$categoryId': typeof CategoryCategoryIdRoute
+  '/checkout/review': typeof CheckoutReviewRoute
+  '/checkout/shipping': typeof CheckoutShippingRoute
   '/products/$productId': typeof ProductsProductIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about-us': typeof AboutUsRoute
+  '/addresses': typeof AddressesRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
   '/cement-concrete': typeof CementConcreteRoute
@@ -179,6 +236,8 @@ export interface FileRoutesByTo {
   '/flash-sale': typeof FlashSaleRoute
   '/hardware': typeof HardwareRoute
   '/hot-deals': typeof HotDealsRoute
+  '/login': typeof LoginRoute
+  '/orders': typeof OrdersRoute
   '/plumbing': typeof PlumbingRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/products': typeof ProductsRouteWithChildren
@@ -189,12 +248,18 @@ export interface FileRoutesByTo {
   '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/testimonials': typeof TestimonialsRoute
   '/why-choose-us': typeof WhyChooseUsRoute
+  '/wishlist': typeof WishlistRoute
+  '/brand/$brandId': typeof BrandBrandIdRoute
+  '/category/$categoryId': typeof CategoryCategoryIdRoute
+  '/checkout/review': typeof CheckoutReviewRoute
+  '/checkout/shipping': typeof CheckoutShippingRoute
   '/products/$productId': typeof ProductsProductIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about-us': typeof AboutUsRoute
+  '/addresses': typeof AddressesRoute
   '/cart': typeof CartRoute
   '/categories': typeof CategoriesRoute
   '/cement-concrete': typeof CementConcreteRoute
@@ -204,6 +269,8 @@ export interface FileRoutesById {
   '/flash-sale': typeof FlashSaleRoute
   '/hardware': typeof HardwareRoute
   '/hot-deals': typeof HotDealsRoute
+  '/login': typeof LoginRoute
+  '/orders': typeof OrdersRoute
   '/plumbing': typeof PlumbingRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/products': typeof ProductsRouteWithChildren
@@ -214,6 +281,11 @@ export interface FileRoutesById {
   '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/testimonials': typeof TestimonialsRoute
   '/why-choose-us': typeof WhyChooseUsRoute
+  '/wishlist': typeof WishlistRoute
+  '/brand/$brandId': typeof BrandBrandIdRoute
+  '/category/$categoryId': typeof CategoryCategoryIdRoute
+  '/checkout/review': typeof CheckoutReviewRoute
+  '/checkout/shipping': typeof CheckoutShippingRoute
   '/products/$productId': typeof ProductsProductIdRoute
 }
 export interface FileRouteTypes {
@@ -221,6 +293,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about-us'
+    | '/addresses'
     | '/cart'
     | '/categories'
     | '/cement-concrete'
@@ -230,6 +303,8 @@ export interface FileRouteTypes {
     | '/flash-sale'
     | '/hardware'
     | '/hot-deals'
+    | '/login'
+    | '/orders'
     | '/plumbing'
     | '/privacy-policy'
     | '/products'
@@ -240,11 +315,17 @@ export interface FileRouteTypes {
     | '/terms-and-conditions'
     | '/testimonials'
     | '/why-choose-us'
+    | '/wishlist'
+    | '/brand/$brandId'
+    | '/category/$categoryId'
+    | '/checkout/review'
+    | '/checkout/shipping'
     | '/products/$productId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about-us'
+    | '/addresses'
     | '/cart'
     | '/categories'
     | '/cement-concrete'
@@ -254,6 +335,8 @@ export interface FileRouteTypes {
     | '/flash-sale'
     | '/hardware'
     | '/hot-deals'
+    | '/login'
+    | '/orders'
     | '/plumbing'
     | '/privacy-policy'
     | '/products'
@@ -264,11 +347,17 @@ export interface FileRouteTypes {
     | '/terms-and-conditions'
     | '/testimonials'
     | '/why-choose-us'
+    | '/wishlist'
+    | '/brand/$brandId'
+    | '/category/$categoryId'
+    | '/checkout/review'
+    | '/checkout/shipping'
     | '/products/$productId'
   id:
     | '__root__'
     | '/'
     | '/about-us'
+    | '/addresses'
     | '/cart'
     | '/categories'
     | '/cement-concrete'
@@ -278,6 +367,8 @@ export interface FileRouteTypes {
     | '/flash-sale'
     | '/hardware'
     | '/hot-deals'
+    | '/login'
+    | '/orders'
     | '/plumbing'
     | '/privacy-policy'
     | '/products'
@@ -288,12 +379,18 @@ export interface FileRouteTypes {
     | '/terms-and-conditions'
     | '/testimonials'
     | '/why-choose-us'
+    | '/wishlist'
+    | '/brand/$brandId'
+    | '/category/$categoryId'
+    | '/checkout/review'
+    | '/checkout/shipping'
     | '/products/$productId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutUsRoute: typeof AboutUsRoute
+  AddressesRoute: typeof AddressesRoute
   CartRoute: typeof CartRoute
   CategoriesRoute: typeof CategoriesRoute
   CementConcreteRoute: typeof CementConcreteRoute
@@ -303,6 +400,8 @@ export interface RootRouteChildren {
   FlashSaleRoute: typeof FlashSaleRoute
   HardwareRoute: typeof HardwareRoute
   HotDealsRoute: typeof HotDealsRoute
+  LoginRoute: typeof LoginRoute
+  OrdersRoute: typeof OrdersRoute
   PlumbingRoute: typeof PlumbingRoute
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   ProductsRoute: typeof ProductsRouteWithChildren
@@ -313,10 +412,22 @@ export interface RootRouteChildren {
   TermsAndConditionsRoute: typeof TermsAndConditionsRoute
   TestimonialsRoute: typeof TestimonialsRoute
   WhyChooseUsRoute: typeof WhyChooseUsRoute
+  WishlistRoute: typeof WishlistRoute
+  BrandBrandIdRoute: typeof BrandBrandIdRoute
+  CategoryCategoryIdRoute: typeof CategoryCategoryIdRoute
+  CheckoutReviewRoute: typeof CheckoutReviewRoute
+  CheckoutShippingRoute: typeof CheckoutShippingRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/wishlist': {
+      id: '/wishlist'
+      path: '/wishlist'
+      fullPath: '/wishlist'
+      preLoaderRoute: typeof WishlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/why-choose-us': {
       id: '/why-choose-us'
       path: '/why-choose-us'
@@ -387,6 +498,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlumbingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/orders': {
+      id: '/orders'
+      path: '/orders'
+      fullPath: '/orders'
+      preLoaderRoute: typeof OrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/hot-deals': {
       id: '/hot-deals'
       path: '/hot-deals'
@@ -450,6 +575,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CartRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/addresses': {
+      id: '/addresses'
+      path: '/addresses'
+      fullPath: '/addresses'
+      preLoaderRoute: typeof AddressesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/about-us': {
       id: '/about-us'
       path: '/about-us'
@@ -471,6 +603,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsProductIdRouteImport
       parentRoute: typeof ProductsRoute
     }
+    '/checkout/shipping': {
+      id: '/checkout/shipping'
+      path: '/checkout/shipping'
+      fullPath: '/checkout/shipping'
+      preLoaderRoute: typeof CheckoutShippingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout/review': {
+      id: '/checkout/review'
+      path: '/checkout/review'
+      fullPath: '/checkout/review'
+      preLoaderRoute: typeof CheckoutReviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/category/$categoryId': {
+      id: '/category/$categoryId'
+      path: '/category/$categoryId'
+      fullPath: '/category/$categoryId'
+      preLoaderRoute: typeof CategoryCategoryIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/brand/$brandId': {
+      id: '/brand/$brandId'
+      path: '/brand/$brandId'
+      fullPath: '/brand/$brandId'
+      preLoaderRoute: typeof BrandBrandIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -489,6 +649,7 @@ const ProductsRouteWithChildren = ProductsRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutUsRoute: AboutUsRoute,
+  AddressesRoute: AddressesRoute,
   CartRoute: CartRoute,
   CategoriesRoute: CategoriesRoute,
   CementConcreteRoute: CementConcreteRoute,
@@ -498,6 +659,8 @@ const rootRouteChildren: RootRouteChildren = {
   FlashSaleRoute: FlashSaleRoute,
   HardwareRoute: HardwareRoute,
   HotDealsRoute: HotDealsRoute,
+  LoginRoute: LoginRoute,
+  OrdersRoute: OrdersRoute,
   PlumbingRoute: PlumbingRoute,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
   ProductsRoute: ProductsRouteWithChildren,
@@ -508,6 +671,11 @@ const rootRouteChildren: RootRouteChildren = {
   TermsAndConditionsRoute: TermsAndConditionsRoute,
   TestimonialsRoute: TestimonialsRoute,
   WhyChooseUsRoute: WhyChooseUsRoute,
+  WishlistRoute: WishlistRoute,
+  BrandBrandIdRoute: BrandBrandIdRoute,
+  CategoryCategoryIdRoute: CategoryCategoryIdRoute,
+  CheckoutReviewRoute: CheckoutReviewRoute,
+  CheckoutShippingRoute: CheckoutShippingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

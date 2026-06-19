@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ProductShowcaseTemplate } from "@/components/site/PageTemplates";
-import { hardwareProducts, wireProducts } from "@/components/site/data";
+import { LiveCategoryPage } from "@/components/site/PageTemplates";
 
 export const Route = createFileRoute("/plumbing")({
   head: () => ({
@@ -13,13 +12,5 @@ export const Route = createFileRoute("/plumbing")({
 });
 
 function PlumbingPage() {
-  const products = [...hardwareProducts.slice(0, 2), ...wireProducts.slice(0, 2), ...hardwareProducts];
-  return (
-    <ProductShowcaseTemplate
-      badge="Category"
-      title="Plumbing"
-      subtitle="Essential products selected for practical plumbing and utility installations."
-      products={products}
-    />
-  );
+  return <LiveCategoryPage title="Plumbing" subtitle="Essential products selected for practical plumbing and utility installations." matches={["plumbing", "pipe"]} />;
 }

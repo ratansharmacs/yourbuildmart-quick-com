@@ -4,8 +4,9 @@ import { ChevronDown, SlidersHorizontal } from "lucide-react";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer, Newsletter } from "@/components/site/Footer";
 import { ProductCard } from "@/components/site/ProductCard";
-import { cementProducts } from "@/components/site/data";
 import { useShop } from "@/context/shop-context";
+import { useProducts } from "@/hooks/use-catalog";
+import { catalogProductToCard } from "@/lib/product-adapter";
 
 export const Route = createFileRoute("/products")({
   head: () => ({
@@ -27,8 +28,13 @@ function ProductsPage() {
     return <Outlet />;
   }
 
-  // Duplicate products to make a fuller grid like the design
-  const baseGrid = [...cementProducts, ...cementProducts];
+  const direction = sortOption === "price-low-high" ? "ASC" : "DESC";
+  const sortBy = sortOption.startsWith("price") ? "basePrice" : "crtDt";
+  const productsQuery = useProducts({ page: 0, size: 48, search: searchTerm, sortBy, direction });
+  const baseGrid = useMemo(
+    () => (productsQuery.data?.content || []).map(catalogProductToCard),
+    [productsQuery.data],
+  );
   const grid = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
 
@@ -73,11 +79,11 @@ function ProductsPage() {
       <section className="container-page py-12">
         <div className="flex flex-col gap-4">
           <div>
-            <h1 className="text-5xl">Cement</h1>
+            <h1 className="text-5xl">Products</h1>
           </div>
           <div className="flex flex-col items-start justify-between gap-3 md:flex-row md:items-center">
             <p className="text-sm text-muted-foreground md:whitespace-nowrap md:text-base">
-              Maha, UltraTech, Ramco, Birla PPC & OPC cement in Bangalore at wholesale prices.
+              Browse available construction materials from the live catalog.
             </p>
             <div className="flex items-center gap-3">
               <div className="relative">
@@ -123,7 +129,20 @@ function ProductsPage() {
           </div>
         </div>
         <div className="mt-10 grid grid-cols-2 gap-5 md:grid-cols-4">
+          {productsQuery.isLoading ? <p className="col-span-full text-sm text-muted-foreground">Loading products...</p> : null}
+          {productsQuery.isError ? (
+            <div className="col-span-full">
+              <p className="text-sm text-red-600">{productsQuery.error.message}</p>
+              <button
+                onClick={() => void productsQuery.refetch()}
+                className="mt-3 rounded-full border border-brand px-4 py-2 text-sm text-brand"
+              >
+                Try Again
+              </button>
+            </div>
+          ) : null}
           {grid.map((p, i) => <ProductCard key={`${p.id}-${i}`} product={p} />)}
+          {!productsQuery.isLoading && !grid.length ? <p className="col-span-full text-sm text-muted-foreground">No products found.</p> : null}
         </div>
       </section>
       <Newsletter />

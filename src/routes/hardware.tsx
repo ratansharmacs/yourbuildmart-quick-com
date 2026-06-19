@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ProductShowcaseTemplate } from "@/components/site/PageTemplates";
-import { hardwareProducts } from "@/components/site/data";
+import { LiveCategoryPage } from "@/components/site/PageTemplates";
 
 export const Route = createFileRoute("/hardware")({
   head: () => ({
@@ -13,13 +12,5 @@ export const Route = createFileRoute("/hardware")({
 });
 
 function HardwarePage() {
-  const products = [...hardwareProducts, ...hardwareProducts];
-  return (
-    <ProductShowcaseTemplate
-      badge="Category"
-      title="Hardware"
-      subtitle="Reliable hardware products for kitchens, wardrobes, doors, and interiors."
-      products={products}
-    />
-  );
+  return <LiveCategoryPage title="Hardware" subtitle="Reliable hardware products for kitchens, wardrobes, doors, and interiors." matches={["hardware"]} />;
 }

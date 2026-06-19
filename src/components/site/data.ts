@@ -13,15 +13,21 @@ import paintingCategoryImg from "@/assets/image 28778 (1).png";
 
 export type Product = {
   id: string;
+  slug?: string;
+  apiId?: number;
+  variantId?: number;
   name: string;
   brand: string;
-  category: "cement" | "wires" | "hardware";
+  category: string;
   price: number;
   oldPrice: number;
   rating: number;
   reviews: number;
   sale: string;
   image: string;
+  inStock?: boolean;
+  maxQuantity?: number;
+  description?: string;
 };
 
 export const cementProducts: Product[] = [

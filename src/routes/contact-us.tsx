@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Footer, Newsletter } from "@/components/site/Footer";
 import { Navbar } from "@/components/site/Navbar";
+import { api } from "@/lib/api";
 
 export const Route = createFileRoute("/contact-us")({
   head: () => ({
@@ -15,6 +16,8 @@ export const Route = createFileRoute("/contact-us")({
 
 function ContactUsPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   return (
     <div className="min-h-screen bg-background">
@@ -44,9 +47,24 @@ function ContactUsPage() {
           </div>
 
           <form
-            onSubmit={(event) => {
+            onSubmit={async (event) => {
               event.preventDefault();
-              setSubmitted(true);
+              setLoading(true);
+              setError("");
+              const form = new FormData(event.currentTarget);
+              try {
+                await api.contact({
+                  name: String(form.get("name")),
+                  email: String(form.get("email")),
+                  message: String(form.get("message")),
+                });
+                event.currentTarget.reset();
+                setSubmitted(true);
+              } catch (caught) {
+                setError(caught instanceof Error ? caught.message : "Could not send your message");
+              } finally {
+                setLoading(false);
+              }
             }}
             className="rounded-2xl border border-border bg-card p-6 md:p-8"
           >
@@ -56,29 +74,26 @@ function ContactUsPage() {
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               <label className="space-y-1 text-sm">
                 <span className="font-medium text-foreground">Full Name</span>
-                <input required className="h-11 w-full rounded-lg border border-border bg-background px-3 outline-none ring-brand/30 focus:ring-2" placeholder="Enter your name" />
-              </label>
-              <label className="space-y-1 text-sm">
-                <span className="font-medium text-foreground">Phone Number</span>
-                <input required className="h-11 w-full rounded-lg border border-border bg-background px-3 outline-none ring-brand/30 focus:ring-2" placeholder="Enter your phone" />
+                <input name="name" required minLength={2} maxLength={100} className="h-11 w-full rounded-lg border border-border bg-background px-3 outline-none ring-brand/30 focus:ring-2" placeholder="Enter your name" />
               </label>
               <label className="space-y-1 text-sm md:col-span-2">
                 <span className="font-medium text-foreground">Email Address</span>
-                <input type="email" required className="h-11 w-full rounded-lg border border-border bg-background px-3 outline-none ring-brand/30 focus:ring-2" placeholder="Enter your email" />
+                <input name="email" type="email" required className="h-11 w-full rounded-lg border border-border bg-background px-3 outline-none ring-brand/30 focus:ring-2" placeholder="Enter your email" />
               </label>
               <label className="space-y-1 text-sm md:col-span-2">
                 <span className="font-medium text-foreground">Project Requirement</span>
-                <textarea required rows={5} className="w-full rounded-lg border border-border bg-background px-3 py-2.5 outline-none ring-brand/30 focus:ring-2" placeholder="Share your product list, quantities, and delivery location" />
+                <textarea name="message" required minLength={10} maxLength={2000} rows={5} className="w-full rounded-lg border border-border bg-background px-3 py-2.5 outline-none ring-brand/30 focus:ring-2" placeholder="Share your product list, quantities, and delivery location" />
               </label>
             </div>
 
-            <button type="submit" className="mt-5 inline-flex items-center justify-center rounded-full bg-orange px-6 py-2.5 text-sm font-medium text-orange-foreground transition hover:opacity-90">
-              Submit Inquiry
+            <button disabled={loading} type="submit" className="mt-5 inline-flex items-center justify-center rounded-full bg-orange px-6 py-2.5 text-sm font-medium text-orange-foreground transition hover:opacity-90 disabled:opacity-50">
+              {loading ? "Sending..." : "Submit Inquiry"}
             </button>
 
             {submitted ? (
               <p className="mt-3 text-sm text-brand">Thanks! Your request has been received and our team will contact you shortly.</p>
             ) : null}
+            {error ? <p className="mt-3 text-sm text-red-600">{error}</p> : null}
           </form>
         </div>
       </section>

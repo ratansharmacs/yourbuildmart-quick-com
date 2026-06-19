@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, ChevronLeft, ChevronRight, Star, CircleDollarSign, Grid2x2, House, ShoppingBag } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Star, Grid2x2, House, ShoppingBag } from "lucide-react";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer, Newsletter } from "@/components/site/Footer";
 import { SectionHeader } from "@/components/site/SectionHeader";
@@ -8,6 +8,10 @@ import { useShop } from "@/context/shop-context";
 
 import { categories, cementProducts, hardwareProducts, wireProducts, type Product } from "@/components/site/data";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useCategories, useProducts } from "@/hooks/use-catalog";
+import { api, resolveApiImage, slugify } from "@/lib/api";
+import { catalogProductToCard } from "@/lib/product-adapter";
 import heroBags from "@/assets/hero-bags.png";
 import differenceBg from "@/assets/Group 1707479903.png";
 import differenceBgMobile from "@/assets/Frame 2147230518.png";
@@ -157,13 +161,17 @@ function Stat({ value, label }: { value: string; label: string }) {
 }
 
 function Categories() {
+  const categoryQuery = useCategories();
+  const liveCategories = categoryQuery.data?.slice(0, 6) || [];
   return (
     <section className="container-page hidden pb-3 pt-1 md:block md:pb-4 md:pt-1">
       <div className="grid grid-cols-6 overflow-hidden rounded-2xl border border-[#DEE7E9] bg-white">
-        {categories.map((c, i) => (
-          <Link key={c.name} to="/products" className="group relative flex items-center gap-3 px-4 py-6">
+        {(liveCategories.length ? liveCategories : categories).map((c, i) => {
+          const isLive = "id" in c;
+          const image = isLive && c.image ? resolveApiImage(c.image) : categories[i % categories.length].icon;
+          return <Link key={c.name} to={isLive ? "/category/$categoryId" : "/products"} params={isLive ? { categoryId: slugify(c.name) } : undefined as never} className="group relative flex items-center gap-3 px-4 py-6">
             <img
-              src={c.icon}
+              src={image}
               alt={c.name}
               className="h-14 w-14 shrink-0 object-contain transition group-hover:scale-105"
               loading="lazy"
@@ -180,8 +188,8 @@ function Categories() {
                 className="pointer-events-none absolute right-0 top-1/2 h-12 w-px -translate-y-1/2 bg-gradient-to-b from-transparent via-border/65 to-transparent"
               />
             )}
-          </Link>
-        ))}
+          </Link>;
+        })}
       </div>
     </section>
   );
@@ -189,29 +197,34 @@ function Categories() {
 
 function FeaturedProducts() {
   const [tab, setTab] = useState<"cement" | "hardware" | "wires">("cement");
-  const list = tab === "cement" ? cementProducts : tab === "hardware" ? hardwareProducts : wireProducts;
+  const categoryQuery = useCategories();
+  const selectedCategory = categoryQuery.data?.find((category) => {
+    const name = category.name.toLowerCase();
+    return tab === "wires" ? name.includes("wire") || name.includes("electrical") : name.includes(tab);
+  });
+  const categoryProducts = useQuery({
+    queryKey: ["home-featured", tab, selectedCategory?.id],
+    queryFn: () => api.productsByCategory(selectedCategory!.id, { page: 0, size: 12, sortBy: "crtDt", direction: "DESC" }),
+    enabled: Boolean(selectedCategory),
+  });
+  const fallbackProducts = useProducts({ page: 0, size: 12 });
+  const data = categoryProducts.data || fallbackProducts.data;
+  const isLoading = categoryProducts.isLoading || fallbackProducts.isLoading;
+  const error = categoryProducts.error || fallbackProducts.error;
+  const isError = Boolean(error);
+  const apiProducts = (data?.content || []).map(catalogProductToCard);
+  const list = apiProducts.length
+    ? apiProducts
+    : tab === "cement" ? cementProducts : tab === "hardware" ? hardwareProducts : wireProducts;
   return (
     <section
-      className="container-page relative overflow-hidden rounded-2xl pb-7 pt-1 md:pb-8 md:pt-7"
+      className="relative w-full overflow-hidden pb-7 pt-1 md:pb-8 md:pt-7"
       style={{
         backgroundImage:
           "radial-gradient(circle at 20% 50%, rgba(219, 236, 239, 0.66) 0%, rgba(219, 236, 239, 0) 35%), radial-gradient(circle at 50% 50%, rgba(207, 229, 233, 0.58) 0%, rgba(207, 229, 233, 0) 40%), radial-gradient(circle at 80% 50%, rgba(219, 236, 239, 0.66) 0%, rgba(219, 236, 239, 0) 35%), linear-gradient(90deg, #F2F7F8 0%, #E7F1F3 50%, #F2F7F8 100%)",
       }}
     >
-      <div className="mb-3 rounded-2xl border border-orange/20 bg-[--peach] p-3 md:hidden">
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <CircleDollarSign className="h-4 w-4 text-orange" />
-            <div>
-              <p className="text-xs font-semibold text-foreground">Get 2X Cashback + 0 Joining Fee</p>
-              <p className="text-[10px] text-muted-foreground">Unlock exclusive rewards</p>
-            </div>
-          </div>
-          <button className="rounded-full bg-brand px-3 py-1.5 text-[10px] font-semibold text-brand-foreground">Join Free</button>
-        </div>
-      </div>
-
-      <div className="mb-3 flex items-center justify-between md:hidden">
+      <div className="container-page mb-3 flex items-center justify-between md:hidden">
         <div>
           <h2 className="text-xl leading-none text-brand">Featured Products</h2>
           <p className="mt-1 text-[10px] text-muted-foreground">Discover our best-selling construction materials at best prices</p>
@@ -219,7 +232,7 @@ function FeaturedProducts() {
         <Link to="/products" className="text-[10px] font-medium text-brand">View All Products</Link>
       </div>
 
-      <div className="hidden md:block">
+      <div className="container-page hidden md:block">
         <SectionHeader
           eyebrow="Hot Deals This Week"
           title="Featured Products"
@@ -228,7 +241,7 @@ function FeaturedProducts() {
           viewAllText="View All Products"
         />
       </div>
-      <div className="mt-4 flex items-center justify-center">
+      <div className="container-page mt-4 flex items-center justify-center">
         <div className="inline-flex items-center rounded-full border border-[#D8E5E8] bg-[#F7FAFB] p-1 shadow-sm">
           <button
             className={`rounded-full px-6 py-2 text-sm font-medium transition ${
@@ -257,7 +270,9 @@ function FeaturedProducts() {
         </div>
       </div>
 
-      <div className="mt-4 flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-3 md:overflow-visible lg:grid-cols-4">
+      <div className="container-page mt-4 flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-3 md:overflow-visible lg:grid-cols-4">
+        {isLoading && !list.length ? <p className="text-sm text-muted-foreground">Loading products...</p> : null}
+        {isError ? <p className="col-span-full text-sm text-red-600">{error instanceof Error ? error.message : "Products could not be loaded"}</p> : null}
         {list.map((p) => (
           <div key={p.id} className="min-w-[240px] md:min-w-0">
             <ProductCard product={p} />
@@ -269,14 +284,7 @@ function FeaturedProducts() {
 }
 
 function HardwarePriceDrop() {
-  return (
-      <section className="bg-secondary py-6 md:pb-0 md:pt-7">
-      <div className="container-page">
-        <SectionHeader title="Hardware Price Drop" subtitle="Save big on premium hardware products" viewAllTo="/products" />
-          <ProductStrip products={hardwareProducts} />
-      </div>
-    </section>
-  );
+  return <BackendCategoryStrip match="hardware" title="Hardware Price Drop" subtitle="Save big on premium hardware products" className="bg-secondary py-6 md:pb-0 md:pt-7" fallback={hardwareProducts} />;
 }
 
 function DifferenceBand() {
@@ -291,12 +299,15 @@ function DifferenceBand() {
 }
 
 function WiresFlashDrop() {
-  return (
-    <section className="container-page py-6 md:py-7">
-      <SectionHeader title="Wires Flash Drop" subtitle="Premium electrical wires at flash sale prices" viewAllTo="/products" />
-      <ProductStrip products={wireProducts} />
-    </section>
-  );
+  return <BackendCategoryStrip match="wire" title="Wires Flash Drop" subtitle="Premium electrical wires at flash sale prices" className="py-6 md:py-7" fallback={wireProducts} />;
+}
+
+function BackendCategoryStrip({ match, title, subtitle, className, fallback }: { match: string; title: string; subtitle: string; className: string; fallback: Product[] }) {
+  const categoriesQuery = useCategories();
+  const category = categoriesQuery.data?.find((item) => item.name.toLowerCase().includes(match) || (match === "wire" && item.name.toLowerCase().includes("electrical")));
+  const products = useQuery({ queryKey: ["home-category", category?.id], queryFn: () => api.productsByCategory(category!.id, { page: 0, size: 8, sortBy: "crtDt", direction: "DESC" }), enabled: Boolean(category) });
+  const cards = products.data?.content.map(catalogProductToCard) || fallback;
+  return <section className={className}><div className="container-page"><SectionHeader title={title} subtitle={subtitle} viewAllTo={category ? `/category/${category.id}` : "/products"} /><ProductStrip products={cards} /></div></section>;
 }
 
 function ShopByCategory() {

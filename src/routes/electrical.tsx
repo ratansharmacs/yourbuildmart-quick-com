@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ProductShowcaseTemplate } from "@/components/site/PageTemplates";
-import { wireProducts } from "@/components/site/data";
+import { LiveCategoryPage } from "@/components/site/PageTemplates";
 
 export const Route = createFileRoute("/electrical")({
   head: () => ({
@@ -13,13 +12,5 @@ export const Route = createFileRoute("/electrical")({
 });
 
 function ElectricalPage() {
-  const products = [...wireProducts, ...wireProducts];
-  return (
-    <ProductShowcaseTemplate
-      badge="Category"
-      title="Electrical"
-      subtitle="Trusted wires and electrical essentials for homes, offices, and sites."
-      products={products}
-    />
-  );
+  return <LiveCategoryPage title="Electrical" subtitle="Trusted wires and electrical essentials for homes, offices, and sites." matches={["electrical", "wire"]} />;
 }
