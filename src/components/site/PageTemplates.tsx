@@ -7,6 +7,7 @@ import { ProductCard } from "@/components/site/ProductCard";
 import type { Product } from "@/components/site/data";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { findCategoryByMatches, productsByCategoryFamily } from "@/lib/category-products";
 import { catalogProductToCard } from "@/lib/product-adapter";
 
 type Stat = {
@@ -126,9 +127,11 @@ export function ProductShowcaseTemplate({
           <p className="mt-3 max-w-2xl text-sm text-muted-foreground md:text-base">{subtitle}</p>
           {topContent ? <div className="mt-6">{topContent}</div> : null}
 
-          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
             {products.map((product, index) => (
-              <ProductCard key={`${product.id}-${index}`} product={product} />
+              <div key={`${product.id}-${index}`} className="w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)]">
+                <ProductCard product={product} />
+              </div>
             ))}
           </div>
         </div>
@@ -141,14 +144,15 @@ export function ProductShowcaseTemplate({
 
 export function LiveCategoryPage({ title, subtitle, matches }: { title: string; subtitle: string; matches: string[] }) {
   const categories = useQuery({ queryKey: ["categories"], queryFn: api.categories });
-  const category = categories.data?.find((item) => matches.some((match) => item.name.toLowerCase().includes(match)));
+  const category = categories.data ? findCategoryByMatches(categories.data, matches) : undefined;
   const products = useQuery({
-    queryKey: ["nav-category-products", category?.id], enabled: Boolean(category),
-    queryFn: async () => {
-      const page = await api.productsByCategory(category!.id, { page: 0, size: 100, sortBy: "crtDt", direction: "DESC" });
-      const content = await Promise.all(page.content.map(async (product) => { try { return { ...product, ...(await api.product(product.id)) }; } catch { return product; } }));
-      return { ...page, content };
-    },
+    queryKey: ["nav-category-products", category?.id],
+    enabled: Boolean(category && categories.data),
+    queryFn: () => productsByCategoryFamily({
+      categories: categories.data || [],
+      categoryId: category!.id,
+      params: { page: 0, size: 100, sortBy: "crtDt", direction: "DESC" },
+    }),
   });
   return <ProductShowcaseTemplate badge="Category" title={category?.name || title} subtitle={category?.description || subtitle} products={(products.data?.content || []).map(catalogProductToCard)} topContent={categories.isLoading || products.isLoading ? <p>Loading products...</p> : !category ? <p className="text-sm text-muted-foreground">This category is not currently available from the backend.</p> : undefined} />;
 }

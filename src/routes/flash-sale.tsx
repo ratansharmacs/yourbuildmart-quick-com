@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { ProductShowcaseTemplate } from "@/components/site/PageTemplates";
-import { cementProducts, hardwareProducts, wireProducts } from "@/components/site/data";
+import { api } from "@/lib/api";
+import { catalogProductToCard } from "@/lib/product-adapter";
 
 export const Route = createFileRoute("/flash-sale")({
   head: () => ({
@@ -13,14 +15,29 @@ export const Route = createFileRoute("/flash-sale")({
 });
 
 function FlashSalePage() {
-  const products = [...wireProducts, ...hardwareProducts.slice(0, 2), ...cementProducts.slice(0, 2)];
+  const productsQuery = useQuery({
+    queryKey: ["flash-sale-products"],
+    queryFn: async () => {
+      const page = await api.products({ page: 0, size: 48, sortBy: "crtDt", direction: "DESC" });
+      return Promise.all(
+        page.content.map(async (product) => {
+          try {
+            return { ...product, ...(await api.product(product.id)) };
+          } catch {
+            return product;
+          }
+        }),
+      );
+    },
+  });
 
   return (
     <ProductShowcaseTemplate
       badge="Lightning Deals"
       title="Flash Sale"
       subtitle="Short-duration offers on selected construction essentials."
-      products={products}
+      products={(productsQuery.data || []).map(catalogProductToCard)}
+      topContent={productsQuery.isLoading ? <p>Loading products...</p> : productsQuery.isError ? <p className="text-red-600">{productsQuery.error.message}</p> : undefined}
     />
   );
 }

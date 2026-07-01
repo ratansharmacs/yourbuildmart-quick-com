@@ -30,6 +30,8 @@ function CartPage() {
     updateCartQuantity,
     removeFromCart,
     clearCart,
+    toggleWishlist,
+    isWishlisted,
   } = useShop();
   const suggestionsQuery = useProducts({ page: 0, size: 8 });
 
@@ -162,8 +164,11 @@ function CartPage() {
                       </div>
                     </div>
                     <div className="grid grid-cols-2 border-t border-brand">
-                      <button className="flex items-center justify-center gap-2 border-r border-brand py-4 text-sm font-medium">
-                        <Heart className="h-5 w-5" /> Add to Wishlist
+                      <button
+                        onClick={() => toggleWishlist(item.product)}
+                        className="flex items-center justify-center gap-2 border-r border-brand py-4 text-sm font-medium"
+                      >
+                        <Heart className={`h-5 w-5 ${isWishlisted(item.product) ? "fill-orange text-orange" : ""}`} /> {isWishlisted(item.product) ? "Wishlisted" : "Add to Wishlist"}
                       </button>
                       <button
                         onClick={() => void removeFromCart(item.product.id)}
@@ -235,9 +240,11 @@ function CartPage() {
               Loading suggestions...
             </p>
           ) : null}
-          <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-6 flex flex-wrap justify-center gap-5">
             {suggestions.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <div key={product.id} className="w-full sm:w-[calc(50%-0.625rem)] lg:w-[calc(25%-0.938rem)]">
+                <ProductCard product={product} />
+              </div>
             ))}
           </div>
         </section>

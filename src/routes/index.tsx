@@ -11,6 +11,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useCategories, useProducts } from "@/hooks/use-catalog";
 import { api, resolveApiImage, slugify } from "@/lib/api";
+import { findCategoryByMatches, productsByCategoryFamily } from "@/lib/category-products";
 import { catalogProductToCard } from "@/lib/product-adapter";
 import heroBags from "@/assets/hero-bags.png";
 import differenceBg from "@/assets/Group 1707479903.png";
@@ -162,14 +163,14 @@ function Stat({ value, label }: { value: string; label: string }) {
 
 function Categories() {
   const categoryQuery = useCategories();
-  const liveCategories = categoryQuery.data?.slice(0, 6) || [];
+  const liveCategories = categoryQuery.data || [];
   return (
     <section className="container-page hidden pb-3 pt-1 md:block md:pb-4 md:pt-1">
-      <div className="grid grid-cols-6 overflow-hidden rounded-2xl border border-[#DEE7E9] bg-white">
+      <div className="flex overflow-x-auto rounded-2xl border border-[#DEE7E9] bg-white [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {(liveCategories.length ? liveCategories : categories).map((c, i) => {
           const isLive = "id" in c;
           const image = isLive && c.image ? resolveApiImage(c.image) : categories[i % categories.length].icon;
-          return <Link key={c.name} to={isLive ? "/category/$categoryId" : "/products"} params={isLive ? { categoryId: slugify(c.name) } : undefined as never} className="group relative flex items-center gap-3 px-4 py-6">
+          return <Link key={c.name} to={isLive ? "/category/$categoryId" : "/products"} params={isLive ? { categoryId: slugify(c.name) } : undefined as never} className="group relative flex min-w-[280px] items-center gap-3 px-4 py-6">
             <img
               src={image}
               alt={c.name}
@@ -182,7 +183,7 @@ function Categories() {
                 View All <ArrowRight className="ml-1 h-3.5 w-3.5" />
               </span>
             </div>
-            {i < categories.length - 1 && (
+            {i < (liveCategories.length || categories.length) - 1 && (
               <span
                 aria-hidden
                 className="pointer-events-none absolute right-0 top-1/2 h-12 w-px -translate-y-1/2 bg-gradient-to-b from-transparent via-border/65 to-transparent"
@@ -204,8 +205,13 @@ function FeaturedProducts() {
   });
   const categoryProducts = useQuery({
     queryKey: ["home-featured", tab, selectedCategory?.id],
-    queryFn: () => api.productsByCategory(selectedCategory!.id, { page: 0, size: 12, sortBy: "crtDt", direction: "DESC" }),
-    enabled: Boolean(selectedCategory),
+    queryFn: () => productsByCategoryFamily({
+      categories: categoryQuery.data || [],
+      categoryId: selectedCategory!.id,
+      params: { page: 0, size: 12, sortBy: "crtDt", direction: "DESC" },
+      enrich: false,
+    }),
+    enabled: Boolean(selectedCategory && categoryQuery.data),
   });
   const fallbackProducts = useProducts({ page: 0, size: 12 });
   const data = categoryProducts.data || fallbackProducts.data;
@@ -270,11 +276,11 @@ function FeaturedProducts() {
         </div>
       </div>
 
-      <div className="container-page mt-4 flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-3 md:overflow-visible lg:grid-cols-4">
+      <div className="container-page mt-4 flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:flex-wrap md:justify-center md:overflow-visible">
         {isLoading && !list.length ? <p className="text-sm text-muted-foreground">Loading products...</p> : null}
         {isError ? <p className="col-span-full text-sm text-red-600">{error instanceof Error ? error.message : "Products could not be loaded"}</p> : null}
         {list.map((p) => (
-          <div key={p.id} className="min-w-[240px] md:min-w-0">
+          <div key={p.id} className="min-w-[240px] md:min-w-0 md:w-[calc(33.333%-0.667rem)] lg:w-[calc(25%-0.75rem)]">
             <ProductCard product={p} />
           </div>
         ))}
@@ -304,8 +310,18 @@ function WiresFlashDrop() {
 
 function BackendCategoryStrip({ match, title, subtitle, className, fallback }: { match: string; title: string; subtitle: string; className: string; fallback: Product[] }) {
   const categoriesQuery = useCategories();
-  const category = categoriesQuery.data?.find((item) => item.name.toLowerCase().includes(match) || (match === "wire" && item.name.toLowerCase().includes("electrical")));
-  const products = useQuery({ queryKey: ["home-category", category?.id], queryFn: () => api.productsByCategory(category!.id, { page: 0, size: 8, sortBy: "crtDt", direction: "DESC" }), enabled: Boolean(category) });
+  const matches = match === "wire" ? ["wire", "electrical"] : [match];
+  const category = categoriesQuery.data ? findCategoryByMatches(categoriesQuery.data, matches) : undefined;
+  const products = useQuery({
+    queryKey: ["home-category", category?.id],
+    queryFn: () => productsByCategoryFamily({
+      categories: categoriesQuery.data || [],
+      categoryId: category!.id,
+      params: { page: 0, size: 8, sortBy: "crtDt", direction: "DESC" },
+      enrich: false,
+    }),
+    enabled: Boolean(category && categoriesQuery.data),
+  });
   const cards = products.data?.content.map(catalogProductToCard) || fallback;
   return <section className={className}><div className="container-page"><SectionHeader title={title} subtitle={subtitle} viewAllTo={category ? `/category/${category.id}` : "/products"} /><ProductStrip products={cards} /></div></section>;
 }
@@ -408,23 +424,35 @@ function Testimonials() {
 }
 
 function MobileTopCategories() {
+  const categoryQuery = useCategories();
+  const liveCategories = categoryQuery.data || [];
+  const shownCategories = liveCategories.length ? liveCategories : categories;
+
   return (
     <section className="container-page pb-1 pt-0 md:hidden">
       <div className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {categories.map((c) => (
-          <Link key={`mobile-${c.name}`} to="/products" className="shrink-0 text-center">
+        {shownCategories.map((c, i) => {
+          const isLive = "id" in c;
+          const image = isLive && c.image ? resolveApiImage(c.image) : categories[i % categories.length].icon;
+          return (
+          <Link key={`mobile-${c.name}`} to={isLive ? "/category/$categoryId" : "/products"} params={isLive ? { categoryId: slugify(c.name) } : undefined as never} className="shrink-0 text-center">
             <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl border border-[#D8E5E8] bg-[#EEF5F6] p-2">
-              <img src={c.icon} alt={c.name} className="h-11 w-11 object-contain" loading="lazy" />
+              <img src={image} alt={c.name} className="h-11 w-11 object-contain" loading="lazy" />
             </div>
             <span className="mt-1.5 block text-xs font-medium text-foreground">{c.name}</span>
           </Link>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
 }
 
 function MobileCategoriesSection() {
+  const categoryQuery = useCategories();
+  const liveCategories = categoryQuery.data || [];
+  const shownCategories = liveCategories.length ? liveCategories : categories;
+
   return (
     <section className="container-page pb-3 pt-3 md:hidden">
       <div className="mb-3 flex items-center justify-between">
@@ -434,17 +462,21 @@ function MobileCategoriesSection() {
         <Link to="/categories" className="text-[10px] font-medium text-brand">View All</Link>
       </div>
       <div className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {categories.map((c) => (
-          <Link key={`secondary-${c.name}`} to="/categories" className="shrink-0 text-center">
+        {shownCategories.map((c, i) => {
+          const isLive = "id" in c;
+          const image = isLive && c.image ? resolveApiImage(c.image) : categories[i % categories.length].icon;
+          return (
+          <Link key={`secondary-${c.name}`} to={isLive ? "/category/$categoryId" : "/categories"} params={isLive ? { categoryId: slugify(c.name) } : undefined as never} className="shrink-0 text-center">
             <div className="mx-auto grid h-20 w-20 place-items-center rounded-full border border-[#D8E5E8] bg-[#EEF5F6] p-2">
-              <img src={c.icon} alt={c.name} className="h-[52px] w-[52px] object-contain" loading="lazy" />
+              <img src={image} alt={c.name} className="h-[52px] w-[52px] object-contain" loading="lazy" />
             </div>
             <div className="mt-1.5">
               <span className="block text-xs font-bold text-foreground">{c.name}</span>
               <button className="mt-1 block rounded bg-[#EEF5F6] px-2 py-1 text-xs font-medium text-[#235758] hover:bg-[#E3EFF1]">View All</button>
             </div>
           </Link>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
@@ -463,9 +495,9 @@ function ProductStrip({ products }: { products: Product[] }) {
   });
 
   return (
-    <div className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-4 md:overflow-visible">
+    <div className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:flex-wrap md:justify-center md:overflow-visible">
       {shown.map((p) => (
-        <div key={p.id} className="min-w-[250px] md:min-w-0">
+        <div key={p.id} className="min-w-[250px] md:min-w-0 md:w-[calc(25%-0.75rem)]">
           <ProductCard product={p} />
         </div>
       ))}

@@ -53,7 +53,9 @@ function ProductDetailPage() {
   const selectedVariant = productQuery.data?.variants.find(
     (variant) => variant.id === variantId,
   );
-  const related = (relatedQuery.data?.content || []).map(catalogProductToCard);
+  const related = (relatedQuery.data?.content || [])
+    .filter((item) => item.id !== productQuery.data?.id)
+    .map(catalogProductToCard);
 
   if (productQuery.isLoading) {
     return <PageShell><p className="container-page py-16">Loading product...</p></PageShell>;
@@ -106,11 +108,7 @@ function ProductDetailPage() {
         <div>
           <p className="text-sm font-medium text-orange">{detail.brandName}</p>
           <h1 className="mt-2 text-3xl md:text-5xl">{detail.name}</h1>
-          {detail.description?.trim() ? (
-            <p className="mt-3 whitespace-pre-line text-sm text-muted-foreground">
-              {detail.description}
-            </p>
-          ) : null}
+          <ExpandableDescription description={detail.description} />
 
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <span className="text-3xl font-semibold text-brand">
@@ -189,16 +187,24 @@ function ProductDetailPage() {
         </div>
       </main>
 
-      {related.length ? (
-        <section className="bg-secondary py-12">
-          <div className="container-page">
-            <h2 className="text-3xl">Related Products</h2>
-            <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-4">
-              {related.map((item) => <ProductCard key={item.id} product={item} />)}
+      <section className="bg-secondary py-12">
+        <div className="container-page text-center">
+          <h2 className="text-3xl">Related Products</h2>
+          {relatedQuery.isLoading ? (
+            <p className="mt-6 text-sm text-muted-foreground">Loading related products...</p>
+          ) : related.length ? (
+            <div className="mt-6 flex flex-wrap justify-center gap-4">
+              {related.map((item) => (
+                <div key={item.id} className="w-full max-w-[250px] text-left sm:w-[250px]">
+                  <ProductCard product={item} />
+                </div>
+              ))}
             </div>
-          </div>
-        </section>
-      ) : null}
+          ) : (
+            <p className="mt-6 text-sm text-muted-foreground">No related products found.</p>
+          )}
+        </div>
+      </section>
       <Newsletter />
       <Footer />
     </div>
@@ -313,6 +319,36 @@ function VariantSelectors({
             </div>
           </div>
         ))}
+    </div>
+  );
+}
+
+function ExpandableDescription({ description }: { description?: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const content = description?.trim();
+
+  if (!content) return null;
+
+  const shouldTruncate = content.length > 150;
+  const collapsed = shouldTruncate ? `${content.slice(0, 150).trimEnd()}...` : content;
+
+  return (
+    <div className="mt-3 text-sm leading-relaxed text-muted-foreground">
+      <p className={expanded ? "whitespace-pre-line" : ""}>
+        {expanded ? content : collapsed}
+        {shouldTruncate ? (
+          <>
+            {" "}
+            <button
+              type="button"
+              onClick={() => setExpanded((value) => !value)}
+              className="inline font-semibold text-brand"
+            >
+              {expanded ? "Read Less" : "Read More"}
+            </button>
+          </>
+        ) : null}
+      </p>
     </div>
   );
 }

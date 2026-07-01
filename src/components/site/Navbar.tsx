@@ -17,7 +17,7 @@ const navItems = [
 ] as const;
 
 export function Navbar() {
-  const { cartCount } = useShop();
+  const { cartCount, wishlistCount } = useShop();
   const { isAuthenticated, user, logout } = useAuth();
   const [accountOpen, setAccountOpen] = useState(false);
   return <><header className="fixed inset-x-0 top-0 z-50 border-b border-border bg-gradient-to-r from-white to-[--peach]">
@@ -27,7 +27,7 @@ export function Navbar() {
       <div className="ml-auto hidden md:block md:w-56 lg:ml-0 lg:w-64"><SearchBox /></div>
       <div className="flex items-center gap-1.5">
         <Link to="/cart" className="relative grid h-9 w-9 place-items-center rounded-full hover:bg-secondary"><ShoppingBag className="h-5 w-5 text-brand" /><span className="absolute -right-0.5 -top-0.5 grid h-4 w-4 place-items-center rounded-full bg-orange text-[10px] font-semibold text-white">{cartCount}</span></Link>
-        <Link to="/wishlist" className="grid h-9 w-9 place-items-center rounded-full hover:bg-secondary"><Heart className="h-5 w-5 text-brand" /></Link>
+        <Link to="/wishlist" className="relative grid h-9 w-9 place-items-center rounded-full hover:bg-secondary"><Heart className="h-5 w-5 text-brand" />{wishlistCount ? <span className="absolute -right-0.5 -top-0.5 grid h-4 w-4 place-items-center rounded-full bg-orange text-[10px] font-semibold text-white">{wishlistCount}</span> : null}</Link>
         <div className="relative">{isAuthenticated ? <button onClick={() => setAccountOpen((value) => !value)} className="grid h-9 w-9 place-items-center rounded-full hover:bg-secondary"><User className="h-5 w-5 text-brand" /></button> : <Link to="/login" className="grid h-9 w-9 place-items-center rounded-full hover:bg-secondary"><User className="h-5 w-5 text-brand" /></Link>}
           {accountOpen && isAuthenticated ? <div className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-border bg-card p-2 shadow-xl"><p className="border-b border-border px-3 py-2 text-xs text-muted-foreground">Logged in as<br /><strong className="text-foreground">{user?.username}</strong></p><AccountLink to="/profile" label="My Profile" /><AccountLink to="/addresses" label="My Addresses" /><AccountLink to="/orders" label="My Orders" /><button onClick={() => { logout(); setAccountOpen(false); }} className="mt-1 flex w-full items-center gap-2 border-t border-border px-3 py-3 text-left text-sm text-red-600"><LogOut className="h-4 w-4" /> Logout</button></div> : null}
         </div>

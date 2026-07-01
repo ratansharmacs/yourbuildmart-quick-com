@@ -19,6 +19,7 @@ type ShopContextValue = {
   cartLoading: boolean;
   mergeGuestCart: () => Promise<void>;
   wishlist: Product[];
+  wishlistCount: number;
   toggleWishlist: (product: Product) => void;
   isWishlisted: (product: Product) => boolean;
   addToCart: (product: Product, quantity?: number) => Promise<void>;
@@ -67,7 +68,22 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
 
   const cartQuery = useQuery({
     queryKey: ["cart"],
-    queryFn: api.cart,
+    queryFn: async () => {
+      const cart = await api.cart();
+      const items = await Promise.all(
+        cart.items.map(async (item) => {
+          if (item.imagePath) return item;
+          try {
+            const detail = await api.product(item.productId);
+            const imagePath = detail.imagePath?.path || detail.variants.find((variant) => variant.id === item.variantId)?.images[0]?.path || "";
+            return { ...item, imagePath };
+          } catch {
+            return item;
+          }
+        }),
+      );
+      return { ...cart, items };
+    },
     enabled: isAuthenticated,
   });
 
@@ -124,7 +140,12 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
   const addToCart = async (product: Product, quantity = 1) => {
     if (isAuthenticated) {
       if (!product.variantId) throw new Error("Please select an available product variant");
-      await api.addCartItem(product.variantId, quantity);
+      const existing = cartQuery.data?.items.find((item) => item.variantId === product.variantId);
+      if (existing) {
+        await api.updateCartItem(existing.id, Math.min(existing.quantity + quantity, product.maxQuantity || existing.quantity + quantity));
+      } else {
+        await api.addCartItem(product.variantId, quantity);
+      }
       await refreshCart();
       return;
     }
@@ -182,6 +203,7 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
   const productKey = (product: Product) => `${product.apiId || product.id}:${product.variantId || "product"}`;
   const isWishlisted = (product: Product) => wishlist.some((item) => productKey(item) === productKey(product));
   const toggleWishlist = (product: Product) => setWishlist((items) => isWishlisted(product) ? items.filter((item) => productKey(item) !== productKey(product)) : [...items, product]);
+  const wishlistCount = wishlist.length;
 
   return (
     <ShopContext.Provider value={{
@@ -190,6 +212,7 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
       cartLoading: cartQuery.isLoading,
       mergeGuestCart,
       wishlist,
+      wishlistCount,
       toggleWishlist,
       isWishlisted,
       addToCart,

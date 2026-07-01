@@ -3,28 +3,39 @@ import { Heart, Share2, ShoppingBag, Star } from "lucide-react";
 import type { Product } from "./data";
 import { ProductImage } from "./ProductImage";
 import { useShop } from "@/context/shop-context";
+import { api } from "@/lib/api";
+import { productDetailToCard } from "@/lib/product-adapter";
 
 export function ProductCard({ product, variant = "default" }: { product: Product; variant?: "default" | "compact" }) {
   const linkProps = { to: "/products/$productId", params: { productId: product.id } } as const;
   const { addToCart, toggleWishlist, isWishlisted } = useShop();
   const navigate = useNavigate();
-  const canAdd = product.inStock !== false && Boolean(product.variantId);
+  const canTryAdd = product.inStock !== false && Boolean(product.variantId || product.apiId);
+
+  const checkoutProduct = async () => {
+    if (product.variantId) return product;
+    if (!product.apiId) return null;
+    const detail = await api.product(product.apiId);
+    return productDetailToCard(detail);
+  };
 
   const add = async () => {
-    if (!canAdd) {
+    const cartProduct = await checkoutProduct();
+    if (!cartProduct?.variantId) {
       await navigate(linkProps);
       return;
     }
-    await addToCart(product, 1);
+    await addToCart(cartProduct, 1);
   };
 
   const buyNow = async () => {
-    if (!canAdd) {
+    const cartProduct = await checkoutProduct();
+    if (!cartProduct?.variantId) {
       await navigate(linkProps);
       return;
     }
-    await addToCart(product, 1);
-    await navigate({ to: "/cart" });
+    await addToCart(cartProduct, 1);
+    await navigate({ to: "/checkout/shipping" });
   };
 
   const share = async () => {
@@ -81,7 +92,7 @@ export function ProductCard({ product, variant = "default" }: { product: Product
             className="flex items-center justify-center gap-1.5 rounded-lg bg-orange px-2 py-2.5 text-xs font-medium text-orange-foreground transition hover:opacity-90 disabled:opacity-50"
           >
             <ShoppingBag className="h-3.5 w-3.5" />
-            {product.inStock === false ? "Out of Stock" : canAdd ? "Add to Cart" : "Options"}
+            {product.inStock === false ? "Out of Stock" : canTryAdd ? "Add to Cart" : "Options"}
           </button>
           <button
             onClick={() => void buyNow()}

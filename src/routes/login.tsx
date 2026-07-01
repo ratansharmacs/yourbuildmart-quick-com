@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { Footer } from "@/components/site/Footer";
 import { Navbar } from "@/components/site/Navbar";
 import { useAuth } from "@/context/auth-context";
@@ -236,21 +237,37 @@ function Field({
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
   autoComplete?: string;
 }) {
+  const [visible, setVisible] = useState(false);
+  const isPassword = type === "password";
+  const inputType = isPassword && visible ? "text" : type;
+
   return (
     <label className="block space-y-1 text-sm">
       <span className="font-medium">{label}</span>
-      <input
-        name={name}
-        type={type}
-        required
-        value={value}
-        onChange={onChange ? (event) => onChange(event.target.value) : undefined}
-        disabled={disabled}
-        minLength={minLength}
-        inputMode={inputMode}
-        autoComplete={autoComplete}
-        className="h-11 w-full rounded-lg border border-border bg-background px-3 outline-none focus:ring-2 focus:ring-brand/30 disabled:opacity-70"
-      />
+      <span className="relative block">
+        <input
+          name={name}
+          type={inputType}
+          required
+          value={value}
+          onChange={onChange ? (event) => onChange(event.target.value) : undefined}
+          disabled={disabled}
+          minLength={minLength}
+          inputMode={inputMode}
+          autoComplete={autoComplete}
+          className={`h-11 w-full rounded-lg border border-border bg-background px-3 outline-none focus:ring-2 focus:ring-brand/30 disabled:opacity-70 ${isPassword ? "pr-11" : ""}`}
+        />
+        {isPassword ? (
+          <button
+            type="button"
+            onClick={() => setVisible((value) => !value)}
+            className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full text-muted-foreground hover:bg-secondary hover:text-brand"
+            aria-label={visible ? "Hide password" : "Show password"}
+          >
+            {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+        ) : null}
+      </span>
     </label>
   );
 }

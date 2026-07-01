@@ -128,10 +128,10 @@ function ProductsPage() {
             </div>
           </div>
         </div>
-        <div className="mt-10 grid grid-cols-2 gap-5 md:grid-cols-4">
-          {productsQuery.isLoading ? <p className="col-span-full text-sm text-muted-foreground">Loading products...</p> : null}
+        <div className="mt-10 flex flex-wrap justify-center gap-5">
+          {productsQuery.isLoading ? <p className="w-full text-sm text-muted-foreground">Loading products...</p> : null}
           {productsQuery.isError ? (
-            <div className="col-span-full">
+            <div className="w-full">
               <p className="text-sm text-red-600">{productsQuery.error.message}</p>
               <button
                 onClick={() => void productsQuery.refetch()}
@@ -141,8 +141,8 @@ function ProductsPage() {
               </button>
             </div>
           ) : null}
-          {grid.map((p, i) => <ProductCard key={`${p.id}-${i}`} product={p} />)}
-          {!productsQuery.isLoading && !grid.length ? <p className="col-span-full text-sm text-muted-foreground">No products found.</p> : null}
+          {grid.map((p, i) => <div key={`${p.id}-${i}`} className="w-[calc(50%-0.625rem)] md:w-[calc(25%-0.938rem)]"><ProductCard product={p} /></div>)}
+          {!productsQuery.isLoading && !grid.length ? <p className="w-full text-sm text-muted-foreground">No products found.</p> : null}
         </div>
       </section>
       <Newsletter />
