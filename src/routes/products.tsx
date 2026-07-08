@@ -128,7 +128,7 @@ function ProductsPage() {
             </div>
           </div>
         </div>
-        <div className="mt-10 flex flex-wrap justify-center gap-5">
+        <div className="mt-10 grid gap-4 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-5">
           {productsQuery.isLoading ? <p className="w-full text-sm text-muted-foreground">Loading products...</p> : null}
           {productsQuery.isError ? (
             <div className="w-full">
@@ -141,7 +141,7 @@ function ProductsPage() {
               </button>
             </div>
           ) : null}
-          {grid.map((p, i) => <div key={`${p.id}-${i}`} className="w-[calc(50%-0.625rem)] md:w-[calc(25%-0.938rem)]"><ProductCard product={p} /></div>)}
+          {grid.map((p, i) => <ProductCard key={`${p.id}-${i}`} product={p} />)}
           {!productsQuery.isLoading && !grid.length ? <p className="w-full text-sm text-muted-foreground">No products found.</p> : null}
         </div>
       </section>

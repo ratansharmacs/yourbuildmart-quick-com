@@ -1,24 +1,22 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, ChevronLeft, ChevronRight, Star, Grid2x2, House, ShoppingBag } from "lucide-react";
+import { ArrowRight, Grid2x2, House, ShoppingBag } from "lucide-react";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer, Newsletter } from "@/components/site/Footer";
 import { SectionHeader } from "@/components/site/SectionHeader";
 import { ProductCard } from "@/components/site/ProductCard";
+import { TestimonialsSection } from "@/components/site/TestimonialsSection";
 import { useShop } from "@/context/shop-context";
 
 import { categories, cementProducts, hardwareProducts, wireProducts, type Product } from "@/components/site/data";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useCategories, useProducts } from "@/hooks/use-catalog";
-import { api, resolveApiImage, slugify } from "@/lib/api";
+import { resolveApiImage, slugify } from "@/lib/api";
 import { findCategoryByMatches, productsByCategoryFamily } from "@/lib/category-products";
 import { catalogProductToCard } from "@/lib/product-adapter";
 import heroBags from "@/assets/hero-bags.png";
 import differenceBg from "@/assets/Group 1707479903.png";
 import differenceBgMobile from "@/assets/Frame 2147230518.png";
-import reviewerOne from "@/assets/Icon Strategy.png";
-import reviewerTwo from "@/assets/Icon Strategy (1).png";
-import reviewerThree from "@/assets/Icon Strategy (2).png";
 import shopHettichImg from "@/assets/image 28797.png";
 import shopProtectionImg from "@/assets/image 28803.png";
 import shopFevicolImg from "@/assets/image 28809.png";
@@ -46,7 +44,7 @@ function HomePage() {
       <DifferenceBand />
       <WiresFlashDrop />
       <ShopByCategory />
-      <Testimonials />
+      <TestimonialsSection />
       <Newsletter />
       <Footer />
     </div>
@@ -227,7 +225,7 @@ function FeaturedProducts() {
       className="relative w-full overflow-hidden pb-7 pt-1 md:pb-8 md:pt-7"
       style={{
         backgroundImage:
-          "radial-gradient(circle at 20% 50%, rgba(219, 236, 239, 0.66) 0%, rgba(219, 236, 239, 0) 35%), radial-gradient(circle at 50% 50%, rgba(207, 229, 233, 0.58) 0%, rgba(207, 229, 233, 0) 40%), radial-gradient(circle at 80% 50%, rgba(219, 236, 239, 0.66) 0%, rgba(219, 236, 239, 0) 35%), linear-gradient(90deg, #F2F7F8 0%, #E7F1F3 50%, #F2F7F8 100%)",
+          "radial-gradient(ellipse at 50% 52%, rgba(255, 126, 17, 0.22) 0%, rgba(255, 184, 108, 0.16) 25%, rgba(255, 184, 108, 0) 48%), linear-gradient(90deg, #FFF9F2 0%, #FFF3E7 50%, #FFF9F2 100%)",
       }}
     >
       <div className="container-page mb-3 flex items-center justify-between md:hidden">
@@ -276,12 +274,12 @@ function FeaturedProducts() {
         </div>
       </div>
 
-      <div className="container-page mt-4 flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:flex-wrap md:justify-center md:overflow-visible">
+      <div className="container-page mt-4 flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-5 md:overflow-visible">
         {isLoading && !list.length ? <p className="text-sm text-muted-foreground">Loading products...</p> : null}
         {isError ? <p className="col-span-full text-sm text-red-600">{error instanceof Error ? error.message : "Products could not be loaded"}</p> : null}
-        {list.map((p) => (
-          <div key={p.id} className="min-w-[240px] md:min-w-0 md:w-[calc(33.333%-0.667rem)] lg:w-[calc(25%-0.75rem)]">
-            <ProductCard product={p} />
+        {list.slice(0, 5).map((p) => (
+          <div key={p.id} className="min-w-[220px] md:min-w-0">
+            <ProductCard product={p} variant="home" />
           </div>
         ))}
       </div>
@@ -290,7 +288,7 @@ function FeaturedProducts() {
 }
 
 function HardwarePriceDrop() {
-  return <BackendCategoryStrip match="hardware" title="Hardware Price Drop" subtitle="Save big on premium hardware products" className="bg-secondary py-6 md:pb-0 md:pt-7" fallback={hardwareProducts} />;
+  return <BackendCategoryStrip match="hardware" title="Hardware Price Drop" subtitle="Save big on premium hardware products" className="bg-secondary py-6 md:pb-0 md:pt-7" fallback={hardwareProducts} centerOnMd />;
 }
 
 function DifferenceBand() {
@@ -308,7 +306,7 @@ function WiresFlashDrop() {
   return <BackendCategoryStrip match="wire" title="Wires Flash Drop" subtitle="Premium electrical wires at flash sale prices" className="py-6 md:py-7" fallback={wireProducts} />;
 }
 
-function BackendCategoryStrip({ match, title, subtitle, className, fallback }: { match: string; title: string; subtitle: string; className: string; fallback: Product[] }) {
+function BackendCategoryStrip({ match, title, subtitle, className, fallback, centerOnMd }: { match: string; title: string; subtitle: string; className: string; fallback: Product[]; centerOnMd?: boolean }) {
   const categoriesQuery = useCategories();
   const matches = match === "wire" ? ["wire", "electrical"] : [match];
   const category = categoriesQuery.data ? findCategoryByMatches(categoriesQuery.data, matches) : undefined;
@@ -323,7 +321,7 @@ function BackendCategoryStrip({ match, title, subtitle, className, fallback }: {
     enabled: Boolean(category && categoriesQuery.data),
   });
   const cards = products.data?.content.map(catalogProductToCard) || fallback;
-  return <section className={className}><div className="container-page"><SectionHeader title={title} subtitle={subtitle} viewAllTo={category ? `/category/${category.id}` : "/products"} /><ProductStrip products={cards} /></div></section>;
+  return <section className={className}><div className="container-page"><SectionHeader title={title} subtitle={subtitle} viewAllTo={category ? `/category/${category.id}` : "/products"} /><ProductStrip products={cards} centerOnMd={centerOnMd} /></div></section>;
 }
 
 function ShopByCategory() {
@@ -352,72 +350,6 @@ function ShopByCategory() {
             </div>
           ))}
         </div>
-      </div>
-    </section>
-  );
-}
-
-function Testimonials() {
-  const items = [
-    { name: "Ava A.", role: "Marketing Manager", image: reviewerOne, quote: "I've been consistently impressed with the quality of product provided by this company. They have exceeded my expectations and delivered exceptional results." },
-    { name: "Ava A.", role: "Marketing Manager", image: reviewerTwo, quote: "I've been consistently impressed with the quality of product provided by this company. They have exceeded my expectations and delivered exceptional results." },
-    { name: "Ava A.", role: "Marketing Manager", image: reviewerThree, quote: "I've been consistently impressed with the quality of product provided by this company. They have exceeded my expectations and delivered exceptional results." },
-    { name: "Noah K.", role: "Project Engineer", image: reviewerOne, quote: "Consistent quality and reliable delivery timeline. The product support team is helpful and responsive." },
-  ];
-  const [activeReview, setActiveReview] = useState(0);
-
-  return (
-    <section className="container-page pb-2 pt-4 md:py-8">
-      <SectionHeader title="What Our Client Say About Us" subtitle="Real feedback from our valued customers" viewAllTo="/products" />
-
-      <div className="relative md:hidden">
-        <button
-          onClick={() => setActiveReview((prev) => (prev - 1 + items.length) % items.length)}
-          className="absolute left-1 top-1/2 z-10 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-orange text-orange-foreground"
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </button>
-        <div className="mx-auto w-full max-w-[290px] rounded-2xl border border-border bg-card px-6 py-6 min-h-[312px]">
-          <img src={items[activeReview].image} alt={items[activeReview].name} className="mx-auto mb-4 h-16 w-16 rounded-full " />
-          <div className="mb-3 flex justify-center gap-0.5">
-            {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-3.5 w-3.5 fill-orange text-orange" />)}
-          </div>
-          <p className="line-clamp-5 text-center text-sm text-muted-foreground">"{items[activeReview].quote}"</p>
-          <div className="mt-4 text-center">
-            <div className="font-display text-base text-brand">{items[activeReview].name}</div>
-            <div className="text-xs text-muted-foreground">{items[activeReview].role}</div>
-          </div>
-        </div>
-        <button
-          onClick={() => setActiveReview((prev) => (prev + 1) % items.length)}
-          className="absolute right-1 top-1/2 z-10 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full bg-orange text-orange-foreground"
-        >
-          <ChevronRight className="h-4 w-4" />
-        </button>
-      </div>
-
-      <div className="relative hidden md:block">
-        <button className="absolute left-[-42px] top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-orange text-orange-foreground md:grid">
-          <ChevronLeft className="h-5 w-5" />
-        </button>
-        <div className="grid gap-4 md:grid-cols-4">
-          {items.map((t) => (
-            <div key={`${t.name}-${t.image}`} className="mx-auto w-full max-w-[290px] rounded-2xl border border-border bg-card px-5 py-5">
-              <img src={t.image} alt={t.name} className="mx-auto mb-4 h-16 w-16 rounded-full " />
-              <div className="mb-3 flex justify-center gap-0.5">
-                {Array.from({ length: 5 }).map((_, i) => <Star key={i} className="h-3.5 w-3.5 fill-orange text-orange" />)}
-              </div>
-              <p className="line-clamp-4 text-center text-sm text-muted-foreground">"{t.quote}"</p>
-              <div className="mt-6 text-center">
-                <div className="font-display text-base text-brand">{t.name}</div>
-                <div className="text-xs text-muted-foreground">{t.role}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-        <button className="absolute right-[-42px] top-1/2 z-10 hidden h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-orange text-orange-foreground md:grid">
-          <ChevronRight className="h-5 w-5" />
-        </button>
       </div>
     </section>
   );
@@ -482,7 +414,7 @@ function MobileCategoriesSection() {
   );
 }
 
-function ProductStrip({ products }: { products: Product[] }) {
+function ProductStrip({ products, centerOnMd }: { products: Product[]; centerOnMd?: boolean }) {
   const { searchTerm } = useShop();
   const term = searchTerm.trim().toLowerCase();
   const shown = products.filter((p) => {
@@ -495,10 +427,10 @@ function ProductStrip({ products }: { products: Product[] }) {
   });
 
   return (
-    <div className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:flex-wrap md:justify-center md:overflow-visible">
-      {shown.map((p) => (
-        <div key={p.id} className="min-w-[250px] md:min-w-0 md:w-[calc(25%-0.75rem)]">
-          <ProductCard product={p} />
+    <div className={`flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:overflow-visible ${centerOnMd ? "md:flex md:flex-wrap md:justify-center" : "md:grid md:grid-cols-5"}`}>
+      {shown.slice(0, 5).map((p) => (
+        <div key={p.id} className="min-w-[220px] md:min-w-0">
+          <ProductCard product={p} variant="home" />
         </div>
       ))}
     </div>

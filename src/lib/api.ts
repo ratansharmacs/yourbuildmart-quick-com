@@ -264,6 +264,19 @@ export type BlogCategory = {
   blogCount: number;
 };
 
+export type Testimonial = {
+  id: number;
+  customerName: string;
+  customerImage: string | null;
+  designation: string | null;
+  company: string | null;
+  content: string;
+  rating: number;
+  status: boolean;
+  crtDt: string;
+  updtDt: string | null;
+};
+
 function getToken() {
   if (typeof window === "undefined") return null;
   return window.localStorage.getItem("ybm_auth_token");
@@ -448,6 +461,8 @@ export const api = {
     request<PageResponse<CatalogProduct>>(`/api/customer/products/brand/${id}${toSearchParams(params)}`),
   relatedProducts: (id: number | string, page = 0, size = 6) =>
     request<PageResponse<CatalogProduct>>(`/api/customer/products/${id}/related${toSearchParams({ page, size })}`),
+  testimonials: (params: Record<string, unknown> = {}) =>
+    request<PageResponse<Testimonial>>(`/api/customer/testimonials${toSearchParams(params)}`),
 
   categories: () => request<CustomerCategory[]>("/api/customer/categories"),
   categoryTree: () => request<CustomerCategory[]>("/api/customer/categories/tree"),

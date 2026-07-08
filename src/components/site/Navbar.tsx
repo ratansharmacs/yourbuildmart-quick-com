@@ -20,7 +20,7 @@ export function Navbar() {
   const { cartCount, wishlistCount } = useShop();
   const { isAuthenticated, user, logout } = useAuth();
   const [accountOpen, setAccountOpen] = useState(false);
-  return <><header className="fixed inset-x-0 top-0 z-50 border-b border-border bg-gradient-to-r from-white to-[--peach]">
+  return <><header className="fixed inset-x-0 top-0 z-[100] border-b border-border bg-white shadow-sm">
     <div className="container-page"><div className="flex h-14 items-center gap-3 md:gap-6">
       <Link to="/" className="shrink-0"><Logo /></Link>
       <nav className="hidden flex-1 items-center justify-between px-4 lg:flex">{navItems.map((item) => <Link key={item.to} to={item.to} className={`text-sm transition hover:text-brand ${item.label === "Hot Deals" || item.label === "Flash Sale" ? "text-orange" : "text-foreground/80"}`} activeProps={{ className: "font-semibold text-brand" }}>{item.label === "Hot Deals" ? "🔥 " : item.label === "Flash Sale" ? "⚡ " : ""}{item.label}</Link>)}</nav>

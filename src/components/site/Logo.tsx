@@ -6,7 +6,9 @@ export function Logo({ className = "" }: { className?: string }) {
       <img
         src={ybmLogo}
         alt="YourBuildMart"
-        className="h-5 w-auto md:h-7"
+        width={132}
+        height={20}
+        className="block h-5 w-[132px] object-contain"
       />
     </div>
   );

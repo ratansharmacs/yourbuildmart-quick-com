@@ -157,9 +157,6 @@ function CartPage() {
                               <Plus className="h-4 w-4" />
                             </button>
                           </div>
-                          <strong className="text-xl text-brand">
-                            ₹{(item.product.price * item.quantity).toFixed(2)}
-                          </strong>
                         </div>
                       </div>
                     </div>
@@ -240,10 +237,10 @@ function CartPage() {
               Loading suggestions...
             </p>
           ) : null}
-          <div className="mt-6 flex flex-wrap justify-center gap-5">
+          <div className="mt-6 flex flex-wrap justify-start gap-5">
             {suggestions.map((product) => (
-              <div key={product.id} className="w-full sm:w-[calc(50%-0.625rem)] lg:w-[calc(25%-0.938rem)]">
-                <ProductCard product={product} />
+              <div key={product.id} className="w-full sm:w-[calc(50%-0.625rem)] lg:w-[220px]">
+                <ProductCard product={product} variant="compact" />
               </div>
             ))}
           </div>
