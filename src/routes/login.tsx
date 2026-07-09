@@ -26,7 +26,6 @@ function LoginPage() {
   const [step, setStep] = useState<Step>("identifier");
   const [identifier, setIdentifier] = useState("");
   const [otp, setOtp] = useState("");
-  const [developmentOtp, setDevelopmentOtp] = useState("");
   const [destination, setDestination] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -39,7 +38,6 @@ function LoginPage() {
     setMode(nextMode);
     setStep("identifier");
     setOtp("");
-    setDevelopmentOtp("");
     setError("");
     setMessage("");
   };
@@ -48,9 +46,7 @@ function LoginPage() {
     const result = mode === "forgot"
       ? await requestForgotPasswordOtp(identifier.trim())
       : await requestLoginOtp(identifier.trim());
-    const devOtp = result.developmentOtp;
-    setOtp(devOtp);
-    setDevelopmentOtp(devOtp);
+    setOtp("");
     setDestination(result.challenge.maskedDestination || identifier.trim());
     setStep("verify");
     setMessage(`OTP sent to ${result.challenge.maskedDestination || identifier.trim()}.`);
@@ -153,12 +149,6 @@ function LoginPage() {
                 autoComplete="one-time-code"
                 disabled={step === "reset"}
               />
-            ) : null}
-
-            {developmentOtp ? (
-              <p className="rounded-lg bg-secondary px-3 py-2 text-sm text-brand">
-                Development OTP: <strong>{developmentOtp}</strong>
-              </p>
             ) : null}
 
             {mode === "forgot" && step === "reset" ? (

@@ -44,7 +44,6 @@ function ShippingPage() {
   const [loading, setLoading] = useState(false);
   const [otpOpen, setOtpOpen] = useState(false);
   const [otp, setOtp] = useState("");
-  const [developmentOtp, setDevelopmentOtp] = useState("");
   const [otpDestination, setOtpDestination] = useState("");
 
   const addresses = useQuery({
@@ -131,8 +130,7 @@ function ShippingPage() {
         validateForm();
         const result = await requestLoginOtp(identifier);
         setOtpDestination(result.challenge.maskedDestination || identifier);
-        setDevelopmentOtp(result.developmentOtp);
-        setOtp(result.developmentOtp);
+        setOtp("");
         setOtpOpen(true);
         return;
       }
@@ -278,7 +276,6 @@ function ShippingPage() {
               <span className="font-medium">Verification OTP</span>
               <input value={otp} onChange={(event) => setOtp(event.target.value)} inputMode="numeric" autoComplete="one-time-code" className="mt-1 h-11 w-full rounded-lg border border-border px-3" />
             </label>
-            {developmentOtp ? <p className="mt-3 rounded-lg bg-secondary px-3 py-2 text-sm text-brand">Development OTP: <strong>{developmentOtp}</strong></p> : null}
             {message ? <p className="mt-3 text-sm text-red-600">{message}</p> : null}
             <button onClick={() => void verifyCheckoutOtp()} disabled={loading || !otp.trim()} className="mt-5 w-full rounded-xl bg-orange py-3 font-semibold text-white disabled:opacity-60">
               {loading ? "Verifying..." : "Verify & Review Order"}

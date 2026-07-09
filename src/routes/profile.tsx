@@ -142,8 +142,6 @@ function AccountForm({ profile, onSaved }: { profile?: CustomerProfile; onSaved:
   const [mobile, setMobile] = useState(profile?.mobile || "");
   const [emailOtp, setEmailOtp] = useState("");
   const [mobileOtp, setMobileOtp] = useState("");
-  const [emailDevOtp, setEmailDevOtp] = useState("");
-  const [mobileDevOtp, setMobileDevOtp] = useState("");
   const [passwordEnabled, setPasswordEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -155,8 +153,6 @@ function AccountForm({ profile, onSaved }: { profile?: CustomerProfile; onSaved:
     setMobile(profile?.mobile || "");
     setEmailOtp("");
     setMobileOtp("");
-    setEmailDevOtp("");
-    setMobileDevOtp("");
   }, [profile?.id, profile?.email, profile?.mobile]);
 
   const requestContactOtp = async (kind: "email" | "mobile") => {
@@ -169,13 +165,10 @@ function AccountForm({ profile, onSaved }: { profile?: CustomerProfile; onSaved:
         identifier,
         kind === "email" ? "CHANGE_EMAIL" : "CHANGE_MOBILE",
       );
-      const devOtp = findDevelopmentOtp(challenge);
       if (kind === "email") {
-        setEmailDevOtp(devOtp);
-        setEmailOtp(devOtp);
+        setEmailOtp("");
       } else {
-        setMobileDevOtp(devOtp);
-        setMobileOtp(devOtp);
+        setMobileOtp("");
       }
       setMessage(`Verification OTP sent to ${challenge.maskedDestination || identifier}.`);
     } catch (caught) {
@@ -251,7 +244,6 @@ function AccountForm({ profile, onSaved }: { profile?: CustomerProfile; onSaved:
           {emailChanged ? (
             <input value={emailOtp} onChange={(event) => setEmailOtp(event.target.value)} inputMode="numeric" placeholder="Email OTP" className="h-10 w-full rounded-lg border border-border px-3" />
           ) : null}
-          {emailDevOtp ? <DevOtp value={emailDevOtp} /> : null}
         </div>
 
         <div className="space-y-2 md:col-span-2">
@@ -267,7 +259,6 @@ function AccountForm({ profile, onSaved }: { profile?: CustomerProfile; onSaved:
           {mobileChanged ? (
             <input value={mobileOtp} onChange={(event) => setMobileOtp(event.target.value)} inputMode="numeric" placeholder="Mobile OTP" className="h-10 w-full rounded-lg border border-border px-3" />
           ) : null}
-          {mobileDevOtp ? <DevOtp value={mobileDevOtp} /> : null}
         </div>
 
         <ProfileInput name="pan" label="PAN" defaultValue={profile?.pan || ""} />
@@ -323,10 +314,6 @@ function ProfileInput({
 
 function Verified() {
   return <span className="ml-1 rounded-full bg-secondary px-2 py-0.5 text-xs text-brand">Verified</span>;
-}
-
-function DevOtp({ value }: { value: string }) {
-  return <p className="text-xs text-brand">Development OTP: <strong>{value}</strong></p>;
 }
 
 function AddressInput({ label, value, required, onChange }: { label: string; value?: string; required?: boolean; onChange: (value: string) => void }) {
