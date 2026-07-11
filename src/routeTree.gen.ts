@@ -13,6 +13,7 @@ import { Route as WishlistRouteImport } from './routes/wishlist'
 import { Route as WhyChooseUsRouteImport } from './routes/why-choose-us'
 import { Route as TestimonialsRouteImport } from './routes/testimonials'
 import { Route as TermsAndConditionsRouteImport } from './routes/terms-and-conditions'
+import { Route as SubcategoriesRouteImport } from './routes/subcategories'
 import { Route as ShopAllRouteImport } from './routes/shop-all'
 import { Route as ShippingPolicyRouteImport } from './routes/shipping-policy'
 import { Route as RefundPolicyRouteImport } from './routes/refund-policy'
@@ -29,11 +30,11 @@ import { Route as FaqsRouteImport } from './routes/faqs'
 import { Route as ElectricalRouteImport } from './routes/electrical'
 import { Route as ContactUsRouteImport } from './routes/contact-us'
 import { Route as CementConcreteRouteImport } from './routes/cement-concrete'
-import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as AddressesRouteImport } from './routes/addresses'
 import { Route as AboutUsRouteImport } from './routes/about-us'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SubcategorySubcategoryIdRouteImport } from './routes/subcategory.$subcategoryId'
 import { Route as ProductsProductIdRouteImport } from './routes/products.$productId'
 import { Route as CheckoutShippingRouteImport } from './routes/checkout.shipping'
 import { Route as CheckoutReviewRouteImport } from './routes/checkout.review'
@@ -58,6 +59,11 @@ const TestimonialsRoute = TestimonialsRouteImport.update({
 const TermsAndConditionsRoute = TermsAndConditionsRouteImport.update({
   id: '/terms-and-conditions',
   path: '/terms-and-conditions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SubcategoriesRoute = SubcategoriesRouteImport.update({
+  id: '/subcategories',
+  path: '/subcategories',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ShopAllRoute = ShopAllRouteImport.update({
@@ -140,11 +146,6 @@ const CementConcreteRoute = CementConcreteRouteImport.update({
   path: '/cement-concrete',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CategoriesRoute = CategoriesRouteImport.update({
-  id: '/categories',
-  path: '/categories',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const CartRoute = CartRouteImport.update({
   id: '/cart',
   path: '/cart',
@@ -165,6 +166,12 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SubcategorySubcategoryIdRoute =
+  SubcategorySubcategoryIdRouteImport.update({
+    id: '/subcategory/$subcategoryId',
+    path: '/subcategory/$subcategoryId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ProductsProductIdRoute = ProductsProductIdRouteImport.update({
   id: '/$productId',
   path: '/$productId',
@@ -196,7 +203,6 @@ export interface FileRoutesByFullPath {
   '/about-us': typeof AboutUsRoute
   '/addresses': typeof AddressesRoute
   '/cart': typeof CartRoute
-  '/categories': typeof CategoriesRoute
   '/cement-concrete': typeof CementConcreteRoute
   '/contact-us': typeof ContactUsRoute
   '/electrical': typeof ElectricalRoute
@@ -213,6 +219,7 @@ export interface FileRoutesByFullPath {
   '/refund-policy': typeof RefundPolicyRoute
   '/shipping-policy': typeof ShippingPolicyRoute
   '/shop-all': typeof ShopAllRoute
+  '/subcategories': typeof SubcategoriesRoute
   '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/testimonials': typeof TestimonialsRoute
   '/why-choose-us': typeof WhyChooseUsRoute
@@ -222,13 +229,13 @@ export interface FileRoutesByFullPath {
   '/checkout/review': typeof CheckoutReviewRoute
   '/checkout/shipping': typeof CheckoutShippingRoute
   '/products/$productId': typeof ProductsProductIdRoute
+  '/subcategory/$subcategoryId': typeof SubcategorySubcategoryIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about-us': typeof AboutUsRoute
   '/addresses': typeof AddressesRoute
   '/cart': typeof CartRoute
-  '/categories': typeof CategoriesRoute
   '/cement-concrete': typeof CementConcreteRoute
   '/contact-us': typeof ContactUsRoute
   '/electrical': typeof ElectricalRoute
@@ -245,6 +252,7 @@ export interface FileRoutesByTo {
   '/refund-policy': typeof RefundPolicyRoute
   '/shipping-policy': typeof ShippingPolicyRoute
   '/shop-all': typeof ShopAllRoute
+  '/subcategories': typeof SubcategoriesRoute
   '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/testimonials': typeof TestimonialsRoute
   '/why-choose-us': typeof WhyChooseUsRoute
@@ -254,6 +262,7 @@ export interface FileRoutesByTo {
   '/checkout/review': typeof CheckoutReviewRoute
   '/checkout/shipping': typeof CheckoutShippingRoute
   '/products/$productId': typeof ProductsProductIdRoute
+  '/subcategory/$subcategoryId': typeof SubcategorySubcategoryIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -261,7 +270,6 @@ export interface FileRoutesById {
   '/about-us': typeof AboutUsRoute
   '/addresses': typeof AddressesRoute
   '/cart': typeof CartRoute
-  '/categories': typeof CategoriesRoute
   '/cement-concrete': typeof CementConcreteRoute
   '/contact-us': typeof ContactUsRoute
   '/electrical': typeof ElectricalRoute
@@ -278,6 +286,7 @@ export interface FileRoutesById {
   '/refund-policy': typeof RefundPolicyRoute
   '/shipping-policy': typeof ShippingPolicyRoute
   '/shop-all': typeof ShopAllRoute
+  '/subcategories': typeof SubcategoriesRoute
   '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/testimonials': typeof TestimonialsRoute
   '/why-choose-us': typeof WhyChooseUsRoute
@@ -287,6 +296,7 @@ export interface FileRoutesById {
   '/checkout/review': typeof CheckoutReviewRoute
   '/checkout/shipping': typeof CheckoutShippingRoute
   '/products/$productId': typeof ProductsProductIdRoute
+  '/subcategory/$subcategoryId': typeof SubcategorySubcategoryIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -295,7 +305,6 @@ export interface FileRouteTypes {
     | '/about-us'
     | '/addresses'
     | '/cart'
-    | '/categories'
     | '/cement-concrete'
     | '/contact-us'
     | '/electrical'
@@ -312,6 +321,7 @@ export interface FileRouteTypes {
     | '/refund-policy'
     | '/shipping-policy'
     | '/shop-all'
+    | '/subcategories'
     | '/terms-and-conditions'
     | '/testimonials'
     | '/why-choose-us'
@@ -321,13 +331,13 @@ export interface FileRouteTypes {
     | '/checkout/review'
     | '/checkout/shipping'
     | '/products/$productId'
+    | '/subcategory/$subcategoryId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about-us'
     | '/addresses'
     | '/cart'
-    | '/categories'
     | '/cement-concrete'
     | '/contact-us'
     | '/electrical'
@@ -344,6 +354,7 @@ export interface FileRouteTypes {
     | '/refund-policy'
     | '/shipping-policy'
     | '/shop-all'
+    | '/subcategories'
     | '/terms-and-conditions'
     | '/testimonials'
     | '/why-choose-us'
@@ -353,13 +364,13 @@ export interface FileRouteTypes {
     | '/checkout/review'
     | '/checkout/shipping'
     | '/products/$productId'
+    | '/subcategory/$subcategoryId'
   id:
     | '__root__'
     | '/'
     | '/about-us'
     | '/addresses'
     | '/cart'
-    | '/categories'
     | '/cement-concrete'
     | '/contact-us'
     | '/electrical'
@@ -376,6 +387,7 @@ export interface FileRouteTypes {
     | '/refund-policy'
     | '/shipping-policy'
     | '/shop-all'
+    | '/subcategories'
     | '/terms-and-conditions'
     | '/testimonials'
     | '/why-choose-us'
@@ -385,6 +397,7 @@ export interface FileRouteTypes {
     | '/checkout/review'
     | '/checkout/shipping'
     | '/products/$productId'
+    | '/subcategory/$subcategoryId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -392,7 +405,6 @@ export interface RootRouteChildren {
   AboutUsRoute: typeof AboutUsRoute
   AddressesRoute: typeof AddressesRoute
   CartRoute: typeof CartRoute
-  CategoriesRoute: typeof CategoriesRoute
   CementConcreteRoute: typeof CementConcreteRoute
   ContactUsRoute: typeof ContactUsRoute
   ElectricalRoute: typeof ElectricalRoute
@@ -409,6 +421,7 @@ export interface RootRouteChildren {
   RefundPolicyRoute: typeof RefundPolicyRoute
   ShippingPolicyRoute: typeof ShippingPolicyRoute
   ShopAllRoute: typeof ShopAllRoute
+  SubcategoriesRoute: typeof SubcategoriesRoute
   TermsAndConditionsRoute: typeof TermsAndConditionsRoute
   TestimonialsRoute: typeof TestimonialsRoute
   WhyChooseUsRoute: typeof WhyChooseUsRoute
@@ -417,6 +430,7 @@ export interface RootRouteChildren {
   CategoryCategoryIdRoute: typeof CategoryCategoryIdRoute
   CheckoutReviewRoute: typeof CheckoutReviewRoute
   CheckoutShippingRoute: typeof CheckoutShippingRoute
+  SubcategorySubcategoryIdRoute: typeof SubcategorySubcategoryIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -447,6 +461,13 @@ declare module '@tanstack/react-router' {
       path: '/terms-and-conditions'
       fullPath: '/terms-and-conditions'
       preLoaderRoute: typeof TermsAndConditionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/subcategories': {
+      id: '/subcategories'
+      path: '/subcategories'
+      fullPath: '/subcategories'
+      preLoaderRoute: typeof SubcategoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/shop-all': {
@@ -561,13 +582,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CementConcreteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/categories': {
-      id: '/categories'
-      path: '/categories'
-      fullPath: '/categories'
-      preLoaderRoute: typeof CategoriesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/cart': {
       id: '/cart'
       path: '/cart'
@@ -594,6 +608,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/subcategory/$subcategoryId': {
+      id: '/subcategory/$subcategoryId'
+      path: '/subcategory/$subcategoryId'
+      fullPath: '/subcategory/$subcategoryId'
+      preLoaderRoute: typeof SubcategorySubcategoryIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/products/$productId': {
@@ -651,7 +672,6 @@ const rootRouteChildren: RootRouteChildren = {
   AboutUsRoute: AboutUsRoute,
   AddressesRoute: AddressesRoute,
   CartRoute: CartRoute,
-  CategoriesRoute: CategoriesRoute,
   CementConcreteRoute: CementConcreteRoute,
   ContactUsRoute: ContactUsRoute,
   ElectricalRoute: ElectricalRoute,
@@ -668,6 +688,7 @@ const rootRouteChildren: RootRouteChildren = {
   RefundPolicyRoute: RefundPolicyRoute,
   ShippingPolicyRoute: ShippingPolicyRoute,
   ShopAllRoute: ShopAllRoute,
+  SubcategoriesRoute: SubcategoriesRoute,
   TermsAndConditionsRoute: TermsAndConditionsRoute,
   TestimonialsRoute: TestimonialsRoute,
   WhyChooseUsRoute: WhyChooseUsRoute,
@@ -676,6 +697,7 @@ const rootRouteChildren: RootRouteChildren = {
   CategoryCategoryIdRoute: CategoryCategoryIdRoute,
   CheckoutReviewRoute: CheckoutReviewRoute,
   CheckoutShippingRoute: CheckoutShippingRoute,
+  SubcategorySubcategoryIdRoute: SubcategorySubcategoryIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

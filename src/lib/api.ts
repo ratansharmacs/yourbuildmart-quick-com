@@ -453,6 +453,10 @@ export const api = {
 
   products: (params: Record<string, unknown> = {}) =>
     request<PageResponse<CatalogProduct>>(`/api/customer/products${toSearchParams(params)}`),
+  featuredProducts: (params: Record<string, unknown> = {}) =>
+    request<PageResponse<CatalogProduct>>(`/api/customer/products/featured${toSearchParams(params)}`),
+  hotDealProducts: (params: Record<string, unknown> = {}) =>
+    request<PageResponse<CatalogProduct>>(`/api/customer/products/hot-deals${toSearchParams(params)}`),
   product: (id: number | string) => request<ProductDetail>(`/api/customer/products/${id}`),
   productBySlug: (slug: string) => request<ProductDetail>(`/api/customer/products/slug/${encodeURIComponent(slug)}`),
   productsByCategory: (id: number, params: Record<string, unknown> = {}) =>

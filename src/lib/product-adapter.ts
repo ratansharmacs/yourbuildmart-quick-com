@@ -6,7 +6,7 @@ export function catalogProductToCard(product: CatalogProduct): Product {
     product.variants?.find((item) => item.inventory.available) ||
     product.variants?.[0];
   const price = variant?.price || product.variantMinPrice || product.basePrice || 0;
-  const maxPrice = product.variantMaxPrice || price;
+  const mrp = product.basePrice || product.variantMaxPrice || price;
   return {
     id: product.urlHandle || product.slug || String(product.id),
     slug: product.urlHandle || product.slug || String(product.id),
@@ -15,7 +15,8 @@ export function catalogProductToCard(product: CatalogProduct): Product {
     brand: product.brandName || "",
     category: product.categoryName || "products",
     price,
-    oldPrice: maxPrice > price ? maxPrice : price,
+    // Use basePrice (MRP) when available so UI can always display it as the struck-through value
+    oldPrice: product.basePrice || product.variantMaxPrice || price,
     variantId: variant?.id,
     rating: 4.6,
     reviews: 42,
@@ -38,7 +39,8 @@ export function productDetailToCard(product: ProductDetail, variantId?: number):
     ...card,
     variantId: variant?.id,
     price: variant?.price || card.price,
-    oldPrice: product.variantMaxPrice || variant?.price || card.oldPrice,
+    // Show basePrice (MRP) when available as the old price next to the variant price.
+    oldPrice: product.basePrice || product.variantMaxPrice || variant?.price || card.oldPrice,
     image: resolveApiImage(variant?.images?.[0] || product.imagePath),
     maxQuantity: variant?.inventory.maxCartQuantity ?? undefined,
     inStock: variant?.inventory.available ?? product.inStock,

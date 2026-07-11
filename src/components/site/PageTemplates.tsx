@@ -127,10 +127,10 @@ export function ProductShowcaseTemplate({
           <p className="mt-3 max-w-2xl text-sm text-muted-foreground md:text-base">{subtitle}</p>
           {topContent ? <div className="mt-6">{topContent}</div> : null}
 
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
+          <div className="mt-8 flex gap-4 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-5">
             {products.map((product, index) => (
-              <div key={`${product.id}-${index}`} className="w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)]">
-                <ProductCard product={product} />
+              <div key={`${product.id}-${index}`} className="min-w-[220px] md:min-w-0">
+                <ProductCard product={product} variant="home" />
               </div>
             ))}
           </div>

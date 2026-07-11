@@ -1,17 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Grid2x2, House, ShoppingBag } from "lucide-react";
+import { ArrowRight, Grid2x2, House, ShoppingBag, Truck, ShieldCheck, CreditCard, Clipboard } from "lucide-react";
 import { Navbar } from "@/components/site/Navbar";
 import { Footer, Newsletter } from "@/components/site/Footer";
 import { SectionHeader } from "@/components/site/SectionHeader";
 import { ProductCard } from "@/components/site/ProductCard";
+import { ProductRowCarousel } from "@/components/site/ProductRowCarousel";
+import { HotDealsSection } from "@/components/site/HotDealsSection";
 import { TestimonialsSection } from "@/components/site/TestimonialsSection";
 import { useShop } from "@/context/shop-context";
 
 import { categories, cementProducts, hardwareProducts, wireProducts, type Product } from "@/components/site/data";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useCategories, useProducts } from "@/hooks/use-catalog";
-import { resolveApiImage, slugify } from "@/lib/api";
+import { useCategories } from "@/hooks/use-catalog";
+import { api, resolveApiImage, slugify } from "@/lib/api";
 import { findCategoryByMatches, productsByCategoryFamily } from "@/lib/category-products";
 import { catalogProductToCard } from "@/lib/product-adapter";
 import heroBags from "@/assets/hero-bags.png";
@@ -34,16 +36,15 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   return (
     <div className="min-h-screen overflow-x-clip bg-background">
-      <Navbar />
+      <Navbar className="bg-gradient-to-r from-white via-[#FFF5EA] to-[#FFE7C7]/80" />
       <MobileTopCategories />
       <Hero />
       <MobileCategoriesSection />
       <Categories />
       <FeaturedProducts />
-      <HardwarePriceDrop />
+      <HotDealsSection />
       <DifferenceBand />
-      <WiresFlashDrop />
-      <ShopByCategory />
+      {/* WiresFlashDrop and ShopByCategory disabled on homepage per request */}
       <TestimonialsSection />
       <Newsletter />
       <Footer />
@@ -53,7 +54,7 @@ function HomePage() {
 
 function Hero() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-[--peach] to-background">
+    <section className="relative overflow-hidden bg-gradient-to-b from-[--peach] to-background" style={{ backgroundImage: "linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,243,231,0.75) 45%, rgba(255,210,164,0.4) 100%)" }}>
       <div className="container-page pb-2 pt-2 md:hidden">
         <div className="grid gap-2 rounded-3xl bg-gradient-to-br from-orange via-[#f5a23d] to-[#ffd1a4] p-3 text-white shadow-lg">
           <span className="inline-flex w-fit items-center gap-2 rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-medium text-orange">
@@ -95,7 +96,7 @@ function Hero() {
               <House className="h-4 w-4" />
               Home
             </button>
-            <Link to="/categories" className="flex flex-col items-center gap-1 px-2 py-2 text-[10px] font-medium text-foreground">
+            <Link to="/subcategories" className="flex flex-col items-center gap-1 px-2 py-2 text-[10px] font-medium text-foreground">
               <Grid2x2 className="h-4 w-4" />
               Categories
             </Link>
@@ -162,64 +163,67 @@ function Stat({ value, label }: { value: string; label: string }) {
 function Categories() {
   const categoryQuery = useCategories();
   const liveCategories = categoryQuery.data || [];
+  const source = (liveCategories.length ? liveCategories : categories) as any[];
+  let shownList = source.filter((c: any) => c.parentId !== null);
+  if (!shownList.length) shownList = source; // fallback if API doesn't return subcategories
+  const shown = shownList.slice(0, 10); // show at most 10 categories
+  const pageSize = 5;
+  const pages: any[] = [];
+  for (let i = 0; i < shown.length; i += pageSize) pages.push(shown.slice(i, i + pageSize));
+  const [pageIndex, setPageIndex] = useState(0);
+  const page = pages[pageIndex] || [];
   return (
-    <section className="container-page hidden pb-3 pt-1 md:block md:pb-4 md:pt-1">
-      <div className="flex overflow-x-auto rounded-2xl border border-[#DEE7E9] bg-white [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        {(liveCategories.length ? liveCategories : categories).map((c, i) => {
-          const isLive = "id" in c;
-          const image = isLive && c.image ? resolveApiImage(c.image) : categories[i % categories.length].icon;
-          return <Link key={c.name} to={isLive ? "/category/$categoryId" : "/products"} params={isLive ? { categoryId: slugify(c.name) } : undefined as never} className="group relative flex min-w-[280px] items-center gap-3 px-4 py-6">
-            <img
-              src={image}
-              alt={c.name}
-              className="h-14 w-14 shrink-0 object-contain transition group-hover:scale-105"
-              loading="lazy"
-            />
-            <div className="min-w-0">
-              <p className="truncate text-[1.06rem] font-bold text-foreground">{c.name}</p>
-              <span className="mt-1 inline-flex items-center rounded-md bg-[#EEF5F6] px-2.5 py-1 text-sm font-medium text-[#5F7177] transition group-hover:-translate-y-0.5 group-hover:bg-[#E3EFF1] group-hover:shadow-sm">
-                View All <ArrowRight className="ml-1 h-3.5 w-3.5" />
-              </span>
-            </div>
-            {i < (liveCategories.length || categories.length) - 1 && (
-              <span
-                aria-hidden
-                className="pointer-events-none absolute right-0 top-1/2 h-12 w-px -translate-y-1/2 bg-gradient-to-b from-transparent via-border/65 to-transparent"
-              />
-            )}
-          </Link>;
-        })}
+    <section className="container-page hidden pb-3 pt-1 md:block md:pb-4 md:pt-3">
+      <SectionHeader title="Explore subcategories" align="center" viewAllTo="/subcategories" viewAllText="View All Subcategories" />
+
+      <div className="relative">
+        <div className="rounded-2xl border border-[#DEE7E9] bg-white p-4">
+          <div className="grid grid-cols-5 gap-4">
+            {page.map((c: any, i: number) => {
+              const isLive = "id" in c;
+              const image = isLive && c.image ? resolveApiImage(c.image) : categories[i % categories.length].icon;
+              return (
+                <Link key={`cat-${c.name}-${i}`} to={isLive ? "/subcategory/$subcategoryId" : "/products"} params={isLive ? { subcategoryId: slugify(c.name) } : undefined as never} className="group block">
+                  <div className="rounded-2xl p-4 text-left hover:bg-secondary/40">
+                    <div className="flex items-center gap-3">
+                      <div className="h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-secondary p-2">
+                        <img src={image} alt={c.name} className="h-full w-full object-contain" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-base font-semibold text-foreground">{c.name}</p>
+                        <span className="mt-1 inline-flex items-center rounded-md bg-[#EEF5F6] px-2.5 py-1 text-sm font-medium text-[#5F7177]">View All <ArrowRight className="ml-1 h-3.5 w-3.5" /></span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        {pages.length > 1 ? (
+          <>
+            <button aria-label="Prev" onClick={() => setPageIndex((p) => Math.max(0, p - 1))} className="absolute left-0 top-1/2 z-10 inline-grid h-10 w-10 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white shadow-md">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1f2937" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+            </button>
+            <button aria-label="Next" onClick={() => setPageIndex((p) => Math.min(pages.length - 1, p + 1))} className="absolute right-0 top-1/2 z-10 inline-grid h-10 w-10 translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white shadow-md">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1f2937" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+            </button>
+          </>
+        ) : null}
       </div>
+
+      {/* viewAll link is rendered by SectionHeader on desktop */}
     </section>
   );
 }
 
 function FeaturedProducts() {
-  const [tab, setTab] = useState<"cement" | "hardware" | "wires">("cement");
-  const categoryQuery = useCategories();
-  const selectedCategory = categoryQuery.data?.find((category) => {
-    const name = category.name.toLowerCase();
-    return tab === "wires" ? name.includes("wire") || name.includes("electrical") : name.includes(tab);
+  const products = useQuery({
+    queryKey: ["home-featured-products"],
+    queryFn: () => api.featuredProducts({ page: 0, size: 15, sortBy: "crtDt", direction: "DESC" }),
   });
-  const categoryProducts = useQuery({
-    queryKey: ["home-featured", tab, selectedCategory?.id],
-    queryFn: () => productsByCategoryFamily({
-      categories: categoryQuery.data || [],
-      categoryId: selectedCategory!.id,
-      params: { page: 0, size: 12, sortBy: "crtDt", direction: "DESC" },
-      enrich: false,
-    }),
-    enabled: Boolean(selectedCategory && categoryQuery.data),
-  });
-  const fallbackProducts = useProducts({ page: 0, size: 12 });
-  const data = categoryProducts.data || fallbackProducts.data;
-  const isLoading = categoryProducts.isLoading || fallbackProducts.isLoading;
-  const error = categoryProducts.error || fallbackProducts.error;
-  const isError = Boolean(error);
-  const apiProducts = (data?.content || []).map(catalogProductToCard);
-  const list = apiProducts.length
-    ? apiProducts
-    : tab === "cement" ? cementProducts : tab === "hardware" ? hardwareProducts : wireProducts;
+  const list = (products.data?.content || []).map(catalogProductToCard);
   return (
     <section
       className="relative w-full overflow-hidden pb-7 pt-1 md:pb-8 md:pt-7"
@@ -245,58 +249,67 @@ function FeaturedProducts() {
           viewAllText="View All Products"
         />
       </div>
-      <div className="container-page mt-4 flex items-center justify-center">
-        <div className="inline-flex items-center rounded-full border border-[#D8E5E8] bg-[#F7FAFB] p-1 shadow-sm">
-          <button
-            className={`rounded-full px-6 py-2 text-sm font-medium transition ${
-              tab === "cement" ? "bg-[#235758] text-white shadow-sm" : "text-[#5F7177] hover:text-[#235758]"
-            }`}
-            onClick={() => setTab("cement")}
-          >
-            Cement
-          </button>
-          <button
-            className={`rounded-full px-6 py-2 text-sm font-medium transition ${
-              tab === "hardware" ? "bg-[#235758] text-white shadow-sm" : "text-[#5F7177] hover:text-[#235758]"
-            }`}
-            onClick={() => setTab("hardware")}
-          >
-            Hardware
-          </button>
-          <button
-            className={`rounded-full px-6 py-2 text-sm font-medium transition ${
-              tab === "wires" ? "bg-[#235758] text-white shadow-sm" : "text-[#5F7177] hover:text-[#235758]"
-            }`}
-            onClick={() => setTab("wires")}
-          >
-            Wires
-          </button>
-        </div>
-      </div>
+      {/* Removed capsule filter (cement / hardware / wires) per request */}
 
-      <div className="container-page mt-4 flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:grid md:grid-cols-5 md:overflow-visible">
-        {isLoading && !list.length ? <p className="text-sm text-muted-foreground">Loading products...</p> : null}
-        {isError ? <p className="col-span-full text-sm text-red-600">{error instanceof Error ? error.message : "Products could not be loaded"}</p> : null}
-        {list.slice(0, 5).map((p) => (
-          <div key={p.id} className="min-w-[220px] md:min-w-0">
-            <ProductCard product={p} variant="home" />
-          </div>
-        ))}
+      <div className="container-page mt-4">
+        {products.isLoading ? <p className="text-sm text-muted-foreground">Loading featured products...</p> : null}
+        {products.isError ? <p className="text-sm text-red-600">{products.error.message}</p> : null}
+        {list.length ? <ProductRowCarousel products={list} /> : null}
       </div>
     </section>
   );
 }
 
 function HardwarePriceDrop() {
-  return <BackendCategoryStrip match="hardware" title="Hardware Price Drop" subtitle="Save big on premium hardware products" className="bg-secondary py-6 md:pb-0 md:pt-7" fallback={hardwareProducts} centerOnMd />;
+  return <BackendCategoryStrip match="hardware" title="Price Drop" subtitle="Save big on premium hardware products" className="bg-gradient-to-r from-white via-[#FFF5EA] to-[#FFE7C7] py-10 md:py-12" fallback={hardwareProducts} centerOnMd />;
 }
 
 function DifferenceBand() {
   return (
-    <section className="pb-6 pt-0 md:pb-10 md:pt-0">
-      <div className="w-full">
-        <img src={differenceBgMobile} alt="How We Are Making Difference" className="block w-full md:hidden" />
-        <img src={differenceBg} alt="How We Are Making Difference" className="hidden w-full md:block" />
+    <section className="flex justify-center ">
+      <div className="mx-auto hidden md:block" style={{ width: 1513 }}>
+          <div style={{ height: 242, backgroundColor: '#235758', borderRadius: 8 }} className="relative">
+            <div className="absolute left-0 right-0 top-0 bottom-0 flex flex-col items-center justify-center text-center text-white" style={{ paddingLeft: 100, paddingRight: 100 }}>
+              <div style={{ width: 660, height: 50, margin: '0 auto' }}>
+                <h2 style={{ fontFamily: 'Overlock, serif', fontWeight: 900, fontStyle: 'normal', fontSize: 36, lineHeight: '40px', letterSpacing: 0, color: '#ffffff', textAlign: 'center', margin: 0 }}>How We Are Making Difference</h2>
+              </div>
+
+              <div className="mt-6 flex w-full items-center justify-between">
+                <div className="flex w-full items-center justify-between">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="h-20 w-20 rounded-full bg-white p-4 grid place-items-center"><Truck className="h-9 w-9 text-[#235758]" /></div>
+                    <div className="text-sm font-medium text-white">Fast Delivery</div>
+                  </div>
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="h-20 w-20 rounded-full bg-white p-4 grid place-items-center"><ShieldCheck className="h-9 w-9 text-[#235758]" /></div>
+                    <div className="text-sm font-medium text-white">Genuine Products</div>
+                  </div>
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="h-20 w-20 rounded-full bg-white p-4 grid place-items-center"><CreditCard className="h-9 w-9 text-[#235758]" /></div>
+                    <div className="text-sm font-medium text-white">Pay on Delivery</div>
+                  </div>
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="h-20 w-20 rounded-full bg-white p-4 grid place-items-center"><Clipboard className="h-9 w-9 text-[#235758]" /></div>
+                    <div className="text-sm font-medium text-white">No Min Order</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      {/* Mobile / narrow fallback */}
+      <div className="mx-auto w-full max-w-full rounded-lg md:hidden bg-[#235758] py-8">
+        <div className="container-page text-center text-white">
+          <h2 className="text-2xl">How We Are Making Difference</h2>
+          <div className="mt-4 flex items-center justify-center gap-6">
+            <div className="h-12 w-12 rounded-full bg-white p-2 grid place-items-center"><Truck className="h-6 w-6 text-[#235758]" /></div>
+            <div className="h-12 w-12 rounded-full bg-white p-2 grid place-items-center"><ShieldCheck className="h-6 w-6 text-[#235758]" /></div>
+            <div className="h-12 w-12 rounded-full bg-white p-2 grid place-items-center"><CreditCard className="h-6 w-6 text-[#235758]" /></div>
+            <div className="h-12 w-12 rounded-full bg-white p-2 grid place-items-center"><Clipboard className="h-6 w-6 text-[#235758]" /></div>
+          </div>
+          <div className="mt-3 text-sm font-medium">Fast Delivery · Genuine Products · Pay on Delivery · No Min Order</div>
+        </div>
       </div>
     </section>
   );
@@ -321,7 +334,7 @@ function BackendCategoryStrip({ match, title, subtitle, className, fallback, cen
     enabled: Boolean(category && categoriesQuery.data),
   });
   const cards = products.data?.content.map(catalogProductToCard) || fallback;
-  return <section className={className}><div className="container-page"><SectionHeader title={title} subtitle={subtitle} viewAllTo={category ? `/category/${category.id}` : "/products"} /><ProductStrip products={cards} centerOnMd={centerOnMd} /></div></section>;
+  return <section className={className}><div className="container-page"><SectionHeader title={title} subtitle={subtitle} viewAllTo={category ? `/category/${slugify(category.name)}` : "/products"} /><ProductStrip products={cards} centerOnMd={centerOnMd} /></div></section>;
 }
 
 function ShopByCategory() {
@@ -332,7 +345,7 @@ function ShopByCategory() {
   ];
   return (
     <section className="bg-orange/95 py-7 text-orange-foreground md:py-8">
-      <div className="container-page">
+      <div className="container-page pt-4">
         <h2 className="mb-2 text-center text-3xl text-orange-foreground">Shop By Category</h2>
         <p className="mb-5 text-center text-sm opacity-90">Explore our wide range of construction materials and hardware</p>
 
@@ -358,7 +371,7 @@ function ShopByCategory() {
 function MobileTopCategories() {
   const categoryQuery = useCategories();
   const liveCategories = categoryQuery.data || [];
-  const shownCategories = liveCategories.length ? liveCategories : categories;
+  const shownCategories = liveCategories.length ? liveCategories.filter((c: any) => c.parentId === null) : categories;
 
   return (
     <section className="container-page pb-1 pt-0 md:hidden">
@@ -391,14 +404,14 @@ function MobileCategoriesSection() {
         <div>
           <h2 className="text-xl leading-none text-brand">Categories</h2>
         </div>
-        <Link to="/categories" className="text-[10px] font-medium text-brand">View All</Link>
+        <Link to="/subcategories" className="text-[10px] font-medium text-brand">View All</Link>
       </div>
       <div className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {shownCategories.map((c, i) => {
           const isLive = "id" in c;
           const image = isLive && c.image ? resolveApiImage(c.image) : categories[i % categories.length].icon;
           return (
-          <Link key={`secondary-${c.name}`} to={isLive ? "/category/$categoryId" : "/categories"} params={isLive ? { categoryId: slugify(c.name) } : undefined as never} className="shrink-0 text-center">
+          <Link key={`secondary-${c.name}`} to={isLive && c.parentId !== null ? "/subcategory/$subcategoryId" : isLive ? "/category/$categoryId" : "/subcategories"} params={isLive && c.parentId !== null ? { subcategoryId: slugify(c.name) } : isLive ? { categoryId: slugify(c.name) } : undefined as never} className="shrink-0 text-center">
             <div className="mx-auto grid h-20 w-20 place-items-center rounded-full border border-[#D8E5E8] bg-[#EEF5F6] p-2">
               <img src={image} alt={c.name} className="h-[52px] w-[52px] object-contain" loading="lazy" />
             </div>
@@ -426,13 +439,33 @@ function ProductStrip({ products, centerOnMd }: { products: Product[]; centerOnM
     );
   });
 
+  const pageSize = 5;
+  const pages: Product[][] = [];
+  for (let i = 0; i < shown.length; i += pageSize) pages.push(shown.slice(i, i + pageSize));
+  const [pageIndex, setPageIndex] = useState(0);
+  const page = pages[pageIndex] || [];
+
   return (
-    <div className={`flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:overflow-visible ${centerOnMd ? "md:flex md:flex-wrap md:justify-center" : "md:grid md:grid-cols-5"}`}>
-      {shown.slice(0, 5).map((p) => (
-        <div key={p.id} className="min-w-[220px] md:min-w-0">
-          <ProductCard product={p} variant="home" />
+    <div>
+      <div className={`flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:overflow-visible ${centerOnMd ? "md:flex md:flex-wrap md:justify-center" : "md:grid md:grid-cols-5"}`}>
+        {page.map((p) => (
+          <div key={p.id} className="min-w-[220px] md:min-w-0">
+            <ProductCard product={p} variant="home" />
+          </div>
+        ))}
+      </div>
+
+      {pages.length > 1 ? (
+        <div className="mt-4 flex items-center justify-center gap-3">
+          <button aria-label="Prev products" onClick={() => setPageIndex((v) => Math.max(0, v - 1))} className="h-8 w-8 rounded-full bg-white shadow">‹</button>
+          <div className="flex items-center gap-2">
+            {pages.map((_, i) => (
+              <button key={i} onClick={() => setPageIndex(i)} className={`h-2 w-8 rounded-full ${i === pageIndex ? "bg-brand" : "bg-muted-foreground/40"}`}></button>
+            ))}
+          </div>
+          <button aria-label="Next products" onClick={() => setPageIndex((v) => Math.min(pages.length - 1, v + 1))} className="h-8 w-8 rounded-full bg-white shadow">›</button>
         </div>
-      ))}
+      ) : null}
     </div>
   );
 }

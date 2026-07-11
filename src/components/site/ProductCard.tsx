@@ -66,8 +66,10 @@ export function ProductCard({ product, variant = "default" }: { product: Product
             {product.name}
           </div>
           <div className="flex items-baseline gap-0.5">
-            <span className="font-semibold text-foreground text-base">₹{product.price}</span>
-            <span className="text-xs text-muted-foreground line-through">₹{product.oldPrice}</span>
+            <span className="font-semibold text-foreground text-base">₹{typeof product.price === 'number' ? product.price.toFixed(2) : product.price}</span>
+            {product.oldPrice != null ? (
+              <span className="text-xs text-muted-foreground line-through">₹{typeof product.oldPrice === 'number' ? product.oldPrice.toFixed(2) : product.oldPrice}</span>
+            ) : null}
           </div>
           <div className="flex items-center gap-0.5 text-[11px] text-muted-foreground">
             {Array.from({ length: 5 }).map((_, i) => (

@@ -96,10 +96,10 @@ function LoginPage() {
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {mode === "otp"
-              ? "Enter your email address or mobile number to continue with OTP."
+              ? "Enter your mobile number to continue with OTP."
               : mode === "password"
-                ? "Returning customers can use their email or mobile number and password."
-                : "We will send an OTP to your registered email or mobile number."}
+                ? "Returning customers can use their mobile number and password."
+                : "We will send an OTP to your registered mobile number."}
           </p>
 
           {mode !== "forgot" ? (
@@ -123,11 +123,12 @@ function LoginPage() {
 
           <form onSubmit={submit} className="mt-5 space-y-4">
             <Field
-              label="Email or Mobile Number"
+              label="Mobile Number"
               value={identifier}
               onChange={setIdentifier}
               disabled={step !== "identifier"}
-              autoComplete="username"
+              autoComplete="tel"
+              inputMode="tel"
             />
 
             {mode === "password" ? (

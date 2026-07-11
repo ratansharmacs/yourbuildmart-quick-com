@@ -16,10 +16,10 @@ export const Route = createFileRoute("/hot-deals")({
 
 function HotDealsPage() {
   const productsQuery = useQuery({ queryKey: ["hot-deals-products"], queryFn: async () => {
-    const first = await api.products({ page: 0, size: 100, sortBy: "crtDt", direction: "DESC" });
-    const pages = await Promise.all(Array.from({ length: Math.max(0, first.totalPages - 1) }, (_, index) => api.products({ page: index + 1, size: 100, sortBy: "crtDt", direction: "DESC" })));
+    const first = await api.hotDealProducts({ page: 0, size: 100, sortBy: "crtDt", direction: "DESC" });
+    const pages = await Promise.all(Array.from({ length: Math.max(0, first.totalPages - 1) }, (_, index) => api.hotDealProducts({ page: index + 1, size: 100, sortBy: "crtDt", direction: "DESC" })));
     const catalog = [first, ...pages].flatMap((page) => page.content);
-    return Promise.all(catalog.map(async (product) => { try { return { ...product, ...(await api.product(product.id)) }; } catch { return product; } }));
+    return catalog;
   } });
 
   return (

@@ -17,15 +17,17 @@ import {
 import { Navbar } from "@/components/site/Navbar";
 import { Footer, Newsletter } from "@/components/site/Footer";
 import { ProductCard } from "@/components/site/ProductCard";
-import { TestimonialsSection } from "@/components/site/TestimonialsSection";
-import { useProduct, useRelatedProducts } from "@/hooks/use-catalog";
+import { ProductRowCarousel } from "@/components/site/ProductRowCarousel";
+import { HotDealsSection } from "@/components/site/HotDealsSection";
+// TestimonialsSection disabled on product page per request
+// import { TestimonialsSection } from "@/components/site/TestimonialsSection";
+import { useProduct } from "@/hooks/use-catalog";
 import { catalogProductToCard, productDetailToCard } from "@/lib/product-adapter";
 import {
   api,
   getProductImages,
   parseVariantAttributes,
   slugify,
-  type CatalogProduct,
   type CustomerCategory,
   type ProductDetail,
   type ProductVariant,
@@ -43,30 +45,40 @@ const RECENTLY_VIEWED_KEY = "ybm_recently_viewed_products";
 function ProductDetailPage() {
   const { productId } = useParams({ from: "/products/$productId" });
   const productQuery = useProduct(productId);
-  const relatedQuery = useRelatedProducts(productQuery.data?.id || "");
   const categoriesQuery = useQuery({ queryKey: ["categories"], queryFn: api.categories });
-  const sameCategoryQuery = useQuery({
-    queryKey: ["product-page", "same-category", productQuery.data?.categoryId],
-    queryFn: () => api.productsByCategory(productQuery.data!.categoryId, { page: 0, size: 12, sortBy: "crtDt", direction: "DESC" }),
-    enabled: Boolean(productQuery.data?.categoryId),
-  });
-  const sameBrandQuery = useQuery({
-    queryKey: ["product-page", "same-brand", productQuery.data?.brandId],
-    queryFn: () => api.productsByBrand(productQuery.data!.brandId, { page: 0, size: 10, sortBy: "crtDt", direction: "DESC" }),
-    enabled: Boolean(productQuery.data?.brandId),
-  });
-  const bestProductsQuery = useQuery({
-    queryKey: ["product-page", "best-products"],
-    queryFn: () => api.products({ page: 0, size: 12, sortBy: "crtDt", direction: "DESC" }),
-  });
-  const wireCategory = categoriesQuery.data?.find((category) => {
-    const name = category.name.toLowerCase();
-    return name.includes("wire") || name.includes("electrical");
-  });
-  const wireProductsQuery = useQuery({
-    queryKey: ["product-page", "wire-products", wireCategory?.id],
-    queryFn: () => api.productsByCategory(wireCategory!.id, { page: 0, size: 10, sortBy: "crtDt", direction: "DESC" }),
-    enabled: Boolean(wireCategory),
+  const categoryInfo = categoriesQuery.data?.find((category) => category.id === productQuery.data?.categoryId);
+  const similarProductsQuery = useQuery({
+    queryKey: ["product-page", "similar-priority", productQuery.data?.id, categoryInfo?.id, categoriesQuery.data],
+    enabled: Boolean(productQuery.data && categoryInfo && categoriesQuery.data),
+    queryFn: async () => {
+      const currentId = productQuery.data!.id;
+      const load = async (categoryId: number) => {
+        const page = await api.productsByCategory(categoryId, { page: 0, size: 15, sortBy: "crtDt", direction: "DESC" });
+        return page.content.filter((item) => item.id !== currentId);
+      };
+
+      const sameCategory = await load(categoryInfo!.id);
+      if (sameCategory.length) return sameCategory;
+
+      if (categoryInfo!.parentId !== null) {
+        const parentProducts = await load(categoryInfo!.parentId);
+        if (parentProducts.length) return parentProducts;
+      }
+
+      const peers = (categoriesQuery.data || []).filter((item) =>
+        item.id !== categoryInfo!.id && item.parentId === categoryInfo!.parentId && item.productCount > 0,
+      );
+      const currentIndex = (categoriesQuery.data || []).findIndex((item) => item.id === categoryInfo!.id);
+      peers.sort((a, b) =>
+        Math.abs((categoriesQuery.data || []).findIndex((item) => item.id === a.id) - currentIndex) -
+        Math.abs((categoriesQuery.data || []).findIndex((item) => item.id === b.id) - currentIndex),
+      );
+      for (const peer of peers) {
+        const adjacentProducts = await load(peer.id);
+        if (adjacentProducts.length) return adjacentProducts;
+      }
+      return [];
+    },
   });
   const { addToCart, toggleWishlist, isWishlisted } = useShop();
   const [variantId, setVariantId] = useState<number>();
@@ -91,10 +103,6 @@ function ProductDetailPage() {
   const selectedVariant = productQuery.data?.variants.find(
     (variant) => variant.id === variantId,
   );
-  const related = (relatedQuery.data?.content || [])
-    .filter((item) => item.id !== productQuery.data?.id)
-    .map(catalogProductToCard);
-
   useEffect(() => {
     if (typeof window === "undefined") return;
     const stored = readRecentlyViewed();
@@ -126,14 +134,9 @@ function ProductDetailPage() {
 
   const detail = productQuery.data;
   const images = getProductImages(detail);
-  const sameCategory = cardsFromPage(sameCategoryQuery.data, detail.id);
-  const sameBrand = cardsFromPage(sameBrandQuery.data, detail.id);
-  const bestProducts = cardsFromPage(bestProductsQuery.data, detail.id)
-    .sort((a, b) => b.rating - a.rating || b.reviews - a.reviews);
-  const wireProducts = cardsFromPage(wireProductsQuery.data, detail.id);
-  const frequentlyBought = uniqueProducts([...related, ...sameCategory, ...sameBrand]).slice(0, 10);
-  const topBrandProducts = uniqueProducts([...sameBrand, ...sameCategory, ...bestProducts]).slice(0, 10);
-  const visibleCategories = categoriesQuery.data?.filter((category) => category.productCount > 0).slice(0, 12) || [];
+  const sameCategory = (similarProductsQuery.data || []).map(catalogProductToCard);
+  const similarProducts = uniqueProducts(sameCategory);
+  const categorySlug = categoryInfo ? slugify(categoryInfo.name) : detail.categoryName ? slugify(detail.categoryName) : String(detail.categoryId);
   const inventoryLimit =
     selectedVariant?.inventory.maxCartQuantity ??
     selectedVariant?.inventory.totalStock ??
@@ -192,11 +195,11 @@ function ProductDetailPage() {
 
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <span className="text-3xl font-semibold text-brand">
-              ₹{product.price.toFixed(2)}
+              ₹{typeof product.price === 'number' ? product.price.toFixed(2) : product.price}
             </span>
-            {product.oldPrice > product.price ? (
+            {product.oldPrice != null ? (
               <span className="text-sm text-muted-foreground line-through">
-                ₹{product.oldPrice.toFixed(2)}
+                ₹{typeof product.oldPrice === 'number' ? product.oldPrice.toFixed(2) : product.oldPrice}
               </span>
             ) : null}
           </div>
@@ -267,54 +270,19 @@ function ProductDetailPage() {
         </div>
       </main>
 
+      {/* Similar items */}
       <ProductRail
         title="Similar Items You Might Also Like"
         subtitle={`More ${detail.categoryName || "products"} selected for this product`}
-        products={sameCategory.length ? sameCategory : related}
-        loading={sameCategoryQuery.isLoading || relatedQuery.isLoading}
+        products={similarProducts}
+        loading={similarProductsQuery.isLoading}
         background="figmaSoft"
-        viewAllTo={`/category/${detail.categoryId}`}
+        viewAllTo={`/${categoryInfo?.parentId === null ? "category" : "subcategory"}/${categorySlug}`}
       />
-      <ReviewsAndRatings product={detail} />
-      <TestimonialsSection />
-      <ProductFaq product={detail} />
+
+      {/* Move Recently Viewed up right after similar items */}
       <ProductRail
-        title={`Explore ${detail.categoryName || "Products"} from Top Brands`}
-        subtitle={`Premium ${detail.categoryName || "products"} at flash sale prices`}
-        products={topBrandProducts}
-        background="light"
-        glow
-        chips={brandChips(topBrandProducts)}
-        viewAllTo={`/category/${detail.categoryId}`}
-      />
-      <ProductRail
-        title="Wires Flash Drop"
-        subtitle="Premium electrical wires at flash sale prices"
-        products={wireProducts.length ? wireProducts : related}
-        loading={wireProductsQuery.isLoading}
-        background="white"
-        viewAllTo={wireCategory ? `/category/${wireCategory.id}` : "/products"}
-      />
-      <ProductRail
-        title="Best Of Your Build Mart"
-        subtitle="Premium products based on rating and review signals"
-        products={bestProducts}
-        loading={bestProductsQuery.isLoading}
-        background="figmaSoft"
-        glow
-        viewAllTo="/products"
-      />
-      <ProductRail
-        title="Frequently Bought Together"
-        subtitle="Frequently paired with the product you are viewing"
-        products={frequentlyBought}
-        loading={relatedQuery.isLoading || sameCategoryQuery.isLoading || sameBrandQuery.isLoading}
-        background="white"
-        viewAllTo="/products"
-      />
-      <RelatedCategoriesStrip categories={visibleCategories} />
-      <ProductRail
-        title="Recently Viewed"
+        title="Recently Reviewed"
         subtitle="Continue where you left off"
         products={recentlyViewed}
         background="soft"
@@ -322,7 +290,14 @@ function ProductDetailPage() {
         hideWhenEmpty
         viewAllTo="/products"
       />
-      <Newsletter />
+
+      <HotDealsSection />
+
+      {/* Facts / FAQ section */}
+      <ProductFaq product={detail} />
+
+      {/* Skip: ReviewsAndRatings, TestimonialsSection, WiresFlashDrop, Best Of, Frequently Bought Together, RelatedCategoriesStrip, Newsletter */}
+
       <Footer />
     </div>
   );
@@ -538,7 +513,7 @@ function ProductRail({
 
   if (hideWhenEmpty && !loading && !products.length) return null;
 
-  const shownProducts = centerFill ? centerFillProducts(products.slice(0, 5)) : products.slice(0, 5);
+  const shownProducts = centerFill && products.length <= 5 ? centerFillProducts(products) : products;
 
   return (
     <section className={`${bg} py-10 md:py-12`} style={sectionStyle}>
@@ -566,30 +541,9 @@ function ProductRail({
         ) : null}
         {loading ? <p className="text-center text-sm text-muted-foreground">Loading products...</p> : null}
         {!loading && !products.length ? <p className="text-center text-sm text-muted-foreground">{emptyText}</p> : null}
-        {products.length ? (
-          <>
-            <div className={`flex justify-start gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:justify-center ${glow ? "" : "md:overflow-visible"}`}>
-              {shownProducts.map((item) => (
-                <div key={item.id} className={`min-w-[220px] text-left ${glow ? "md:min-w-[220px] lg:min-w-[250px]" : "md:w-[calc(20%-0.8rem)] md:min-w-0 md:max-w-[250px]"}`}>
-                  <ProductCard product={item} />
-                </div>
-              ))}
-            </div>
-            <RailDots />
-          </>
-        ) : null}
+        {shownProducts.length ? <ProductRowCarousel products={shownProducts} /> : null}
       </div>
     </section>
-  );
-}
-
-function RailDots() {
-  return (
-    <div className="mt-4 flex justify-center gap-1.5">
-      <span className="h-1.5 w-5 rounded-full bg-brand" />
-      <span className="h-1.5 w-1.5 rounded-full bg-orange/50" />
-      <span className="h-1.5 w-1.5 rounded-full bg-orange/50" />
-    </div>
   );
 }
 
@@ -729,12 +683,6 @@ function RelatedCategoriesStrip({ categories }: { categories: CustomerCategory[]
   );
 }
 
-function cardsFromPage(page?: { content: CatalogProduct[] }, currentProductId?: number) {
-  return (page?.content || [])
-    .filter((item) => item.id !== currentProductId)
-    .map(catalogProductToCard);
-}
-
 function uniqueProducts(products: Product[]) {
   const seen = new Set<string>();
   return products.filter((product) => {
@@ -743,10 +691,6 @@ function uniqueProducts(products: Product[]) {
     seen.add(key);
     return true;
   });
-}
-
-function brandChips(products: Product[]) {
-  return [...new Set(products.map((product) => product.brand).filter(Boolean))];
 }
 
 function centerFillProducts(products: Product[]) {
