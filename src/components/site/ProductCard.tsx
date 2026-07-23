@@ -4,13 +4,14 @@ import type { Product } from "./data";
 import { ProductImage } from "./ProductImage";
 import { useShop } from "@/context/shop-context";
 import { api } from "@/lib/api";
-import { productDetailToCard } from "@/lib/product-adapter";
+import { getProductSavings, productDetailToCard } from "@/lib/product-adapter";
 
 export function ProductCard({ product, variant = "default" }: { product: Product; variant?: "default" | "compact" | "home" }) {
   const linkProps = { to: "/products/$productId", params: { productId: product.id } } as const;
   const { addToCart, toggleWishlist, isWishlisted } = useShop();
   const navigate = useNavigate();
   const canTryAdd = product.inStock !== false && Boolean(product.variantId || product.apiId);
+  const savings = getProductSavings(product);
 
   const checkoutProduct = async () => {
     if (product.variantId) return product;
@@ -69,6 +70,11 @@ export function ProductCard({ product, variant = "default" }: { product: Product
             <span className="font-semibold text-foreground text-base">₹{typeof product.price === 'number' ? product.price.toFixed(2) : product.price}</span>
             {product.oldPrice != null ? (
               <span className="text-xs text-muted-foreground line-through">₹{typeof product.oldPrice === 'number' ? product.oldPrice.toFixed(2) : product.oldPrice}</span>
+            ) : null}
+            {savings.percent > 0 ? (
+              <span className="ml-1 rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-semibold text-green-700">
+                Save {savings.percent}%
+              </span>
             ) : null}
           </div>
           <div className="flex items-center gap-0.5 text-[11px] text-muted-foreground">

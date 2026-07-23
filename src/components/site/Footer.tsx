@@ -39,9 +39,6 @@ export function Footer() {
   const quickLinks = [
     { label: "Shop All", to: "/shop-all" },
     { label: "About Us", to: "/about-us" },
-    { label: "Why Choose Us", to: "/why-choose-us" },
-    { label: "Testimonials", to: "/testimonials" },
-    { label: "FAQs", to: "/faqs" },
     { label: "Contact us", to: "/contact-us" },
   ] as const;
 
@@ -53,11 +50,9 @@ export function Footer() {
   ] as const;
 
   const contactLinks = [
-    { label: "care@yourbuildmart.com", href: "mailto:care@yourbuildmart.com" },
-    { label: "+91 9313984685", href: "tel:+919313984685" },
-    { label: "Why Choose Us", to: "/why-choose-us" },
-    { label: "Testimonials", to: "/testimonials" },
-    { label: "FAQs", to: "/faqs" },
+    { label: "info@yourbuildmart.com", href: "mailto:info@yourbuildmart.com" },
+    { label: "+91 83830 01449", href: "tel:+918383001449" },
+    { label: "+91 83284 08325", href: "tel:+918328408325" },
     { label: "Contact us", to: "/contact-us" },
   ] as const;
 
@@ -67,9 +62,9 @@ export function Footer() {
         <div className="space-y-4">
           <img src={footerLogo} alt="YourBuildMart" className="h-8 w-auto" />
           <p className="text-sm opacity-80">
-            Morbi cursus porttitor enim lobortis molestie. Duis gravida turpis dui, eget bibendum magna congue nec.
+            Construction materials, trusted brands, and project support in one convenient marketplace.
           </p>
-          <p className="text-sm opacity-80">(219) 555-0114 or Proxy@gmail.com</p>
+          <p className="text-sm opacity-80">info@yourbuildmart.com</p>
         </div>
         <FooterCol title="Quick Links" links={quickLinks} />
         <FooterCol title="Policies" links={policyLinks} />

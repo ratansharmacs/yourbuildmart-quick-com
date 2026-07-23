@@ -16,6 +16,7 @@ import { ProductImage } from "@/components/site/ProductImage";
 import { useShop } from "@/context/shop-context";
 import { useProducts } from "@/hooks/use-catalog";
 import { catalogProductToCard } from "@/lib/product-adapter";
+import { getProductSavings } from "@/lib/product-adapter";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({ meta: [{ title: "Cart and Checkout - YourBuildMart" }] }),
@@ -37,7 +38,7 @@ function CartPage() {
 
   const itemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const originalTotal = cartItems.reduce(
-    (sum, item) => sum + item.product.oldPrice * item.quantity,
+    (sum, item) => sum + (item.product.oldPrice || item.product.price) * item.quantity,
     0,
   );
   const subTotal = cartItems.reduce(
@@ -98,6 +99,9 @@ function CartPage() {
             <div>
               <div className="space-y-5">
                 {cartItems.map((item) => (
+                  (() => {
+                    const itemSavings = getProductSavings(item.product);
+                    return (
                   <article
                     key={`${item.product.id}-${item.product.variantId}`}
                     className="overflow-hidden rounded-2xl border border-brand bg-card"
@@ -121,11 +125,22 @@ function CartPage() {
                         >
                           {item.product.name}
                         </Link>
-                        <p className="mt-3 text-2xl font-semibold">
-                          ₹{item.product.price.toFixed(2)}
-                        </p>
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          <span className="text-2xl font-semibold">₹{item.product.price.toFixed(2)}</span>
+                          {item.product.oldPrice != null ? (
+                            <span className="text-sm text-muted-foreground line-through">
+                              ₹{item.product.oldPrice.toFixed(2)}
+                            </span>
+                          ) : null}
+                          {itemSavings.percent > 0 ? (
+                            <span className="rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700">
+                              Save {itemSavings.percent}%
+                            </span>
+                          ) : null}
+                        </div>
                         <p className="mt-2 text-sm font-medium text-green-700">
                           {item.product.inStock === false ? "Out of Stock" : "In Stock"}
+                          {itemSavings.amount > 0 ? ` · You save ₹${(itemSavings.amount * item.quantity).toFixed(2)}` : ""}
                         </p>
                         <div className="mt-auto flex flex-wrap items-end justify-between gap-4 pt-6">
                           <div className="flex items-center rounded-full border border-border">
@@ -175,6 +190,8 @@ function CartPage() {
                       </button>
                     </div>
                   </article>
+                    );
+                  })()
                 ))}
               </div>
 
@@ -203,6 +220,11 @@ function CartPage() {
                   <span>Total Amount</span>
                   <span>₹{subTotal.toFixed(2)}</span>
                 </div>
+                {discount > 0 ? (
+                  <p className="mt-4 rounded-lg bg-green-50 px-3 py-2 text-sm font-medium text-green-700">
+                    You will save ₹{discount.toFixed(2)} on this order.
+                  </p>
+                ) : null}
 
                 <button
                   onClick={() => void checkout()}

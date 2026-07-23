@@ -36,7 +36,7 @@ export const Route = createFileRoute("/")({
 function HomePage() {
   return (
     <div className="min-h-screen overflow-x-clip bg-background">
-      <Navbar className="bg-gradient-to-r from-white via-[#FFF5EA] to-[#FFE7C7]/80" />
+      <Navbar className="bg-gradient-to-r from-white via-[#FFF5EA] to-[#FFE7C7]" />
       <MobileTopCategories />
       <Hero />
       <MobileCategoriesSection />

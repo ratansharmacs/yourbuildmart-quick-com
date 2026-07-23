@@ -20,7 +20,7 @@ export type Product = {
   brand: string;
   category: string;
   price: number;
-  oldPrice: number;
+  oldPrice?: number;
   rating: number;
   reviews: number;
   sale: string;

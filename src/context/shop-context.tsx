@@ -72,11 +72,10 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
       const cart = await api.cart();
       const items = await Promise.all(
         cart.items.map(async (item) => {
-          if (item.imagePath) return item;
           try {
             const detail = await api.product(item.productId);
             const imagePath = detail.imagePath?.path || detail.variants.find((variant) => variant.id === item.variantId)?.images[0]?.path || "";
-            return { ...item, imagePath };
+            return { ...item, imagePath: item.imagePath || imagePath, comparisonPrice: detail.basePrice };
           } catch {
             return item;
           }
@@ -99,7 +98,9 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
       brand: item.brandName,
       category: "",
       price: item.unitPrice,
-      oldPrice: item.unitPrice,
+      oldPrice: "comparisonPrice" in item && Number(item.comparisonPrice) > 0
+        ? Number(item.comparisonPrice)
+        : undefined,
       rating: 0,
       reviews: 0,
       sale: item.stockLabel,

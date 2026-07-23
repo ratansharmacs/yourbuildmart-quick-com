@@ -31,17 +31,19 @@ function ContactUsPage() {
             </p>
 
             <div className="mt-6 space-y-4 text-sm text-foreground/90">
-              <p>
-                <span className="font-semibold text-brand">Email:</span> care@yourbuildmart.com
+              <p><span className="font-semibold text-brand">Email:</span>{" "}
+                <a className="hover:underline" href="mailto:info@yourbuildmart.com">info@yourbuildmart.com</a>
               </p>
-              <p>
-                <span className="font-semibold text-brand">Phone:</span> +91 9313984685
+              <p><span className="font-semibold text-brand">Call:</span>{" "}
+                <a className="hover:underline" href="tel:+918383001449">+91 83830 01449</a>
+                {" / "}
+                <a className="hover:underline" href="tel:+918328408325">+91 83284 08325</a>
               </p>
               <p>
                 <span className="font-semibold text-brand">Hours:</span> Mon-Sat, 9:00 AM to 7:00 PM
               </p>
               <p>
-                <span className="font-semibold text-brand">Address:</span> YourBuildMart Supply Hub, Lucknow, Uttar Pradesh
+                <span className="font-semibold text-brand">Address:</span> #259, Block A, 201, 1st Floor, Silver Oak Road, Ghitorni, New Delhi 110030, India
               </p>
             </div>
           </div>
@@ -56,7 +58,10 @@ function ContactUsPage() {
                 await api.contact({
                   name: String(form.get("name")),
                   email: String(form.get("email")),
-                  message: String(form.get("message")),
+                  message: [
+                    form.get("phone") ? `Phone: ${String(form.get("phone"))}` : "",
+                    String(form.get("message")),
+                  ].filter(Boolean).join("\n\n"),
                 });
                 event.currentTarget.reset();
                 setSubmitted(true);
@@ -79,6 +84,10 @@ function ContactUsPage() {
               <label className="space-y-1 text-sm md:col-span-2">
                 <span className="font-medium text-foreground">Email Address</span>
                 <input name="email" type="email" required className="h-11 w-full rounded-lg border border-border bg-background px-3 outline-none ring-brand/30 focus:ring-2" placeholder="Enter your email" />
+              </label>
+              <label className="space-y-1 text-sm md:col-span-2">
+                <span className="font-medium text-foreground">Contact Number</span>
+                <input name="phone" type="tel" maxLength={20} className="h-11 w-full rounded-lg border border-border bg-background px-3 outline-none ring-brand/30 focus:ring-2" placeholder="Enter your contact number" />
               </label>
               <label className="space-y-1 text-sm md:col-span-2">
                 <span className="font-medium text-foreground">Project Requirement</span>

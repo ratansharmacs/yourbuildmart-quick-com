@@ -27,6 +27,7 @@ import {
   api,
   getProductImages,
   parseVariantAttributes,
+  resolveApiImage,
   slugify,
   type CustomerCategory,
   type ProductDetail,
@@ -88,10 +89,14 @@ function ProductDetailPage() {
   const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
 
   useEffect(() => {
-    const firstAvailable = productQuery.data?.variants.find(
-      (variant) => variant.inventory.available,
+    const variants = productQuery.data?.variants || [];
+    const availableVariants = variants.filter((variant) => variant.inventory.available);
+    const variantPool = availableVariants.length ? availableVariants : variants;
+    const minimumPriceVariant = variantPool.reduce<ProductVariant | undefined>(
+      (lowest, variant) => !lowest || variant.price < lowest.price ? variant : lowest,
+      undefined,
     );
-    setVariantId(firstAvailable?.id || productQuery.data?.variants[0]?.id);
+    setVariantId(minimumPriceVariant?.id);
     setQuantity(1);
     setActiveImage(0);
   }, [productQuery.data]);
@@ -229,7 +234,8 @@ function ProductDetailPage() {
               setQuantity(1);
               const variantImage = variant.images[0];
               if (variantImage) {
-                const index = images.findIndex((image) => image.includes(variantImage.path));
+                const resolvedVariantImage = resolveApiImage(variantImage);
+                const index = images.findIndex((image) => image === resolvedVariantImage);
                 if (index >= 0) setActiveImage(index);
               }
             }}
@@ -381,6 +387,32 @@ function VariantSelectors({
 
   return (
     <div className="mt-6 space-y-5">
+      {detail.variants.some((variant) => variant.images.length > 0) ? (
+        <div>
+          <h2 className="text-sm font-semibold">Variant pictures</h2>
+          <div className="mt-2 flex max-w-full gap-2 overflow-x-auto pb-2">
+            {detail.variants
+              .filter((variant) => variant.images.length > 0)
+              .map((variant) => {
+                const image = resolveApiImage(variant.images[0]);
+                return (
+                  <button
+                    key={variant.id}
+                    type="button"
+                    onClick={() => onSelect(variant)}
+                    title={variant.attrsCombo}
+                    className={`w-20 shrink-0 rounded-lg border p-1.5 text-left ${
+                      selectedVariant?.id === variant.id ? "border-brand bg-secondary" : "border-border"
+                    }`}
+                  >
+                    <img src={image} alt={variant.attrsCombo} className="aspect-square w-full rounded object-contain" />
+                    <span className="mt-1 block truncate text-[10px]">{variant.attrsCombo}</span>
+                  </button>
+                );
+              })}
+          </div>
+        </div>
+      ) : null}
       {[...detail.attrs]
         .sort((a, b) => a.displayOrder - b.displayOrder)
         .map((attribute) => (
