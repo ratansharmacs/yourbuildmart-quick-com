@@ -36,6 +36,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  useEffect(() => {
+    const handleExpiredSession = () => setUser(null);
+    window.addEventListener("ybm-auth-expired", handleExpiredSession);
+    return () => window.removeEventListener("ybm-auth-expired", handleExpiredSession);
+  }, []);
+
   const persistAuth = (auth: AuthResponse) => {
     window.localStorage.setItem(TOKEN_KEY, auth.token);
     window.localStorage.setItem(AUTH_KEY, JSON.stringify(auth));

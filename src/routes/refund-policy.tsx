@@ -15,26 +15,36 @@ function RefundPolicyPage() {
   return (
     <InfoPageTemplate
       title="Refund Policy"
-      subtitle="Our refund process is designed to be transparent and fair while protecting both customers and supply partners."
+      subtitle="At YourBuildMart, we strive to deliver products that meet the highest standards of quality and reliability. If you encounter an issue with your order, we are committed to resolving it quickly and fairly."
       sections={[
         {
-          title: "Eligibility",
-          description: "Refunds may be considered for approved cancellations, damaged deliveries, or verified product mismatch cases.",
+          title: "Return Eligibility",
+          description: "Customers may request a return within 24 hours of receiving the order under the circumstances described below.",
+          bullets: [
+            "Product quality concerns: if a delivered product does not meet expected quality standards or has a defect, we will arrange a replacement after verification.",
+            "Damaged or missing items: customers may request a return or replacement when an item arrives damaged or broken, or an item is missing at delivery.",
+          ],
         },
         {
-          title: "Verification",
-          description: "We may require order details, images, and quality checks before confirming refund eligibility.",
+          title: "Important Conditions",
+          description: "The return facility applies only when the product remains unused and its original packaging is intact. Return requests will not be approved in the following situations:",
+          bullets: [
+            "Incorrect product selection made by the customer.",
+            "Excess quantities ordered by mistake.",
+            "Change of requirement after delivery.",
+            "Products that have been opened, used, installed, altered, or are no longer in their original condition.",
+            "Products returned without original packaging.",
+          ],
         },
         {
-          title: "Processing Time",
-          description: "Approved refunds are initiated to the original payment method within standard banking timelines.",
-        },
-        {
-          title: "Non-Refundable Cases",
-          description: "Items used, altered, or returned outside the allowed window may not qualify for refunds.",
+          title: "Refund Processing",
+          description: "Once a return request is approved, the refund will be processed without unnecessary delay. The time taken for the refund to reflect may vary depending on the payment provider, bank, or financial institution.",
+          bullets: [
+            "Refund to the original payment method used during purchase; or",
+            "Credit to the customer's YourBuildMart account for future purchases.",
+          ],
         },
       ]}
-      footerNote="This template content can be further customized with legal-approved policy language before production release."
     />
   );
 }

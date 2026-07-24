@@ -133,12 +133,12 @@ function CartPage() {
                             </span>
                           ) : null}
                           {itemSavings.percent > 0 ? (
-                            <span className="rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700">
+                            <span className="rounded-full bg-[#FFE3CC] px-2.5 py-1 text-xs font-semibold text-[#A64700]">
                               Save {itemSavings.percent}%
                             </span>
                           ) : null}
                         </div>
-                        <p className="mt-2 text-sm font-medium text-green-700">
+                        <p className="mt-2 text-sm font-medium text-[#A64700]">
                           {item.product.inStock === false ? "Out of Stock" : "In Stock"}
                           {itemSavings.amount > 0 ? ` · You save ₹${(itemSavings.amount * item.quantity).toFixed(2)}` : ""}
                         </p>
@@ -221,7 +221,7 @@ function CartPage() {
                   <span>₹{subTotal.toFixed(2)}</span>
                 </div>
                 {discount > 0 ? (
-                  <p className="mt-4 rounded-lg bg-green-50 px-3 py-2 text-sm font-medium text-green-700">
+                  <p className="mt-4 rounded-lg bg-[#FFE3CC] px-3 py-2 text-sm font-medium text-[#A64700]">
                     You will save ₹{discount.toFixed(2)} on this order.
                   </p>
                 ) : null}

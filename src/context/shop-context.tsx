@@ -141,14 +141,20 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
   const addToCart = async (product: Product, quantity = 1) => {
     if (isAuthenticated) {
       if (!product.variantId) throw new Error("Please select an available product variant");
-      const existing = cartQuery.data?.items.find((item) => item.variantId === product.variantId);
-      if (existing) {
-        await api.updateCartItem(existing.id, Math.min(existing.quantity + quantity, product.maxQuantity || existing.quantity + quantity));
-      } else {
-        await api.addCartItem(product.variantId, quantity);
+      try {
+        const existing = cartQuery.data?.items.find((item) => item.variantId === product.variantId);
+        if (existing) {
+          await api.updateCartItem(existing.id, Math.min(existing.quantity + quantity, product.maxQuantity || existing.quantity + quantity));
+        } else {
+          await api.addCartItem(product.variantId, quantity);
+        }
+        await refreshCart();
+        return;
+      } catch (error) {
+        // A 401 clears the expired token in the API client. Preserve the intended
+        // cart action locally while AuthContext switches back to guest mode.
+        if (window.localStorage.getItem("ybm_auth_token")) throw error;
       }
-      await refreshCart();
-      return;
     }
     setGuestItems((prev) => {
       const existing = prev.find((item) => item.product.id === product.id && item.product.variantId === product.variantId);

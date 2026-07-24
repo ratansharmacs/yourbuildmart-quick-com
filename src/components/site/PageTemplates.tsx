@@ -64,7 +64,7 @@ export function InfoPageTemplate({
             {sections.map((section) => (
               <article key={section.title} className="rounded-2xl border border-border bg-card p-5 md:p-6">
                 <h2 className="text-2xl">{section.title}</h2>
-                <p className="mt-2 text-sm text-muted-foreground">{section.description}</p>
+                <p className="mt-2 whitespace-pre-line text-sm leading-6 text-muted-foreground">{section.description}</p>
                 {section.bullets?.length ? (
                   <ul className="mt-4 space-y-2">
                     {section.bullets.map((bullet) => (

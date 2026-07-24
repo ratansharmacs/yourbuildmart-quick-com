@@ -336,6 +336,11 @@ async function request<T>(
     : null;
 
   if (!response.ok) {
+    if (auth && response.status === 401 && typeof window !== "undefined") {
+      window.localStorage.removeItem("ybm_auth_token");
+      window.localStorage.removeItem("ybm_auth");
+      window.dispatchEvent(new Event("ybm-auth-expired"));
+    }
     throw new Error(payload?.message || `Request failed with status ${response.status}`);
   }
   if (!payload) {
