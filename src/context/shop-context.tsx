@@ -37,7 +37,7 @@ type ShopContextValue = {
 const ShopContext = createContext<ShopContextValue | null>(null);
 
 export function ShopProvider({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const queryClient = useQueryClient();
   const [guestItems, setGuestItems] = useState<ShopCartItem[]>([]);
   const [guestCartLoaded, setGuestCartLoaded] = useState(false);
@@ -45,6 +45,7 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
   const [sortOption, setSortOption] = useState<SortOption>("whats-new");
   const [filterOption, setFilterOption] = useState<FilterOption>("all");
   const [wishlist, setWishlist] = useState<Product[]>([]);
+  const [loadedWishlistKey, setLoadedWishlistKey] = useState("");
   const mergingGuestCart = useRef<Promise<void> | null>(null);
 
   useEffect(() => {
@@ -57,17 +58,60 @@ export function ShopProvider({ children }: { children: React.ReactNode }) {
       }
     }
     setGuestCartLoaded(true);
-    try { setWishlist(JSON.parse(window.localStorage.getItem("ybm_wishlist") || "[]")); } catch { setWishlist([]); }
   }, []);
 
-  useEffect(() => { window.localStorage.setItem("ybm_wishlist", JSON.stringify(wishlist)); }, [wishlist]);
+  const wishlistStorageKey = user
+    ? `ybm_wishlist_customer_${user.personId}`
+    : "ybm_guest_wishlist";
+
+  useEffect(() => {
+    try {
+      const legacyWishlist = window.localStorage.getItem("ybm_wishlist");
+      if (
+        !user &&
+        legacyWishlist &&
+        !window.localStorage.getItem("ybm_guest_wishlist")
+      ) {
+        window.localStorage.setItem("ybm_guest_wishlist", legacyWishlist);
+        window.localStorage.removeItem("ybm_wishlist");
+      }
+      const ownWishlist: Product[] = JSON.parse(
+        window.localStorage.getItem(wishlistStorageKey) || "[]",
+      );
+      if (user) {
+        const guestWishlist: Product[] = JSON.parse(
+          window.localStorage.getItem("ybm_guest_wishlist") || "[]",
+        );
+        const merged = [...ownWishlist];
+        guestWishlist.forEach((product) => {
+          const key = `${product.apiId || product.id}:${product.variantId || "product"}`;
+          if (!merged.some((item) => `${item.apiId || item.id}:${item.variantId || "product"}` === key)) {
+            merged.push(product);
+          }
+        });
+        window.localStorage.setItem(wishlistStorageKey, JSON.stringify(merged));
+        window.localStorage.removeItem("ybm_guest_wishlist");
+        setWishlist(merged);
+      } else {
+        setWishlist(ownWishlist);
+      }
+    } catch {
+      setWishlist([]);
+    }
+    setLoadedWishlistKey(wishlistStorageKey);
+  }, [wishlistStorageKey, user]);
+
+  useEffect(() => {
+    if (loadedWishlistKey !== wishlistStorageKey) return;
+    window.localStorage.setItem(wishlistStorageKey, JSON.stringify(wishlist));
+  }, [loadedWishlistKey, wishlist, wishlistStorageKey]);
 
   useEffect(() => {
     window.localStorage.setItem("ybm_guest_cart", JSON.stringify(guestItems));
   }, [guestItems]);
 
   const cartQuery = useQuery({
-    queryKey: ["cart"],
+    queryKey: ["cart", user?.personId],
     queryFn: async () => {
       const cart = await api.cart();
       const items = await Promise.all(

@@ -6,6 +6,7 @@ if (!configuredBaseUrl) {
 
 export const API_BASE_URL = configuredBaseUrl.replace(/\/+$/, "");
 const API_REQUEST_TIMEOUT_MS = 15_000;
+export const PINCODE_STORAGE_KEY = "ybm_pincode";
 
 type ApiResponse<T> = {
   success: boolean;
@@ -282,6 +283,27 @@ function getToken() {
   return window.localStorage.getItem("ybm_auth_token");
 }
 
+export function getSelectedPincode() {
+  if (typeof window === "undefined") return "";
+  return window.localStorage.getItem(PINCODE_STORAGE_KEY)?.trim() || "";
+}
+
+function withSelectedPincode(path: string) {
+  const pincode = getSelectedPincode();
+  if (!pincode) return path;
+
+  const pathname = path.split("?")[0];
+  const supportsPincode =
+    pathname === "/api/customer/products" ||
+    pathname.startsWith("/api/customer/products/") ||
+    pathname === "/api/customer/bundles" ||
+    pathname.startsWith("/api/customer/bundles/");
+
+  if (!supportsPincode) return path;
+  const separator = path.includes("?") ? "&" : "?";
+  return `${path}${separator}pincode=${encodeURIComponent(pincode)}`;
+}
+
 function toSearchParams(params: Record<string, unknown>) {
   const search = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => {
@@ -312,7 +334,7 @@ async function request<T>(
   let response: Response;
 
   try {
-    response = await fetch(`${API_BASE_URL}${path}`, {
+    response = await fetch(`${API_BASE_URL}${withSelectedPincode(path)}`, {
       ...options,
       headers,
       signal: options.signal || controller.signal,
@@ -462,6 +484,8 @@ export const api = {
     request<PageResponse<CatalogProduct>>(`/api/customer/products/featured${toSearchParams(params)}`),
   hotDealProducts: (params: Record<string, unknown> = {}) =>
     request<PageResponse<CatalogProduct>>(`/api/customer/products/hot-deals${toSearchParams(params)}`),
+  validatePincode: (pincode: string) =>
+    request<unknown>(`/api/customer/validate-pincode${toSearchParams({ pincode })}`),
   product: (id: number | string) => request<ProductDetail>(`/api/customer/products/${id}`),
   productBySlug: (slug: string) => request<ProductDetail>(`/api/customer/products/slug/${encodeURIComponent(slug)}`),
   productsByCategory: (id: number, params: Record<string, unknown> = {}) =>

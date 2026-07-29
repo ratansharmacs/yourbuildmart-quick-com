@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { Footer } from "@/components/site/Footer";
 import { Navbar } from "@/components/site/Navbar";
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/checkout/review")({
 
 function ReviewPage() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { cartItems, cartLoading, clearCart } = useShop();
   const checkout = useMemo(loadCheckoutState, []);
   const [preview, setPreview] = useState<CheckoutPreview>();
@@ -34,7 +36,10 @@ function ReviewPage() {
     try {
       const started = await api.startCheckout(checkout.addressId, items, checkout.remarks);
       const confirmed = await api.confirmCheckout(started.orders.map((order) => order.id), started.paymentMethod || "COD");
-      setSession(confirmed); await clearCart(); clearCheckoutState();
+      setSession(confirmed);
+      await clearCart();
+      await queryClient.invalidateQueries({ queryKey: ["orders"] });
+      clearCheckoutState();
     } catch (e) { setMessage(e instanceof Error ? e.message : "Order could not be placed"); }
     finally { setLoading(false); }
   };

@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { Footer } from "@/components/site/Footer";
 import { Navbar } from "@/components/site/Navbar";
@@ -16,6 +16,7 @@ type Step = "identifier" | "verify" | "reset";
 function LoginPage() {
   const navigate = useNavigate();
   const {
+    isAuthenticated,
     loginWithPassword,
     requestLoginOtp,
     loginWithOtp,
@@ -33,6 +34,15 @@ function LoginPage() {
   const returnTo = typeof window !== "undefined"
     ? new URLSearchParams(window.location.search).get("returnTo")
     : null;
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      void navigate({
+        to: returnTo === "/checkout/shipping" ? "/checkout/shipping" : "/profile",
+        replace: true,
+      });
+    }
+  }, [isAuthenticated, navigate, returnTo]);
 
   const changeMode = (nextMode: Mode) => {
     setMode(nextMode);

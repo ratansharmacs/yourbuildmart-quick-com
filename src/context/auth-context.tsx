@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   api,
   findDevelopmentOtp,
@@ -22,7 +23,14 @@ const AUTH_KEY = "ybm_auth";
 const TOKEN_KEY = "ybm_auth_token";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const queryClient = useQueryClient();
   const [user, setUser] = useState<AuthResponse | null>(null);
+
+  const clearCustomerCache = () => {
+    ["cart", "profile", "addresses", "orders"].forEach((key) => {
+      queryClient.removeQueries({ queryKey: [key] });
+    });
+  };
 
   useEffect(() => {
     const stored = window.localStorage.getItem(AUTH_KEY);
@@ -37,12 +45,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const handleExpiredSession = () => setUser(null);
+    const handleExpiredSession = () => {
+      clearCustomerCache();
+      setUser(null);
+    };
     window.addEventListener("ybm-auth-expired", handleExpiredSession);
     return () => window.removeEventListener("ybm-auth-expired", handleExpiredSession);
   }, []);
 
   const persistAuth = (auth: AuthResponse) => {
+    if (user?.personId !== auth.personId) clearCustomerCache();
     window.localStorage.setItem(TOKEN_KEY, auth.token);
     window.localStorage.setItem(AUTH_KEY, JSON.stringify(auth));
     setUser(auth);
@@ -75,6 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const logout = () => {
+    clearCustomerCache();
     window.localStorage.removeItem(TOKEN_KEY);
     window.localStorage.removeItem(AUTH_KEY);
     setUser(null);

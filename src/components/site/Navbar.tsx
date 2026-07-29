@@ -1,19 +1,22 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { Heart, LogOut, Search, ShoppingBag, User } from "lucide-react";
+import { Heart, LogOut, MapPin, Search, ShoppingBag, User } from "lucide-react";
 import { Logo } from "./Logo";
 import { useShop } from "@/context/shop-context";
 import { useAuth } from "@/context/auth-context";
 import { api, resolveApiImage, slugify } from "@/lib/api";
+import { usePincode } from "@/context/pincode-context";
 
 // Top-level nav will be populated from categories API (parentId === null)
 
 export function Navbar({ className }: { className?: string }) {
+  const navigate = useNavigate();
   const categoriesQuery = useQuery({ queryKey: ["categories"], queryFn: api.categories });
   const topLevelCategories = (categoriesQuery.data || []).filter((c: any) => c.parentId === null);
   const { cartCount, wishlistCount } = useShop();
   const { isAuthenticated, user, logout } = useAuth();
+  const { pincode, changePincode } = usePincode();
   const [accountOpen, setAccountOpen] = useState(false);
   return <>
     <header className={`fixed inset-x-0 top-0 z-[100] bg-gradient-to-r from-white via-[#FFF5EA] to-[#FFE7C7] ${className || ""}`}>
@@ -25,7 +28,73 @@ export function Navbar({ className }: { className?: string }) {
             <SearchBox large />
           </div>
           <div className="flex items-center gap-2">
-            <Link to="/login" className="grid h-10 w-10 place-items-center rounded-full hover:bg-secondary"><User className="h-5 w-5 text-brand" /></Link>
+            <button
+              type="button"
+              onClick={changePincode}
+              className="hidden items-center gap-1.5 rounded-full px-3 py-2 text-sm font-medium text-brand hover:bg-secondary sm:flex"
+              aria-label={`Delivery pincode ${pincode}. Change pincode`}
+            >
+              <MapPin className="h-4 w-4" />
+              {pincode}
+            </button>
+            <div className="relative">
+              {isAuthenticated ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setAccountOpen((open) => !open)}
+                    className="grid h-10 w-10 place-items-center rounded-full bg-secondary hover:bg-secondary/80"
+                    aria-label="Open account menu"
+                    aria-expanded={accountOpen}
+                  >
+                    <User className="h-5 w-5 text-brand" />
+                  </button>
+                  {accountOpen ? (
+                    <>
+                      <button
+                        type="button"
+                        aria-label="Close account menu"
+                        className="fixed inset-0 z-[101] cursor-default"
+                        onClick={() => setAccountOpen(false)}
+                      />
+                      <div className="absolute right-0 top-12 z-[102] w-56 rounded-2xl border border-border bg-card p-2 shadow-xl">
+                        <div className="border-b border-border px-3 py-2">
+                          <p className="text-xs text-muted-foreground">Signed in as</p>
+                          <p className="truncate text-sm font-semibold text-foreground">
+                            {user?.username || "Your account"}
+                          </p>
+                        </div>
+                        <div className="py-1" onClick={() => setAccountOpen(false)}>
+                          <AccountLink to="/profile" label="My profile" />
+                          <AccountLink to="/addresses" label="Saved addresses" />
+                          <AccountLink to="/orders" label="My orders" />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            logout();
+                            setAccountOpen(false);
+                            void navigate({ to: "/" });
+                          }}
+                          className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm text-red-600 hover:bg-red-50"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          Log out
+                        </button>
+                      </div>
+                    </>
+                  ) : null}
+                </>
+              ) : (
+                <Link
+                  to="/login"
+                  className="grid h-10 w-10 place-items-center rounded-full hover:bg-secondary"
+                  aria-label="Log in"
+                >
+                  <User className="h-5 w-5 text-brand" />
+                </Link>
+              )}
+            </div>
             <Link to="/wishlist" className="relative grid h-10 w-10 place-items-center rounded-full hover:bg-secondary"><Heart className="h-5 w-5 text-brand" />{wishlistCount ? <span className="absolute -right-0.5 -top-0.5 grid h-4 w-4 place-items-center rounded-full bg-orange text-[10px] font-semibold text-white">{wishlistCount}</span> : null}</Link>
             <Link to="/cart" className="relative grid h-10 w-10 place-items-center rounded-full hover:bg-secondary"><ShoppingBag className="h-5 w-5 text-brand" /><span className="absolute -right-0.5 -top-0.5 grid h-4 w-4 place-items-center rounded-full bg-orange text-[10px] font-semibold text-white">{cartCount}</span></Link>
           </div>
