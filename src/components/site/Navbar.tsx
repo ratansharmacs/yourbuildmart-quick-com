@@ -5,7 +5,7 @@ import { Heart, LogOut, MapPin, Search, ShoppingBag, User } from "lucide-react";
 import { Logo } from "./Logo";
 import { useShop } from "@/context/shop-context";
 import { useAuth } from "@/context/auth-context";
-import { api, resolveApiImage, slugify } from "@/lib/api";
+import { api, resolveApiImage, slugify, type CustomerCategory } from "@/lib/api";
 import { usePincode } from "@/context/pincode-context";
 
 // Top-level nav will be populated from categories API (parentId === null)
@@ -13,7 +13,8 @@ import { usePincode } from "@/context/pincode-context";
 export function Navbar({ className }: { className?: string }) {
   const navigate = useNavigate();
   const categoriesQuery = useQuery({ queryKey: ["categories"], queryFn: api.categories });
-  const topLevelCategories = (categoriesQuery.data || []).filter((c: any) => c.parentId === null);
+  const categories = categoriesQuery.data || [];
+  const topLevelCategories = categories.filter((category) => category.parentId === null);
   const { cartCount, wishlistCount } = useShop();
   const { isAuthenticated, user, logout } = useAuth();
   const { pincode, changePincode } = usePincode();
@@ -104,10 +105,14 @@ export function Navbar({ className }: { className?: string }) {
       {/* Secondary category nav (gradient) */}
       <div className="mt-0 w-full border-t border-border bg-gradient-to-r from-white via-[#FFF5EA] to-[#FFE7C7]">
         <div className="px-[70px]">
-          <nav className="hidden md:flex min-w-full items-center justify-center gap-8 py-3 text-base [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <nav className="hidden min-w-full items-center justify-center gap-8 text-base md:flex">
             <Link to="/hot-deals" className="font-semibold text-orange">🔥 Hot Deals</Link>
-            {topLevelCategories.map((item: any) => (
-              <Link key={item.id} to="/category/$categoryId" params={{ categoryId: slugify(item.name) }} className="text-base text-foreground/80">{item.name}</Link>
+            {topLevelCategories.map((item) => (
+              <CategoryMenu
+                key={item.id}
+                category={item}
+                subcategories={categories.filter((category) => category.parentId === item.id)}
+              />
             ))}
           </nav>
         </div>
@@ -116,6 +121,42 @@ export function Navbar({ className }: { className?: string }) {
     {/* Spacer to offset fixed header (top + secondary). Adjust if header heights change */}
     <div aria-hidden className="h-[118px]" />
   </>;
+}
+
+function CategoryMenu({
+  category,
+  subcategories,
+}: {
+  category: CustomerCategory;
+  subcategories: CustomerCategory[];
+}) {
+  return (
+    <div className="group/category relative flex h-12 items-center">
+      <Link
+        to="/category/$categoryId"
+        params={{ categoryId: slugify(category.name) }}
+        className="text-base text-foreground/80 transition-colors hover:text-orange focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-orange/40"
+      >
+        {category.name}
+      </Link>
+      {subcategories.length ? (
+        <div className="pointer-events-none absolute left-0 top-full z-[110] w-max min-w-full max-w-72 translate-y-1 pt-1 opacity-0 transition duration-200 ease-out group-hover/category:pointer-events-auto group-hover/category:translate-y-0 group-hover/category:opacity-100 group-focus-within/category:pointer-events-auto group-focus-within/category:translate-y-0 group-focus-within/category:opacity-100">
+          <div className="w-full overflow-hidden rounded-b-xl border border-orange/15 bg-gradient-to-b from-[#FFF8EF] to-[#FFE7C7] py-1.5 shadow-xl">
+            {subcategories.map((subcategory) => (
+              <Link
+                key={subcategory.id}
+                to="/subcategory/$subcategoryId"
+                params={{ subcategoryId: slugify(subcategory.name) }}
+                className="line-clamp-3 w-full whitespace-normal px-3 py-2 text-[13px] leading-[1.35rem] text-foreground/80 [overflow-wrap:normal] [word-break:normal] transition-colors hover:bg-orange hover:text-white focus:bg-orange focus:text-white focus:outline-none"
+              >
+                {subcategory.name}
+              </Link>
+            ))}
+          </div>
+        </div>
+      ) : null}
+    </div>
+  );
 }
 
 function SearchBox({ large }: { large?: boolean } = { large: false }) {
