@@ -98,6 +98,24 @@ export type CustomerBrand = {
   logoPath: string;
 };
 
+export type CustomerBundle = {
+  id: number;
+  name: string;
+  slug: string;
+  description?: string | null;
+  imagePath?: ImageMetadata | string | null;
+  price?: number;
+  inStock?: boolean;
+  [key: string]: unknown;
+};
+
+export type PincodeValidation = {
+  pincode: string;
+  serviceable: boolean;
+  codAvailable: boolean;
+  message: string;
+};
+
 export type AuthResponse = {
   token: string;
   username: string;
@@ -292,7 +310,7 @@ function withSelectedPincode(path: string) {
   const pincode = getSelectedPincode();
   if (!pincode) return path;
 
-  const pathname = path.split("?")[0];
+  const [pathname, query = ""] = path.split("?", 2);
   const supportsPincode =
     pathname === "/api/customer/products" ||
     pathname.startsWith("/api/customer/products/") ||
@@ -300,8 +318,9 @@ function withSelectedPincode(path: string) {
     pathname.startsWith("/api/customer/bundles/");
 
   if (!supportsPincode) return path;
-  const separator = path.includes("?") ? "&" : "?";
-  return `${path}${separator}pincode=${encodeURIComponent(pincode)}`;
+  const search = new URLSearchParams(query);
+  search.set("pincode", pincode);
+  return `${pathname}?${search.toString()}`;
 }
 
 function toSearchParams(params: Record<string, unknown>) {
@@ -485,7 +504,7 @@ export const api = {
   hotDealProducts: (params: Record<string, unknown> = {}) =>
     request<PageResponse<CatalogProduct>>(`/api/customer/products/hot-deals${toSearchParams(params)}`),
   validatePincode: (pincode: string) =>
-    request<unknown>(`/api/customer/validate-pincode${toSearchParams({ pincode })}`),
+    request<PincodeValidation>(`/api/customer/validate-pincode${toSearchParams({ pincode })}`),
   product: (id: number | string) => request<ProductDetail>(`/api/customer/products/${id}`),
   productBySlug: (slug: string) => request<ProductDetail>(`/api/customer/products/slug/${encodeURIComponent(slug)}`),
   productsByCategory: (id: number, params: Record<string, unknown> = {}) =>
@@ -494,6 +513,10 @@ export const api = {
     request<PageResponse<CatalogProduct>>(`/api/customer/products/brand/${id}${toSearchParams(params)}`),
   relatedProducts: (id: number | string, page = 0, size = 6) =>
     request<PageResponse<CatalogProduct>>(`/api/customer/products/${id}/related${toSearchParams({ page, size })}`),
+  bundles: (params: Record<string, unknown> = {}) =>
+    request<PageResponse<CustomerBundle>>(`/api/customer/bundles${toSearchParams(params)}`),
+  bundleBySlug: (slug: string) =>
+    request<CustomerBundle>(`/api/customer/bundles/${encodeURIComponent(slug)}`),
   testimonials: (params: Record<string, unknown> = {}) =>
     request<PageResponse<Testimonial>>(`/api/customer/testimonials${toSearchParams(params)}`),
 

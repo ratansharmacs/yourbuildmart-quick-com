@@ -38,27 +38,26 @@ export function PincodeProvider({ children }: { children: React.ReactNode }) {
     }
     setValidating(true);
     try {
-      await api.validatePincode(value);
-    } catch (validationError) {
-      const message =
-        validationError instanceof Error ? validationError.message : "Unable to validate pincode";
-      // The public validation route currently responds with 401 in the deployed
-      // backend. Keep the catalog usable until its security rule is corrected.
-      if (!/session expired|status 401/i.test(message)) {
-        setError(message);
-        setValidating(false);
+      const result = await api.validatePincode(value);
+      if (!result.serviceable) {
+        setError(result.message || "Delivery is not available for this pincode.");
         return;
       }
-      console.warn("Pincode validation endpoint is not publicly accessible:", message);
+    } catch (validationError) {
+      setError(
+        validationError instanceof Error
+          ? validationError.message
+          : "Unable to validate pincode",
+      );
+      return;
+    } finally {
+      setValidating(false);
     }
     window.localStorage.setItem(PINCODE_STORAGE_KEY, value);
     setPincode(value);
     setError("");
     void queryClient.invalidateQueries();
-    setValidating(false);
   };
-
-  if (!ready) return null;
 
   return (
     <PincodeContext.Provider
@@ -71,7 +70,8 @@ export function PincodeProvider({ children }: { children: React.ReactNode }) {
         },
       }}
     >
-      {pincode ? children : (
+      {children}
+      {ready && !pincode ? (
         <div className="fixed inset-0 z-[1000] grid place-items-center bg-black/55 px-4 backdrop-blur-sm">
           <div
             role="dialog"
@@ -117,7 +117,7 @@ export function PincodeProvider({ children }: { children: React.ReactNode }) {
             </form>
           </div>
         </div>
-      )}
+      ) : null}
     </PincodeContext.Provider>
   );
 }
