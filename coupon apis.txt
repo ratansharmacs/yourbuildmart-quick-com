@@ -1,0 +1,143 @@
+1. POST /api/customer/coupons/validate
+Validates a coupon code before applying it.
+Request
+{
+  "code": "SUMMER25",                    // Required. Coupon code to validate
+  "items": [                             // Optional but recommended. Cart items for min order amount & scope checks
+    { "variantId": 1, "quantity": 2 },
+    { "variantId": 5, "quantity": 1 }
+  ],
+  "appliedCouponCodes": ["WELCOME10"]   // Optional. List of already-applied coupon codes for stackability validation
+}
+Response — Valid (single coupon, no stacking issues)
+{
+  "success": true,
+  "message": "Coupon validated",
+  "data": {
+    "valid": true,
+    "couponCode": "SUMMER25",
+    "discountAmount": 50.00,
+    "applicableAmount": 500.00,
+    "message": "Coupon applied successfully",
+    "allowStackable": true
+  }
+}
+Response — Valid (partial applicability)
+{
+  "success": true,
+  "message": "Coupon validated",
+  "data": {
+    "valid": true,
+    "couponCode": "SUMMER25",
+    "discountAmount": 50.00,
+    "applicableAmount": 300.00,
+    "message": "Coupon applies to 2 of 3 items",
+    "allowStackable": false
+  }
+}
+Response — Invalid (all validation failure combinations)
+// Invalid coupon code
+{ "data": { "valid": false, "couponCode": "FAKE", "discountAmount": 0, "message": "Invalid coupon code", "allowStackable": false } }
+// Not yet valid
+{ "data": { "valid": false, "couponCode": "EARLY50", "discountAmount": 0, "message": "Coupon is not yet valid", "allowStackable": false } }
+// Expired
+{ "data": { "valid": false, "couponCode": "OLD10", "discountAmount": 0, "message": "Coupon has expired", "allowStackable": false } }
+// Min order amount not met
+{ "data": { "valid": false, "couponCode": "MIN100", "discountAmount": 0, "message": "Minimum order amount of 100.00 required", "allowStackable": false } }
+// Usage limit reached
+{ "data": { "valid": false, "couponCode": "LIMIT1", "discountAmount": 0, "message": "Coupon usage limit reached", "allowStackable": false } }
+// Per user limit reached (counts only CONFIRMED orders)
+{ "data": { "valid": false, "couponCode": "ONCE10", "discountAmount": 0, "message": "You have already used this coupon", "allowStackable": false } }
+// First order only
+{ "data": { "valid": false, "couponCode": "FIRST20", "discountAmount": 0, "message": "This coupon is valid for first order only", "allowStackable": false } }
+// Not applicable to cart products (scope = SPECIFIC_PRODUCTS)
+{ "data": { "valid": false, "couponCode": "SHOE15", "discountAmount": 0, "message": "Coupon not applicable to any product in your cart", "allowStackable": false } }
+// Not applicable to cart categories (scope = SPECIFIC_CATEGORIES)
+{ "data": { "valid": false, "couponCode": "CAT10", "discountAmount": 0, "message": "Coupon not applicable to any category in your cart", "allowStackable": false } }
+// Discount amount is zero
+{ "data": { "valid": false, "couponCode": "ZERO5", "discountAmount": 0, "applicableAmount": 0, "message": "Discount amount is zero for the applicable items", "allowStackable": false } }
+// Non-stackable coupon + other coupons already applied
+{ "data": { "valid": false, "couponCode": "ONLY5", "discountAmount": 0, "message": "This coupon cannot be combined with other coupons", "allowStackable": false } }
+// Existing non-stackable coupon prevents adding more
+{ "data": { "valid": false, "couponCode": "EXTRA10", "discountAmount": 0, "message": "Cannot add more coupons — an existing coupon does not allow stacking", "allowStackable": true } }
+---
+2. POST /api/customer/checkout/preview
+Previews checkout totals with coupon discount applied.
+Request
+{
+  "deliveryAddressId": 1,
+  "paymentMethod": "CASHFREE",
+  "remarks": "",
+  "couponCode": "SUMMER25",               // Legacy: single coupon (backward compatible)
+  "couponCodes": ["SUMMER25", "EXTRA10"],  // New: multiple coupons (takes priority over couponCode)
+  "items": [
+    { "variantId": 1, "quantity": 2 },
+    { "variantId": 5, "quantity": 1 }
+  ]
+}
+Response
+{
+  "success": true,
+  "data": {
+    "deliveryAddressId": 1,
+    "postalCode": "500001",
+    "serviceable": true,
+    "message": null,
+    "orderCount": 1,
+    "paymentMethod": "CASHFREE",
+    "subtotal": 500.00,
+    "discountAmount": 75.00,
+    "couponCode": "SUMMER25,EXTRA10",   // Comma-separated when multiple
+    "couponApplied": true,
+    "taxTotal": 50.00,
+    "grandTotal": 475.00,
+    "items": [...]
+  }
+}
+---
+3. POST /api/customer/checkout/session
+Creates a checkout session (locks inventory, applies coupons, creates CouponUsage records).
+Request
+{
+  "deliveryAddressId": 1,
+  "paymentMethod": "CASHFREE",
+  "remarks": "",
+  "couponCode": "SUMMER25",               // Legacy: single coupon
+  "couponCodes": ["SUMMER25", "EXTRA10"],  // New: multiple coupons (takes priority)
+  "items": [
+    { "variantId": 1, "quantity": 2 },
+    { "variantId": 5, "quantity": 1 }
+  ]
+}
+Response
+{
+  "success": true,
+  "data": {
+    "expiresAt": "2026-05-05T12:30:00",
+    "paymentMethod": "CASHFREE",
+    "gateway": "cashfree",
+    "merchantOrderId": "CF_xxx",
+    "paymentSessionId": "session_xxx",
+    "cashfreeMode": "TEST",
+    "paymentStatus": "PENDING_PAYMENT",
+    "totalAmount": 475.00,
+    "couponDiscount": 75.00,
+    "couponCode": "SUMMER25,EXTRA10",
+    "orders": [...]
+  }
+}
+Error responses (checkout creation only)
+// Invalid coupon
+{ "success": false, "message": "Coupon 'FAKE' is not valid: Invalid coupon code" }
+// Non-stackable coupon combined with others
+{ "success": false, "message": "Coupon 'ONLY5' cannot be combined with other coupons" }
+// Total discount exceeds order total
+{ "success": false, "message": "Total discount exceeds order total" }
+---
+Stacking rules enforced at backend
+Scenario	Result
+Single coupon (any type)	Always allowed
+Multiple coupons, ALL allowStackable=true	Allowed, discounts summed
+Multiple coupons, ANY allowStackable=false	Rejected: "This coupon cannot be combined with other coupons"
+Adding stackable coupon to existing non-stackable	Rejected: "Cannot add more coupons — an existing coupon does not allow stacking"
+Total discount exceeds subtotal	Rejected: "Total discount exceeds order total"

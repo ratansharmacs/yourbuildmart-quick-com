@@ -214,15 +214,38 @@ export type CheckoutItem = {
 export type SalesOrder = {
   id: number;
   orderNumber: string;
+  customerProfileId?: number;
+  customerName?: string;
+  deliveryAddressId?: number;
+  billingAddressId?: number;
+  shippingAddressId?: number;
+  warehouseId?: number;
+  warehouseName?: string;
   status: string;
   orderDate: string;
+  confirmedAt?: string | null;
   paymentMethod: string;
+  paymentDetails?: string;
+  paymentWindowExpiresAt?: string | null;
+  paymentConfirmedAt?: string | null;
+  cancelledAt?: string | null;
+  shipToName?: string;
+  shipToPhone?: string;
+  shipToAddress?: string;
+  trackingNumber?: string;
+  trackingUrl?: string;
+  shippingPartnerId?: number;
+  shippingPartnerName?: string;
   subtotal: number;
+  couponDiscountAmount?: number;
   discountAmount: number;
   taxAmount: number;
   shippingAmount: number;
   grandTotal: number;
   remarks: string;
+  greenPointsRedeemed?: number;
+  greenPointsRedemptionValue?: number;
+  greenPointsEarned?: number;
   items: Array<{
     id: number;
     productId: number;
@@ -231,6 +254,8 @@ export type SalesOrder = {
     productName: string;
     variantLabel: string;
     orderedQty: number;
+    reservedQty?: number;
+    shippedQty?: number;
     unitPrice: number;
     lineTotal: number;
   }>;
@@ -244,14 +269,49 @@ export type CheckoutPreview = {
   orderCount: number;
   paymentMethod: string;
   subtotal: number;
+  discountAmount?: number;
+  couponCode?: string;
+  couponApplied?: boolean;
+  taxTotal?: number;
+  shippingAmount?: number;
   grandTotal: number;
   items: Array<CheckoutItem & { productName: string; lineTotal: number; serviceable: boolean; message: string }>;
+};
+
+export type Coupon = {
+  id: number;
+  code: string;
+  name?: string;
+  description?: string;
+  discountType?: string;
+  discountValue?: number;
+  minimumOrderAmount?: number | null;
+  maximumDiscountAmount?: number | null;
+  allowStackable?: boolean;
+  validFrom?: string;
+  validUntil?: string;
+  [key: string]: unknown;
+};
+
+export type CouponValidation = {
+  valid: boolean;
+  couponCode: string;
+  discountAmount: number;
+  applicableAmount?: number;
+  message: string;
+  allowStackable: boolean;
 };
 
 export type CheckoutSession = {
   expiresAt: string;
   paymentMethod: string;
+  gateway?: string;
+  merchantOrderId?: string;
+  paymentSessionId?: string;
+  cashfreeMode?: "sandbox" | "production";
+  paymentStatus?: "PENDING" | "PAID" | "FAILED" | "USER_DROPPED" | "EXPIRED" | "CANCELLED" | "ERROR";
   totalAmount: number;
+  payableAmount?: number;
   orders: SalesOrder[];
 };
 
@@ -597,20 +657,38 @@ export const api = {
   order: (id: number) => request<SalesOrder>(`/api/customer-account/orders/${id}`, {}, { auth: true }),
   createOrder: (body: Record<string, unknown>) =>
     request<SalesOrder>("/api/customer-account/orders", { method: "POST", body: JSON.stringify(body) }, { auth: true }),
-  checkoutPreview: (deliveryAddressId: number, items: CheckoutItem[], remarks = "") =>
+  checkoutPreview: (deliveryAddressId: number, items: CheckoutItem[], remarks = "", paymentMethod = "CASHFREE", couponCodes: string[] = []) =>
     request<CheckoutPreview>("/api/customer-account/orders/payment-session/preview", {
       method: "POST",
-      body: JSON.stringify({ deliveryAddressId, items, remarks }),
+      body: JSON.stringify({ deliveryAddressId, paymentMethod, items, remarks, couponCodes }),
     }, { auth: true }),
-  startCheckout: (deliveryAddressId: number, items: CheckoutItem[], remarks = "") =>
+  startCheckout: (deliveryAddressId: number, items: CheckoutItem[], remarks = "", paymentMethod = "CASHFREE", couponCodes: string[] = []) =>
     request<CheckoutSession>("/api/customer-account/orders/payment-session", {
       method: "POST",
-      body: JSON.stringify({ deliveryAddressId, items, remarks }),
+      body: JSON.stringify({ deliveryAddressId, paymentMethod, items, remarks, couponCodes }),
+    }, { auth: true }),
+  verifyCheckout: (merchantOrderId: string) =>
+    request<CheckoutSession>(`/api/customer-account/orders/payment-session/${encodeURIComponent(merchantOrderId)}/verify`, {
+      method: "POST",
     }, { auth: true }),
   confirmCheckout: (orderIds: number[], paymentMethod: string) =>
     request<CheckoutSession>("/api/customer-account/orders/payment-session/confirm", {
       method: "POST",
       body: JSON.stringify({ orderIds, paymentMethod }),
+    }, { auth: true }),
+  cancelOrder: (id: number) =>
+    request<SalesOrder>(`/api/customer-account/orders/${id}/cancel`, { method: "POST" }, { auth: true }),
+
+  visibleCoupons: (page = 0, size = 100) =>
+    request<PageResponse<Coupon>>(
+      `/api/customer/coupons/visible${toSearchParams({ page, size })}`,
+      {},
+      { auth: true },
+    ),
+  validateCoupon: (code: string, items: Array<{ variantId: number; quantity: number }>, appliedCouponCodes: string[] = []) =>
+    request<CouponValidation>("/api/customer/coupons/validate", {
+      method: "POST",
+      body: JSON.stringify({ code, items, appliedCouponCodes }),
     }, { auth: true }),
 
   contact: (body: { name: string; email: string; message: string }) =>

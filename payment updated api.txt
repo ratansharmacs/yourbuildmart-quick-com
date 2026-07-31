@@ -1,0 +1,128 @@
+1. POST /api/customer-account/orders/payment-session
+Request
+POST /api/customer-account/orders/payment-session
+Content-Type: application/json
+Authorization: Bearer <customer_token>
+Payload
+{
+  "deliveryAddressId": 1,
+  "paymentMethod": "COD",
+  "remarks": "",
+  "items": [
+    {
+      "productId": 1,
+      "variantId": 10,
+      "batchId": null,
+      "quantity": 2
+    },
+    {
+      "productId": 2,
+      "variantId": 15,
+      "batchId": null,
+      "quantity": 1
+    }
+  ],
+  "couponCodes": ["SAVE10"],
+  "useGreenPoints": false
+}
+Response
+{
+  "success": true,
+  "message": "Payment session created successfully",
+  "data": {
+    "expiresAt": "2026-05-10T19:00:00",
+    "paymentMethod": "COD",
+    "totalAmount": 750.00,
+    "orders": [
+      {
+        "id": 15,
+        "orderNumber": "SO-000015",
+        "status": "PENDING_PAYMENT",
+        "subtotal": 600.00,
+        "discountAmount": 60.00,
+        "taxAmount": 90.00,
+        "shippingAmount": 50.00,
+        "grandTotal": 590.00,
+        "items": [...]
+      }
+    ],
+    "couponDiscount": 60.00,
+    "greenPointsRedemptionValue": 0,
+    "payableAmount": 590.00
+  }
+}
+---
+2. POST /api/customer-account/orders/payment-session/preview
+Request
+POST /api/customer-account/orders/payment-session/preview
+Content-Type: application/json
+Authorization: Bearer <customer_token>
+Payload
+{
+  "deliveryAddressId": 1,
+  "paymentMethod": "COD",
+  "items": [
+    {
+      "productId": 1,
+      "variantId": 10,
+      "quantity": 2
+    }
+  ],
+  "couponCodes": ["SAVE10"],
+  "useGreenPoints": false
+}
+Response
+{
+  "success": true,
+  "message": "Checkout preview prepared successfully",
+  "data": {
+    "deliveryAddressId": 1,
+    "postalCode": "400001",
+    "serviceable": true,
+    "message": "All items serviceable",
+    "orderCount": 1,
+    "paymentMethod": "COD",
+    "subtotal": 600.00,
+    "discountAmount": 60.00,
+    "couponCode": "SAVE10",
+    "couponApplied": true,
+    "taxTotal": 90.00,
+    "shippingAmount": 50.00,
+    "grandTotal": 590.00,
+    "items": [
+      {
+        "productId": 1,
+        "variantId": 10,
+        "productName": "Product Name",
+        "variantLabel": "500g",
+        "quantity": 2,
+        "unitPrice": 300.00,
+        "netUnitPrice": 254.24,
+        "taxPercentage": 18,
+        "taxAmount": 45.76,
+        "lineTotal": 600.00,
+        "serviceable": true
+      }
+    ],
+    "greenPointsAvailable": 500,
+    "greenPointsRedemptionValue": 0,
+    "maxRedemptionValue": 59.00,
+    "payableAfterGreenPoints": 590.00,
+    "earnGreenPoints": 59
+  }
+}---
+
+---
+Field Descriptions
+Field	Type	Description
+shippingAmount 
+deliveryAddressId	Long	Selected delivery address ID
+paymentMethod	String	CASHFREE, COD, etc.
+couponCode	String	Single coupon code
+couponCodes	List	Multiple coupon codes
+useGreenPoints	Boolean	Whether to redeem green points
+items[]	List	Cart items with variantId & quantity
+couponDiscountAmount	BigDecimal	Discount from coupon usage
+greenPointsRedeemed	Long	Points used for discount
+greenPointsRedemptionValue	BigDecimal	INR value of redeemed points
+greenPointsEarned	Long	Points earned on this order

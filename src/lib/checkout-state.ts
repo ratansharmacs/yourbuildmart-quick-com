@@ -1,6 +1,7 @@
 export type CheckoutState = {
   addressId: number;
   remarks: string;
+  couponCodes?: string[];
 };
 
 const KEY = "ybm_checkout";

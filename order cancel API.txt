@@ -1,0 +1,30 @@
+Cancel Order API
+Endpoint: POST /api/customer-account/orders/{orderId}/cancel
+No payload required - orderId is in URL path
+Success Response (200)
+{
+  "success": true,
+  "message": "Order cancelled successfully",
+  "data": {
+    "id": 123,
+    "orderNumber": "ORD-2025-000123",
+    "status": "CANCELLED",
+    "cancelledAt": "2025-03-21T10:30:00",
+    "subtotal": 500.00,
+    "couponDiscountAmount": 50.00,
+    "discountAmount": 0.00,
+    "taxAmount": 90.00,
+    "shippingAmount": 0.00,
+    "grandTotal": 540.00,
+    "greenPointsRedeemed": 0,
+    "greenPointsRedemptionValue": 0.00,
+    "greenPointsEarned": 0,
+    "items": [...]
+  }
+}
+Error Response (400)
+{
+  "success": false,
+  "message": "This order cannot be cancelled",
+  "data": null
+}

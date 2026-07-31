@@ -74,7 +74,10 @@ function ProfilePage() {
         </div>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
-          <AccountForm profile={profile.data} onSaved={() => queryClient.invalidateQueries({ queryKey: ["profile"] })} />
+          <AccountForm
+            profile={profile.data}
+            onSaved={(updatedProfile) => queryClient.setQueryData(["profile"], updatedProfile)}
+          />
 
           <section className="rounded-2xl border border-border bg-card p-5">
             <h2 className="text-2xl">Saved Addresses</h2>
@@ -137,7 +140,13 @@ function ProfilePage() {
   );
 }
 
-function AccountForm({ profile, onSaved }: { profile?: CustomerProfile; onSaved: () => void }) {
+function AccountForm({
+  profile,
+  onSaved,
+}: {
+  profile?: CustomerProfile;
+  onSaved: (updatedProfile: CustomerProfile) => void;
+}) {
   const [email, setEmail] = useState(profile?.email || "");
   const [mobile, setMobile] = useState(profile?.mobile || "");
   const [emailOtp, setEmailOtp] = useState("");
@@ -197,16 +206,7 @@ function AccountForm({ profile, onSaved }: { profile?: CustomerProfile; onSaved:
             mobile: mobile.trim() || undefined,
             mobileOtp: mobileChanged ? mobileOtp.trim() : undefined,
           });
-          await api.updateProfile({
-            displayName: String(form.get("displayName")),
-            email: email.trim(),
-            mobile: mobile.trim(),
-            gstin: String(form.get("gstin")),
-            pan: String(form.get("pan")),
-            creditLimit: Number(form.get("creditLimit")) || 0,
-            paymentTermsDays: Number(form.get("paymentTermsDays")) || 0,
-            notes: String(form.get("notes")),
-          });
+          const updatedProfile = await api.profile();
           if (passwordEnabled) {
             const newPassword = String(form.get("newPassword"));
             const confirmation = String(form.get("confirmPassword"));
@@ -217,7 +217,7 @@ function AccountForm({ profile, onSaved }: { profile?: CustomerProfile; onSaved:
             );
           }
           setMessage("Profile updated.");
-          onSaved();
+          onSaved(updatedProfile);
         } catch (caught) {
           setMessage(caught instanceof Error ? caught.message : "Could not update profile");
         } finally {
