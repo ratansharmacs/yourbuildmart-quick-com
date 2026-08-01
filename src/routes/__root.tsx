@@ -1,15 +1,6 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  Outlet,
-  Link,
-  createRootRouteWithContext,
-  useRouter,
-  HeadContent,
-  Scripts,
-} from "@tanstack/react-router";
+import { QueryClient } from "@tanstack/react-query";
+import { Link, createRootRouteWithContext, useRouter } from "@tanstack/react-router";
 
-import appCss from "../styles.css?url";
-import ybmLogo from "@/assets/Group 1707479950 (1) - Copy.png";
 import { App } from "@/App";
 
 function NotFoundComponent() {
@@ -70,47 +61,12 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "YourBuildMart — Premium Construction Materials" },
-      { name: "description", content: "Cement, tiling, plywood, electrical & hardware at wholesale prices. Fast delivery, authentic products." },
-      { property: "og:title", content: "YourBuildMart — Premium Construction Materials" },
-      { property: "og:description", content: "Cement, tiling, plywood, electrical & hardware at wholesale prices." },
-      { property: "og:type", content: "website" },
-    ],
-    links: [
-      { rel: "stylesheet", href: appCss },
-      { rel: "icon", type: "image/svg+xml", href: ybmLogo },
-      { rel: "shortcut icon", href: ybmLogo },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Overlock:wght@400;700;900&family=Poppins:wght@300;400;500;600;700&display=swap" },
-    ],
-  }),
-  shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
 });
 
-function RootShell({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <head>
-        <HeadContent />
-      </head>
-      <body>
-        {children}
-        <Scripts />
-      </body>
-    </html>
-  );
-}
-
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-
   return <App queryClient={queryClient} />;
 }
