@@ -33,10 +33,10 @@ function CategoriesPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="container-page flex-1 pb-8 pt-14">
+      <main className="container-page flex-1 pb-8 pt-7 md:pt-14">
         <div className="flex flex-col items-center text-center">
           <div>
-            <h1 className="text-4xl">Subcategories</h1>
+            <h1 className="text-3xl md:text-4xl">Subcategories</h1>
             <p className="mt-4 text-sm text-muted-foreground">Browse all available subcategories and jump straight to the products you need.</p>
           </div>
         </div>
@@ -65,7 +65,7 @@ function CategoriesPage() {
                 </button>
               ) : null}
             </div>
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="mt-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:flex-wrap md:overflow-visible">
               {parentCategories.map((category) => {
                 const selected = selectedCategoryIds.includes(category.id);
                 return (
@@ -74,7 +74,7 @@ function CategoriesPage() {
                     type="button"
                     aria-pressed={selected}
                     onClick={() => toggleCategory(category.id)}
-                    className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition ${
+                    className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition ${
                       selected
                         ? "border-orange bg-orange text-white shadow-sm"
                         : "border-border bg-card text-foreground hover:border-orange/50 hover:bg-orange/5"
@@ -89,24 +89,24 @@ function CategoriesPage() {
           </section>
         ) : null}
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:mt-8 sm:gap-4 lg:grid-cols-3 xl:grid-cols-5">
           {subcategories.map((category, index) => (
             <Link
               key={category.id}
               to="/subcategory/$subcategoryId"
               params={{ subcategoryId: slugify(category.name) }}
-              className="group flex items-center gap-3 rounded-2xl border border-border bg-card p-4 text-left transition hover:-translate-y-0.5 hover:shadow-md"
+              className="group flex min-w-0 flex-col rounded-xl border border-border bg-card p-2 text-center shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:flex-row sm:gap-3 sm:rounded-2xl sm:p-4 sm:text-left"
             >
-              <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-secondary p-2">
+              <div className="flex aspect-square w-full shrink-0 items-center justify-center overflow-hidden rounded-lg bg-secondary p-3 sm:h-14 sm:w-14 sm:p-2">
                 <img
                   src={category.image ? resolveApiImage(category.image) : fallbackCategories[index % fallbackCategories.length].icon}
                   alt={category.name}
                   className="h-full w-full object-contain"
                 />
               </div>
-              <div className="min-w-0">
-                <h2 className="truncate text-base font-semibold text-foreground">{category.name}</h2>
-                <p className="mt-1 text-sm text-muted-foreground">{category.productCount} products</p>
+              <div className="mt-2 min-w-0 sm:mt-0">
+                <h2 className="line-clamp-2 text-sm font-semibold leading-5 text-foreground sm:truncate sm:text-base">{category.name}</h2>
+                <p className="text-xs leading-4 text-muted-foreground sm:text-sm">{category.productCount} products</p>
               </div>
             </Link>
           ))}

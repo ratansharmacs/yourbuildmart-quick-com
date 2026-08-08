@@ -96,7 +96,7 @@ export function ProductCard({ product, variant = "default" }: { product: Product
         <button
           onClick={() => void add()}
           disabled={product.inStock === false}
-          className={`flex items-center justify-center gap-1.5 rounded-md bg-orange ${variant === "compact" ? "px-2 py-1 text-[10px]" : "px-2 py-2 text-[11px]"} font-medium text-orange-foreground transition hover:opacity-90 disabled:opacity-50`}
+          className={`flex items-center justify-center gap-1 whitespace-nowrap rounded-md bg-orange ${variant === "compact" ? "px-2 py-1 text-[10px]" : "px-1 py-2 text-[10px] sm:px-2 sm:text-[11px]"} font-medium text-orange-foreground transition hover:opacity-90 disabled:opacity-50`}
         >
           <ShoppingBag className="h-3.5 w-3.5" />
           {product.inStock === false ? "Out of Stock" : canTryAdd ? "Add to Cart" : "Options"}

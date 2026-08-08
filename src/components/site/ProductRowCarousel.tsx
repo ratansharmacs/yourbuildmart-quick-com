@@ -34,15 +34,22 @@ export function ProductRowCarousel({ products }: { products: Product[] }) {
 
   return (
     <div>
+      <div className="grid grid-cols-2 gap-3 md:hidden">
+        {products.slice(0, 4).map((product) => (
+          <div key={product.id} className="min-w-0">
+            <ProductCard product={product} variant="home" />
+          </div>
+        ))}
+      </div>
       <div
         ref={viewportRef}
         onScroll={handleScroll}
-        className="flex snap-x snap-mandatory overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="hidden snap-x snap-mandatory overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:flex"
       >
         {slides.map((slide, slideIndex) => (
           <div
             key={slideIndex}
-            className="grid min-w-[1164px] snap-start grid-cols-5 gap-4 md:flex md:min-w-full md:justify-center"
+            className="grid min-w-full snap-start grid-cols-2 gap-3 sm:gap-4 md:flex md:justify-center"
           >
             {slide.map((product) => (
               <div key={product.id} className="min-w-0 md:w-[calc(20%-0.8rem)] md:max-w-[calc(20%-0.8rem)] md:shrink-0">
@@ -54,7 +61,7 @@ export function ProductRowCarousel({ products }: { products: Product[] }) {
       </div>
 
       {slides.length > 1 ? (
-        <div className="mt-4 flex justify-center gap-2" aria-label="Product carousel pages">
+        <div className="mt-4 hidden justify-center gap-2 md:flex" aria-label="Product carousel pages">
           {slides.map((_, index) => (
             <button
               key={index}

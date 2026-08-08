@@ -57,7 +57,7 @@ export function CategoryProductsPage({ categorySlug, pageKind }: { categorySlug:
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <Navbar />
-      <main className="container-page flex-1 py-10">
+      <main className="container-page flex-1 py-6 md:py-10">
         <nav className="mb-3 text-sm text-muted-foreground" aria-label="Breadcrumb">
           <Link to="/">Home</Link>
           <span className="px-2">/</span>
@@ -77,7 +77,7 @@ export function CategoryProductsPage({ categorySlug, pageKind }: { categorySlug:
         </nav>
 
         <p className="text-sm text-brand">Shop by {actualKind}</p>
-        <h1 className="mt-2 text-4xl">{category?.name || `${pageKind === "category" ? "Category" : "Subcategory"} Products`}</h1>
+        <h1 className="mt-2 text-3xl md:text-4xl">{category?.name || `${pageKind === "category" ? "Category" : "Subcategory"} Products`}</h1>
         <p className="mt-2 text-muted-foreground">{category?.description}</p>
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
@@ -91,7 +91,7 @@ export function CategoryProductsPage({ categorySlug, pageKind }: { categorySlug:
 
         {products.isLoading || categories.isLoading ? <p className="mt-8">Loading products...</p> : null}
         {products.isError ? <p className="mt-8 text-red-600">{products.error.message}</p> : null}
-        <div className="mt-8 grid grid-cols-2 gap-5 md:grid-cols-4 xl:grid-cols-5">
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-5 md:mt-8 md:grid-cols-4 xl:grid-cols-5">
           {products.data?.content.map((product) => <div key={product.id} className="min-w-0"><ProductCard product={catalogProductToCard(product)} variant="home" /></div>)}
         </div>
         {!products.isLoading && !products.data?.content.length ? <p className="mt-8 text-muted-foreground">No products found in this {actualKind}.</p> : null}

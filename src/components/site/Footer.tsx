@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { Facebook, Instagram, Linkedin } from "lucide-react";
 import footerLogo from "@/assets/abh.png";
 
 export function Newsletter() {
@@ -25,10 +25,10 @@ export function Newsletter() {
           </button>
         </form>
         <div className="flex items-center gap-3 self-center md:self-auto">
-          <a href="#" aria-label="Facebook" className="grid h-7 w-7 place-items-center rounded-full bg-[#235758] text-white"><Facebook className="h-3.5 w-3.5" /></a>
-          <a href="#" aria-label="Twitter" className="grid h-7 w-7 place-items-center rounded-full bg-[#235758] text-white"><Twitter className="h-3.5 w-3.5" /></a>
-          <a href="#" aria-label="Instagram" className="grid h-7 w-7 place-items-center rounded-full bg-[#235758] text-white"><Instagram className="h-3.5 w-3.5" /></a>
-          <a href="#" aria-label="LinkedIn" className="grid h-7 w-7 place-items-center rounded-full bg-[#235758] text-white"><Linkedin className="h-3.5 w-3.5" /></a>
+          <a href="#" aria-label="Facebook" className="grid h-8 w-8 place-items-center rounded-full bg-[#1877F2] text-white"><Facebook className="h-4 w-4 fill-current" /></a>
+          <a href="#" aria-label="X (formerly Twitter)" className="grid h-8 w-8 place-items-center rounded-full bg-black text-sm font-semibold text-white">X</a>
+          <a href="#" aria-label="Instagram" className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-[#833AB4] via-[#E1306C] to-[#FCAF45] text-white"><Instagram className="h-4 w-4" /></a>
+          <a href="#" aria-label="LinkedIn" className="grid h-8 w-8 place-items-center rounded-full bg-[#0A66C2] text-white"><Linkedin className="h-4 w-4 fill-current" /></a>
         </div>
       </div>
     </section>

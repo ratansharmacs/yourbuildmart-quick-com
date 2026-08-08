@@ -8,7 +8,7 @@ export function Logo({ className = "" }: { className?: string }) {
         alt="YourBuildMart"
         width={132}
         height={20}
-        className="block h-5 w-[132px] object-contain"
+        className="block h-5 w-[112px] object-contain sm:w-[132px]"
       />
     </div>
   );

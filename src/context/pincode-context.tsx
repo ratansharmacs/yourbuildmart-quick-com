@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { MapPin } from "lucide-react";
+import { MapPin, X } from "lucide-react";
 import { api, PINCODE_STORAGE_KEY } from "@/lib/api";
 
 type PincodeContextValue = {
@@ -17,6 +17,7 @@ export function PincodeProvider({ children }: { children: React.ReactNode }) {
   const [draft, setDraft] = useState("");
   const [error, setError] = useState("");
   const [validating, setValidating] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   useEffect(() => {
     const saved = window.localStorage.getItem(PINCODE_STORAGE_KEY) || "";
@@ -26,12 +27,26 @@ export function PincodeProvider({ children }: { children: React.ReactNode }) {
     } else if (saved) {
       window.localStorage.removeItem(PINCODE_STORAGE_KEY);
     }
+    setModalOpen(!/^\d{6}$/.test(saved));
     setReady(true);
   }, []);
+
+  const useAllLocations = () => {
+    window.localStorage.removeItem(PINCODE_STORAGE_KEY);
+    setPincode("");
+    setDraft("");
+    setError("");
+    setModalOpen(false);
+    void queryClient.invalidateQueries();
+  };
 
   const save = async (event: React.FormEvent) => {
     event.preventDefault();
     const value = draft.trim();
+    if (!value) {
+      useAllLocations();
+      return;
+    }
     if (!/^\d{6}$/.test(value)) {
       setError("Please enter a valid 6-digit pincode.");
       return;
@@ -55,6 +70,7 @@ export function PincodeProvider({ children }: { children: React.ReactNode }) {
     }
     window.localStorage.setItem(PINCODE_STORAGE_KEY, value);
     setPincode(value);
+    setModalOpen(false);
     setError("");
     void queryClient.invalidateQueries();
   };
@@ -65,20 +81,21 @@ export function PincodeProvider({ children }: { children: React.ReactNode }) {
         pincode,
         changePincode: () => {
           setDraft(pincode);
-          setPincode("");
           setError("");
+          setModalOpen(true);
         },
       }}
     >
       {children}
-      {ready && !pincode ? (
-        <div className="fixed inset-0 z-[1000] grid place-items-center bg-black/55 px-4 backdrop-blur-sm">
+      {ready && modalOpen ? (
+        <div className="fixed inset-0 z-[1000] grid place-items-center bg-black/55 px-4 backdrop-blur-sm" onMouseDown={(event) => { if (event.target === event.currentTarget) useAllLocations(); }}>
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="pincode-title"
-            className="w-full max-w-md rounded-3xl bg-white p-7 shadow-2xl"
+            className="relative w-full max-w-md rounded-3xl bg-white p-7 shadow-2xl"
           >
+            <button type="button" onClick={useAllLocations} aria-label="Close pincode dialog and browse all products" className="absolute right-5 top-5 grid h-9 w-9 place-items-center rounded-full text-muted-foreground transition hover:bg-secondary hover:text-foreground"><X className="h-5 w-5" /></button>
             <div className="mb-5 grid h-14 w-14 place-items-center rounded-full bg-orange/10">
               <MapPin className="h-7 w-7 text-orange" />
             </div>
@@ -86,7 +103,7 @@ export function PincodeProvider({ children }: { children: React.ReactNode }) {
               Where should we deliver?
             </h1>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              Enter your pincode to see products available for your location.
+              Enter your pincode for local availability, or leave it empty to browse all products.
             </p>
             <form onSubmit={save} className="mt-6">
               <label htmlFor="delivery-pincode" className="text-sm font-medium text-foreground">

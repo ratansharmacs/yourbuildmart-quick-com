@@ -78,19 +78,7 @@ function Hero() {
           </div>
         </div>
 
-        <div className="fixed left-1/2 z-50 w-[calc(100%-2rem)] max-w-[220px] -translate-x-1/2 md:hidden" style={{ top: "clamp(210px, 36vh, 320px)" }}>
-          <Link to="/cart" className="flex w-full items-center justify-center gap-2 rounded-full bg-brand px-3 py-2 text-brand-foreground shadow-lg">
-            <div className="flex -space-x-2">
-              <span className="grid h-7 w-7 place-items-center rounded-full border-2 border-brand bg-white text-[10px] text-brand">1</span>
-              <span className="grid h-7 w-7 place-items-center rounded-full border-2 border-brand bg-white text-[10px] text-brand">2</span>
-              <span className="grid h-7 w-7 place-items-center rounded-full border-2 border-brand bg-white text-[10px] text-brand">3</span>
-            </div>
-            <span className="text-xs font-medium">View Cart</span>
-            <span className="text-xs font-semibold">9</span>
-          </Link>
-        </div>
-
-        <div className="relative z-10 mt-11 mb-2 flex justify-center md:hidden">
+        <div className="relative z-10 mb-2 mt-4 flex justify-center md:hidden">
           <div className="grid w-full max-w-[393px] grid-cols-3 rounded-full bg-[#ffd3a5]/95 p-1.5 text-center shadow-md backdrop-blur">
             <button className="flex flex-col items-center gap-1 rounded-full bg-white px-2 py-2 text-[10px] font-medium text-orange">
               <House className="h-4 w-4" />
@@ -266,31 +254,27 @@ function HardwarePriceDrop() {
 
 function DifferenceBand() {
   return (
-    <section className="flex justify-center ">
-      <div className="mx-auto hidden md:block" style={{ width: 1513 }}>
-          <div style={{ height: 242, backgroundColor: '#235758', borderRadius: 8 }} className="relative">
+    <section className="flex w-full justify-center p-0">
+      <div className="mx-auto hidden w-full md:block">
+          <div className="relative min-h-36 bg-brand">
             <div className="absolute left-0 right-0 top-0 bottom-0 flex flex-col items-center justify-center text-center text-white" style={{ paddingLeft: 100, paddingRight: 100 }}>
-              <div style={{ width: 660, height: 50, margin: '0 auto' }}>
-                <h2 style={{ fontFamily: 'Overlock, serif', fontWeight: 900, fontStyle: 'normal', fontSize: 36, lineHeight: '40px', letterSpacing: 0, color: '#ffffff', textAlign: 'center', margin: 0 }}>How We Are Making Difference</h2>
-              </div>
-
-              <div className="mt-6 flex w-full items-center justify-between">
+              <div className="flex w-full items-center justify-between">
                 <div className="flex w-full items-center justify-between">
                   <div className="flex flex-col items-center gap-3">
-                    <div className="h-20 w-20 rounded-full bg-white p-4 grid place-items-center"><Truck className="h-9 w-9 text-[#235758]" /></div>
-                    <div className="text-sm font-medium text-white">Fast Delivery</div>
+                    <div className="h-14 w-14 rounded-full bg-white/15 p-3 grid place-items-center"><Truck className="h-7 w-7 text-white" /></div>
+                    <div className="text-sm font-semibold text-white">Fast Delivery<br/><span className="font-normal text-white/75">Quick & reliable delivery</span></div>
                   </div>
                   <div className="flex flex-col items-center gap-3">
-                    <div className="h-20 w-20 rounded-full bg-white p-4 grid place-items-center"><ShieldCheck className="h-9 w-9 text-[#235758]" /></div>
-                    <div className="text-sm font-medium text-white">Genuine Products</div>
+                    <div className="h-14 w-14 rounded-full bg-white/15 p-3 grid place-items-center"><ShieldCheck className="h-7 w-7 text-white" /></div>
+                    <div className="text-sm font-semibold text-white">Genuine Products<br/><span className="font-normal text-white/75">100% authentic products</span></div>
                   </div>
                   <div className="flex flex-col items-center gap-3">
-                    <div className="h-20 w-20 rounded-full bg-white p-4 grid place-items-center"><CreditCard className="h-9 w-9 text-[#235758]" /></div>
-                    <div className="text-sm font-medium text-white">Pay on Delivery</div>
+                    <div className="h-14 w-14 rounded-full bg-white/15 p-3 grid place-items-center"><CreditCard className="h-7 w-7 text-white" /></div>
+                    <div className="text-sm font-semibold text-white">Pay on Delivery<br/><span className="font-normal text-white/75">COD available</span></div>
                   </div>
                   <div className="flex flex-col items-center gap-3">
-                    <div className="h-20 w-20 rounded-full bg-white p-4 grid place-items-center"><Clipboard className="h-9 w-9 text-[#235758]" /></div>
-                    <div className="text-sm font-medium text-white">No Min Order</div>
+                    <div className="h-14 w-14 rounded-full bg-white/15 p-3 grid place-items-center"><Clipboard className="h-7 w-7 text-white" /></div>
+                    <div className="text-sm font-semibold text-white">No Min Order<br/><span className="font-normal text-white/75">No minimum order value</span></div>
                   </div>
                 </div>
               </div>
@@ -299,16 +283,16 @@ function DifferenceBand() {
         </div>
 
       {/* Mobile / narrow fallback */}
-      <div className="mx-auto w-full max-w-full rounded-lg md:hidden bg-[#235758] py-8">
+      <div className="w-full bg-[#235758] py-4 md:hidden">
         <div className="container-page text-center text-white">
           <h2 className="text-2xl">How We Are Making Difference</h2>
-          <div className="mt-4 flex items-center justify-center gap-6">
+          <div className="mt-2 flex items-center justify-center gap-6">
             <div className="h-12 w-12 rounded-full bg-white p-2 grid place-items-center"><Truck className="h-6 w-6 text-[#235758]" /></div>
             <div className="h-12 w-12 rounded-full bg-white p-2 grid place-items-center"><ShieldCheck className="h-6 w-6 text-[#235758]" /></div>
             <div className="h-12 w-12 rounded-full bg-white p-2 grid place-items-center"><CreditCard className="h-6 w-6 text-[#235758]" /></div>
             <div className="h-12 w-12 rounded-full bg-white p-2 grid place-items-center"><Clipboard className="h-6 w-6 text-[#235758]" /></div>
           </div>
-          <div className="mt-3 text-sm font-medium">Fast Delivery · Genuine Products · Pay on Delivery · No Min Order</div>
+          <div className="mt-2 text-xs font-medium">Fast Delivery · Genuine Products · Pay on Delivery · No Min Order</div>
         </div>
       </div>
     </section>
@@ -374,7 +358,7 @@ function MobileTopCategories() {
   const shownCategories = liveCategories.length ? liveCategories.filter((c: any) => c.parentId === null) : categories;
 
   return (
-    <section className="container-page pb-1 pt-0 md:hidden">
+    <section className="container-page pb-1 pt-3 md:hidden">
       <div className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {shownCategories.map((c, i) => {
           const isLive = "id" in c;
@@ -396,28 +380,28 @@ function MobileTopCategories() {
 function MobileCategoriesSection() {
   const categoryQuery = useCategories();
   const liveCategories = categoryQuery.data || [];
-  const shownCategories = liveCategories.length ? liveCategories : categories;
+  const shownCategories = (liveCategories.length ? liveCategories.filter((category) => category.parentId !== null) : categories).slice(0, 8);
 
   return (
     <section className="container-page pb-3 pt-3 md:hidden">
       <div className="mb-3 flex items-center justify-between">
         <div>
-          <h2 className="text-xl leading-none text-brand">Categories</h2>
+          <h2 className="text-xl leading-none text-brand">Explore subcategories</h2>
         </div>
         <Link to="/subcategories" className="text-[10px] font-medium text-brand">View All</Link>
       </div>
-      <div className="flex gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {shownCategories.map((c, i) => {
           const isLive = "id" in c;
           const image = isLive && c.image ? resolveApiImage(c.image) : categories[i % categories.length].icon;
           return (
-          <Link key={`secondary-${c.name}`} to={isLive && c.parentId !== null ? "/subcategory/$subcategoryId" : isLive ? "/category/$categoryId" : "/subcategories"} params={isLive && c.parentId !== null ? { subcategoryId: slugify(c.name) } : isLive ? { categoryId: slugify(c.name) } : undefined as never} className="shrink-0 text-center">
-            <div className="mx-auto grid h-20 w-20 place-items-center rounded-full border border-[#D8E5E8] bg-[#EEF5F6] p-2">
-              <img src={image} alt={c.name} className="h-[52px] w-[52px] object-contain" loading="lazy" />
+          <Link key={`secondary-${c.name}`} to={isLive && c.parentId !== null ? "/subcategory/$subcategoryId" : isLive ? "/category/$categoryId" : "/subcategories"} params={isLive && c.parentId !== null ? { subcategoryId: slugify(c.name) } : isLive ? { categoryId: slugify(c.name) } : undefined as never} className="w-[92px] shrink-0 rounded-xl border border-[#D8E5E8] bg-white p-2 text-center shadow-sm">
+            <div className="mx-auto grid aspect-square w-full max-w-20 place-items-center rounded-lg bg-[#EEF5F6] p-2">
+              <img src={image} alt={c.name} className="h-full w-full object-contain" loading="lazy" />
             </div>
             <div className="mt-1.5">
-              <span className="block text-xs font-bold text-foreground">{c.name}</span>
-              <button className="mt-1 block rounded bg-[#EEF5F6] px-2 py-1 text-xs font-medium text-[#235758] hover:bg-[#E3EFF1]">View All</button>
+              <span className="line-clamp-2 block min-h-8 text-[11px] font-bold leading-4 text-foreground">{c.name}</span>
+              <span className="mt-1 block rounded bg-[#EEF5F6] px-1 py-1 text-[10px] font-medium text-[#235758]">View All</span>
             </div>
           </Link>
           );

@@ -77,14 +77,20 @@ export function TestimonialsSection() {
   }
 
   return (
-    <section className="container-page pb-2 pt-4 md:py-8">
+    <section className="container-page max-w-[1320px] pb-2 pt-4 md:py-8">
       <SectionHeader title="What Our Client Say About Us" subtitle="Real feedback from our valued customers" />
 
-      <div className="relative">
+      <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 md:hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        {items.map((item) => (
+          <TestimonialCard key={item.id} item={item} className="w-[82%] shrink-0 snap-start" />
+        ))}
+      </div>
+
+      <div className="relative hidden md:block">
         <div ref={viewportRef} onScroll={handleScroll} className="flex snap-x snap-mandatory overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {pages.map((page, pageIndex) => (
-            <div key={pageIndex} className="grid min-w-[1164px] snap-start grid-cols-4 gap-4 md:flex md:min-w-full md:justify-center">
-              {page.map((item) => <TestimonialCard key={item.id} item={item} className="md:w-[calc(25%-0.75rem)] md:shrink-0" />)}
+            <div key={pageIndex} className="grid min-w-full snap-start grid-cols-4 gap-5 px-2">
+              {page.map((item) => <TestimonialCard key={item.id} item={item} className="min-w-0" />)}
             </div>
           ))}
         </div>
@@ -114,7 +120,7 @@ export function TestimonialsSection() {
       </div>
 
       {pages.length > 1 ? (
-        <div className="mt-4 flex justify-center gap-2" aria-label="Testimonial carousel pages">
+        <div className="mt-4 hidden justify-center gap-2 md:flex" aria-label="Testimonial carousel pages">
           {pages.map((_, index) => (
             <button
               key={index}
@@ -139,9 +145,9 @@ function TestimonialCard({
   className?: string;
 }) {
   return (
-    <div className={`w-full rounded-2xl border border-border bg-card px-5 py-5 ${className}`}>
-      <img src={item.image} alt={item.name} className="mx-auto mb-4 h-16 w-16 rounded-full object-cover" />
-      <div className="mb-3 flex justify-center gap-0.5">
+    <article className={`h-full rounded-xl border border-border bg-card px-3 py-3 shadow-sm md:rounded-2xl md:px-5 md:py-5 ${className}`}>
+      <img src={item.image} alt={item.name} className="mx-auto mb-2 h-10 w-10 rounded-full object-cover md:mb-4 md:h-16 md:w-16" />
+      <div className="mb-2 flex justify-center gap-0.5 md:mb-3">
         {Array.from({ length: 5 }).map((_, i) => (
           <Star
             key={i}
@@ -149,11 +155,11 @@ function TestimonialCard({
           />
         ))}
       </div>
-      <p className="line-clamp-4 text-center text-sm text-muted-foreground">"{item.quote}"</p>
-      <div className="mt-6 text-center">
-        <div className="font-display text-base text-brand">{item.name}</div>
+      <p className="line-clamp-3 text-center text-xs text-muted-foreground md:line-clamp-4 md:text-sm">"{item.quote}"</p>
+      <div className="mt-3 text-center md:mt-6">
+        <div className="font-display text-sm text-brand md:text-base">{item.name}</div>
         {item.role ? <div className="text-xs text-muted-foreground">{item.role}</div> : null}
       </div>
-    </div>
+    </article>
   );
 }
