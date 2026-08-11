@@ -34,7 +34,7 @@
   --color-orange: var(--orange);
   --color-orange-foreground: var(--orange-foreground);
   --color-peach: var(--peach);
-  --font-display: "Overlock", serif;
+  --font-display: "Open Sans", sans-serif;
   --font-body: "Poppins", sans-serif;
 }
 
@@ -90,7 +90,7 @@
   }
   h1, h2, h3, h4, h5, h6, .font-display {
     font-family: var(--font-display);
-    font-weight: 900;
+    font-weight: 700;
     color: var(--color-brand);
     letter-spacing: -0.01em;
   }

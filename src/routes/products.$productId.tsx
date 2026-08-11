@@ -35,6 +35,7 @@ import {
 } from "@/lib/api";
 import { useShop } from "@/context/shop-context";
 import type { Product } from "@/components/site/data";
+import { getCategoryDescendantIds } from "@/lib/category-products";
 
 export const Route = createFileRoute("/products/$productId")({
   head: () => ({ meta: [{ title: "Product Details - YourBuildMart" }] }),
@@ -50,35 +51,64 @@ function ProductDetailPage() {
   const categoryInfo = categoriesQuery.data?.find((category) => category.id === productQuery.data?.categoryId);
   const similarProductsQuery = useQuery({
     queryKey: ["product-page", "similar-priority", productQuery.data?.id, categoryInfo?.id, categoriesQuery.data],
-    enabled: Boolean(productQuery.data && categoryInfo && categoriesQuery.data),
+    enabled: Boolean(productQuery.data && !categoriesQuery.isLoading),
     queryFn: async () => {
       const currentId = productQuery.data!.id;
+      const categories = categoriesQuery.data || [];
+      const params = { page: 0, size: 15, sortBy: "crtDt", direction: "DESC" };
+      const excludeCurrent = <T extends { id: number }>(items: T[]) =>
+        items.filter((item) => item.id !== currentId);
       const load = async (categoryId: number) => {
-        const page = await api.productsByCategory(categoryId, { page: 0, size: 15, sortBy: "crtDt", direction: "DESC" });
-        return page.content.filter((item) => item.id !== currentId);
+        try {
+          return excludeCurrent((await api.productsByCategory(categoryId, params)).content);
+        } catch {
+          return [];
+        }
+      };
+      const loadFamily = async (categoryId: number) => {
+        const categoryIds = getCategoryDescendantIds(categories, categoryId);
+        const results = await Promise.all(categoryIds.map(load));
+        const productsById = new Map(results.flat().map((item) => [item.id, item]));
+        return [...productsById.values()];
       };
 
-      const sameCategory = await load(categoryInfo!.id);
-      if (sameCategory.length) return sameCategory;
+      if (categoryInfo) {
+        const sameCategory = await load(categoryInfo.id);
+        if (sameCategory.length) return sameCategory;
 
-      if (categoryInfo!.parentId !== null) {
-        const parentProducts = await load(categoryInfo!.parentId);
-        if (parentProducts.length) return parentProducts;
+        if (categoryInfo.parentId !== null) {
+          const parentProducts = await loadFamily(categoryInfo.parentId);
+          if (parentProducts.length) return parentProducts;
+        }
+
+        const currentIndex = categories.findIndex((item) => item.id === categoryInfo.id);
+        const adjacentCategories = categories
+          .filter((item) => item.id !== categoryInfo.id && item.parentId === categoryInfo.parentId)
+          .sort((a, b) =>
+            Math.abs(categories.findIndex((item) => item.id === a.id) - currentIndex) -
+            Math.abs(categories.findIndex((item) => item.id === b.id) - currentIndex),
+          );
+        for (const adjacentCategory of adjacentCategories) {
+          const adjacentProducts = await loadFamily(adjacentCategory.id);
+          if (adjacentProducts.length) return adjacentProducts;
+        }
+
+        const triedIds = new Set([
+          categoryInfo.id,
+          ...(categoryInfo.parentId === null ? [] : getCategoryDescendantIds(categories, categoryInfo.parentId)),
+          ...adjacentCategories.flatMap((item) => getCategoryDescendantIds(categories, item.id)),
+        ]);
+        for (const otherCategory of categories.filter((item) => !triedIds.has(item.id))) {
+          const otherProducts = await load(otherCategory.id);
+          if (otherProducts.length) return otherProducts;
+        }
       }
 
-      const peers = (categoriesQuery.data || []).filter((item) =>
-        item.id !== categoryInfo!.id && item.parentId === categoryInfo!.parentId && item.productCount > 0,
-      );
-      const currentIndex = (categoriesQuery.data || []).findIndex((item) => item.id === categoryInfo!.id);
-      peers.sort((a, b) =>
-        Math.abs((categoriesQuery.data || []).findIndex((item) => item.id === a.id) - currentIndex) -
-        Math.abs((categoriesQuery.data || []).findIndex((item) => item.id === b.id) - currentIndex),
-      );
-      for (const peer of peers) {
-        const adjacentProducts = await load(peer.id);
-        if (adjacentProducts.length) return adjacentProducts;
+      try {
+        return excludeCurrent((await api.products({ ...params, size: 48 })).content);
+      } catch {
+        return [];
       }
-      return [];
     },
   });
   const { addToCart, toggleWishlist, isWishlisted } = useShop();
@@ -267,11 +297,6 @@ function ProductDetailPage() {
           </div>
           {cartMessage ? <p className="mt-3 text-sm text-brand">{cartMessage}</p> : null}
 
-          {detail.overview?.trim() ? (
-            <p className="mt-6 whitespace-pre-line text-sm text-muted-foreground">
-              {detail.overview}
-            </p>
-          ) : null}
           <ProductAccordions product={detail} />
         </div>
       </main>
@@ -479,6 +504,7 @@ function ExpandableDescription({ description }: { description?: string }) {
 
 function ProductAccordions({ product }: { product: ProductDetail }) {
   const sections = [
+    { label: "Overview", content: product.overview },
     { label: "Key Features", content: product.keyFeatures },
     { label: "What's Inside", content: product.whatsInside },
     { label: "How To Use", content: product.howToUse },

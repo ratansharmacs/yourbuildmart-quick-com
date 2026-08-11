@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { Footer } from "@/components/site/Footer";
 import { Navbar } from "@/components/site/Navbar";
 import { ProductCard } from "@/components/site/ProductCard";
@@ -23,6 +24,11 @@ export function CategoryProductsPage({ categorySlug, pageKind }: { categorySlug:
   const canonicalSlug = category ? slugify(category.name) : "";
   const actualKind = category ? categoryKind(category) : pageKind;
   const [sortBy, direction] = sort.split("-");
+  const sortLabels: Record<string, string> = {
+    "crtDt-DESC": "Latest",
+    "basePrice-ASC": "Price: Low to High",
+    "basePrice-DESC": "Price: High to Low",
+  };
 
   useEffect(() => {
     if (!category || (categorySlug === canonicalSlug && pageKind === actualKind)) return;
@@ -82,11 +88,17 @@ export function CategoryProductsPage({ categorySlug, pageKind }: { categorySlug:
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder={`Search in this ${actualKind}`} className="h-11 flex-1 rounded-lg border border-border px-4" />
-          <select value={sort} onChange={(event) => setSort(event.target.value)} className="h-11 rounded-lg border border-border px-3">
-            <option value="crtDt-DESC">Newest</option>
-            <option value="basePrice-ASC">Price: Low to High</option>
-            <option value="basePrice-DESC">Price: High to Low</option>
-          </select>
+          <div className="group relative inline-grid h-11 shrink-0">
+            <span aria-hidden="true" className="invisible col-start-1 row-start-1 whitespace-pre py-0 pl-3 pr-8">
+              {sortLabels[sort]}
+            </span>
+            <select value={sort} onChange={(event) => setSort(event.target.value)} className="absolute inset-0 h-11 w-full appearance-none rounded-lg border border-brand/30 bg-background py-0 pl-3 pr-8 outline-none transition-colors focus:border-brand">
+              <option value="crtDt-DESC">Latest</option>
+              <option value="basePrice-ASC">Price: Low to High</option>
+              <option value="basePrice-DESC">Price: High to Low</option>
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-brand/30 transition-colors group-focus-within:text-brand" />
+          </div>
         </div>
 
         {products.isLoading || categories.isLoading ? <p className="mt-8">Loading products...</p> : null}
