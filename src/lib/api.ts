@@ -30,6 +30,14 @@ export type ImageMetadata = {
   originalName?: string;
 };
 
+export type HomeSlider = {
+  id: number;
+  imagePath: string;
+  targetLink: string;
+  sliderCategory: string;
+  displayOrder: number;
+};
+
 export type CatalogProduct = {
   id: number;
   name: string;
@@ -504,6 +512,17 @@ export function resolveApiImage(image?: string | ImageMetadata | null) {
   return `${API_BASE_URL}/api/files/${path.replace(/^\/+/, "")}`;
 }
 
+export function resolveApiTarget(targetLink?: string | null) {
+  if (!targetLink?.trim()) return API_BASE_URL;
+
+  try {
+    const target = new URL(targetLink, `${API_BASE_URL}/`);
+    return `${API_BASE_URL}${target.pathname}${target.search}${target.hash}`;
+  } catch {
+    return `${API_BASE_URL}/${targetLink.replace(/^\/+/, "")}`;
+  }
+}
+
 export function getProductImages(product: ProductDetail) {
   const images = [
     resolveApiImage(product.imagePath),
@@ -579,6 +598,7 @@ export const api = {
     request<CustomerBundle>(`/api/customer/bundles/${encodeURIComponent(slug)}`),
   testimonials: (params: Record<string, unknown> = {}) =>
     request<PageResponse<Testimonial>>(`/api/customer/testimonials${toSearchParams(params)}`),
+  homeSliders: () => request<HomeSlider[]>("/api/customer/website/home-slider"),
 
   categories: () => request<CustomerCategory[]>("/api/customer/categories"),
   categoryTree: () => request<CustomerCategory[]>("/api/customer/categories/tree"),

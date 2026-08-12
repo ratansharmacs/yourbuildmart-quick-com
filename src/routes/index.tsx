@@ -10,10 +10,10 @@ import { TestimonialsSection } from "@/components/site/TestimonialsSection";
 import { useShop } from "@/context/shop-context";
 
 import { categories, cementProducts, hardwareProducts, wireProducts, type Product } from "@/components/site/data";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useCategories } from "@/hooks/use-catalog";
-import { api, resolveApiImage, slugify } from "@/lib/api";
+import { api, resolveApiImage, resolveApiTarget, slugify, type HomeSlider } from "@/lib/api";
 import { findCategoryByMatches, productsByCategoryFamily } from "@/lib/category-products";
 import { catalogProductToCard } from "@/lib/product-adapter";
 import heroBags from "@/assets/hero-bags.png";
@@ -53,8 +53,25 @@ function HomePage() {
 }
 
 function Hero() {
+  const sliders = useQuery({
+    queryKey: ["home-sliders"],
+    queryFn: api.homeSliders,
+  });
+  const orderedSlides = [...(sliders.data || [])].sort(
+    (a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0),
+  );
+  const mobileSlides = orderedSlides.filter(
+    (slide) => slide.sliderCategory?.trim().toUpperCase() === "MOBILE",
+  );
+  const websiteSlides = orderedSlides.filter(
+    (slide) => slide.sliderCategory?.trim().toUpperCase() === "WEBSITE",
+  );
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-[--peach] to-background" style={{ backgroundImage: "linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,243,231,0.75) 45%, rgba(255,210,164,0.4) 100%)" }}>
+      {mobileSlides.length ? (
+        <HeroSlider slides={mobileSlides} className="md:hidden" />
+      ) : (
       <div className="container-page pb-2 pt-2 md:hidden">
         <div className="grid gap-2 rounded-3xl bg-gradient-to-br from-orange via-[#f5a23d] to-[#ffd1a4] p-3 text-white shadow-lg">
           <span className="inline-flex w-fit items-center gap-2 rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-medium text-orange">
@@ -95,7 +112,11 @@ function Hero() {
           </div>
         </div>
       </div>
+      )}
 
+      {websiteSlides.length ? (
+        <HeroSlider slides={websiteSlides} className="hidden md:block" />
+      ) : (
       <div className="container-page hidden items-center gap-8 pb-2 pt-5 md:grid md:grid-cols-2 md:py-6">
         <div className="space-y-6">
           <span className="inline-flex items-center gap-2 rounded-full bg-orange/15 px-3 py-1 text-xs font-medium text-orange">
@@ -135,7 +156,51 @@ function Hero() {
           />
         </div>
       </div>
+      )}
     </section>
+  );
+}
+
+function HeroSlider({ slides, className }: { slides: HomeSlider[]; className: string }) {
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    setActiveIndex(0);
+    if (slides.length < 2) return;
+    const interval = window.setInterval(
+      () => setActiveIndex((current) => (current + 1) % slides.length),
+      5_000,
+    );
+    return () => window.clearInterval(interval);
+  }, [slides.length]);
+
+  const activeSlide = slides[activeIndex] || slides[0];
+
+  return (
+    <div className={`relative w-full ${className}`}>
+      <a href={resolveApiTarget(activeSlide.targetLink)} className="block w-full">
+        <img
+          key={activeSlide.id}
+          src={resolveApiImage(activeSlide.imagePath)}
+          alt="YourBuildMart promotion"
+          className="block h-auto w-full object-cover"
+        />
+      </a>
+      {slides.length > 1 ? (
+        <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-2" aria-label="Hero slides">
+          {slides.map((slide, index) => (
+            <button
+              key={slide.id}
+              type="button"
+              aria-label={`Show slide ${index + 1}`}
+              aria-current={index === activeIndex}
+              onClick={() => setActiveIndex(index)}
+              className={`h-2 rounded-full shadow-sm transition-all ${index === activeIndex ? "w-6 bg-orange" : "w-2 bg-white/80"}`}
+            />
+          ))}
+        </div>
+      ) : null}
+    </div>
   );
 }
 
