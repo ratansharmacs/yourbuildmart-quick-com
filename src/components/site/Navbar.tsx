@@ -10,10 +10,27 @@ import { usePincode } from "@/context/pincode-context";
 
 // Top-level nav will be populated from categories API (parentId === null)
 
+const defaultTopBarLabels = [
+  "100% Genuine Products",
+  "Fast & Reliable Delivery",
+  "Pay on Delivery",
+];
+const topBarIcons = [ShieldCheck, Truck, WalletCards, ShieldCheck];
+
 export function Navbar({ className }: { className?: string }) {
   const navigate = useNavigate();
   const categoriesQuery = useQuery({ queryKey: ["categories"], queryFn: api.categories });
+  const topBarQuery = useQuery({ queryKey: ["home-top-bar"], queryFn: api.homeTopBar });
   const categories = categoriesQuery.data || [];
+  const apiTopBarLabels = topBarQuery.data
+    ? [
+        topBarQuery.data.label1,
+        topBarQuery.data.label2,
+        topBarQuery.data.label3,
+        topBarQuery.data.label4,
+      ].filter((label): label is string => Boolean(label?.trim()))
+    : [];
+  const topBarLabels = apiTopBarLabels.length ? apiTopBarLabels : defaultTopBarLabels;
   const topLevelCategories = categories.filter((category) => category.parentId === null);
   const { cartCount, wishlistCount } = useShop();
   const { isAuthenticated, user, logout } = useAuth();
@@ -35,8 +52,12 @@ export function Navbar({ className }: { className?: string }) {
     <header className={`fixed inset-x-0 top-0 z-[100] bg-gradient-to-r from-white via-[#FFF5EA] to-[#FFE7C7] shadow-sm ${className || ""}`}>
       <div className="hidden h-10 bg-brand text-xs text-white md:block">
         <div className="container-page flex h-full items-center justify-between gap-5">
-          <div className="flex items-center gap-5 lg:gap-8"><TopBarItem icon={ShieldCheck} label="100% Genuine Products" /><TopBarItem icon={Truck} label="Fast & Reliable Delivery" /><TopBarItem icon={WalletCards} label="Pay on Delivery" /></div>
-          <div className="flex items-center gap-5 lg:gap-7">
+          <div className="flex min-w-0 items-center gap-5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:gap-8">
+            {topBarLabels.map((label, index) => (
+              <TopBarItem key={`${index}-${label}`} icon={topBarIcons[index] || ShieldCheck} label={label} />
+            ))}
+          </div>
+          <div className="flex shrink-0 items-center gap-5 lg:gap-7">
             <button type="button" onClick={changePincode} className="flex items-center gap-1.5 hover:text-white/80"><MapPin className="h-4 w-4" />{pincode ? `Deliver to ${pincode}` : "Choose delivery pincode"}<ChevronDown className="h-3.5 w-3.5" /></button>
             <Link to="/orders" className="hover:text-white/80">Track Order</Link><Link to="/faqs" className="flex items-center gap-1.5 hover:text-white/80"><HelpCircle className="h-4 w-4" />Help Center</Link><a href="tel:+918383001449" className="flex items-center gap-1.5 hover:text-white/80"><Phone className="h-4 w-4" />+91 83830 01449</a>
           </div>
@@ -245,6 +266,6 @@ function SearchBox({ large }: { large?: boolean } = { large: false }) {
   </div>;
 }
 
-function TopBarItem({ icon: Icon, label }: { icon: typeof ShieldCheck; label: string }) { return <span className="flex items-center gap-2"><Icon className="h-4 w-4" />{label}</span>; }
+function TopBarItem({ icon: Icon, label }: { icon: typeof ShieldCheck; label: string }) { return <span className="flex shrink-0 items-center gap-1.5 whitespace-nowrap"><Icon className="h-4 w-4 shrink-0" />{label}</span>; }
 
 function AccountLink({ to, label }: { to: "/profile" | "/addresses" | "/orders"; label: string }) { return <Link to={to} className="block rounded-lg px-3 py-2.5 text-sm hover:bg-secondary">{label}</Link>; }

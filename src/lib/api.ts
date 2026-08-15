@@ -38,6 +38,13 @@ export type HomeSlider = {
   displayOrder: number;
 };
 
+export type HomeTopBar = {
+  label1?: string | null;
+  label2?: string | null;
+  label3?: string | null;
+  label4?: string | null;
+};
+
 export type CatalogProduct = {
   id: number;
   name: string;
@@ -599,6 +606,7 @@ export const api = {
   testimonials: (params: Record<string, unknown> = {}) =>
     request<PageResponse<Testimonial>>(`/api/customer/testimonials${toSearchParams(params)}`),
   homeSliders: () => request<HomeSlider[]>("/api/customer/website/home-slider"),
+  homeTopBar: () => request<HomeTopBar>("/api/customer/website/home-top-bar"),
 
   categories: () => request<CustomerCategory[]>("/api/customer/categories"),
   categoryTree: () => request<CustomerCategory[]>("/api/customer/categories/tree"),

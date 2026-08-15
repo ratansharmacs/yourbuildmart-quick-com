@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { SectionHeader } from "@/components/site/SectionHeader";
@@ -43,8 +43,7 @@ const fallbackItems = [
 ];
 
 export function TestimonialsSection() {
-  const viewportRef = useRef<HTMLDivElement>(null);
-  const [activePage, setActivePage] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
   const testimonialsQuery = useQuery({
     queryKey: ["customer-testimonials"],
     queryFn: () => api.testimonials({ page: 0, size: 20 }),
@@ -61,20 +60,12 @@ export function TestimonialsSection() {
       rating: item.rating || 5,
     }));
   const items = apiItems.length ? apiItems : fallbackItems;
-  const pages = Array.from({ length: Math.ceil(items.length / 4) }, (_, index) => items.slice(index * 4, (index + 1) * 4));
-
-  function handleScroll() {
-    const viewport = viewportRef.current;
-    if (!viewport || pages.length < 2) return;
-    setActivePage(Math.min(pages.length - 1, Math.round(viewport.scrollLeft / (viewport.scrollWidth / pages.length))));
-  }
-
-  function goToPage(index: number) {
-    const viewport = viewportRef.current;
-    if (!viewport) return;
-    viewport.scrollTo({ left: (viewport.scrollWidth / pages.length) * index, behavior: "smooth" });
-    setActivePage(index);
-  }
+  const visibleItems = Array.from(
+    { length: Math.min(4, items.length) },
+    (_, offset) => items[(activeIndex + offset) % items.length],
+  );
+  const goPrevious = () => setActiveIndex((current) => (current - 1 + items.length) % items.length);
+  const goNext = () => setActiveIndex((current) => (current + 1) % items.length);
 
   return (
     <section className="container-page max-w-[1320px] pb-2 pt-4 md:py-8">
@@ -87,31 +78,27 @@ export function TestimonialsSection() {
       </div>
 
       <div className="relative hidden md:block">
-        <div ref={viewportRef} onScroll={handleScroll} className="flex snap-x snap-mandatory overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {pages.map((page, pageIndex) => (
-            <div key={pageIndex} className="grid min-w-full snap-start grid-cols-4 gap-5 px-2">
-              {page.map((item) => <TestimonialCard key={item.id} item={item} className="min-w-0" />)}
-            </div>
+        <div className="grid grid-cols-4 gap-5 px-2 pb-2">
+          {visibleItems.map((item, slot) => (
+            <TestimonialCard key={`${item.id}-${slot}`} item={item} className="min-w-0" />
           ))}
         </div>
 
-        {pages.length > 1 ? (
+        {items.length > 1 ? (
           <>
             <button
               type="button"
               aria-label="Previous testimonials"
-              onClick={() => goToPage(Math.max(0, activePage - 1))}
-              disabled={activePage === 0}
-              className="absolute left-0 top-1/2 z-10 grid h-10 w-10 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white text-brand shadow-md transition disabled:opacity-40"
+              onClick={goPrevious}
+              className="absolute left-0 top-1/2 z-10 grid h-10 w-10 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white text-brand shadow-md transition hover:bg-secondary"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
             <button
               type="button"
               aria-label="Next testimonials"
-              onClick={() => goToPage(Math.min(pages.length - 1, activePage + 1))}
-              disabled={activePage === pages.length - 1}
-              className="absolute right-0 top-1/2 z-10 grid h-10 w-10 translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white text-brand shadow-md transition disabled:opacity-40"
+              onClick={goNext}
+              className="absolute right-0 top-1/2 z-10 grid h-10 w-10 translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white text-brand shadow-md transition hover:bg-secondary"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -119,16 +106,16 @@ export function TestimonialsSection() {
         ) : null}
       </div>
 
-      {pages.length > 1 ? (
-        <div className="mt-4 hidden justify-center gap-2 md:flex" aria-label="Testimonial carousel pages">
-          {pages.map((_, index) => (
+      {items.length > 1 ? (
+        <div className="mt-4 hidden justify-center gap-2 md:flex" aria-label="Current testimonial">
+          {items.map((item, index) => (
             <button
-              key={index}
+              key={item.id}
               type="button"
-              aria-label={`Show testimonial page ${index + 1}`}
-              aria-current={activePage === index ? "true" : undefined}
-              onClick={() => goToPage(index)}
-              className={`h-2.5 w-2.5 rounded-full transition-colors ${activePage === index ? "bg-brand" : "bg-brand/25"}`}
+              aria-label={`Start with testimonial ${index + 1}`}
+              aria-current={activeIndex === index ? "true" : undefined}
+              onClick={() => setActiveIndex(index)}
+              className={`h-2.5 w-2.5 rounded-full transition-colors ${activeIndex === index ? "bg-brand" : "bg-brand/25"}`}
             />
           ))}
         </div>

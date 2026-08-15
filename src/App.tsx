@@ -3,6 +3,7 @@ import { Outlet } from "@tanstack/react-router";
 import { ShopProvider } from "@/context/shop-context";
 import { AuthProvider } from "@/context/auth-context";
 import { PincodeProvider } from "@/context/pincode-context";
+import { Toaster } from "@/components/ui/sonner";
 
 export function App({ queryClient }: { queryClient: QueryClient }) {
   return (
@@ -11,6 +12,7 @@ export function App({ queryClient }: { queryClient: QueryClient }) {
         <AuthProvider>
           <ShopProvider>
             <Outlet />
+            <Toaster position="bottom-right" richColors closeButton />
           </ShopProvider>
         </AuthProvider>
       </PincodeProvider>

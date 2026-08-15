@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { Heart, Minus, Plus, Share2, ShoppingBag, Star } from "lucide-react";
 import { useState } from "react";
+import { toast } from "sonner";
 import type { Product } from "./data";
 import { ProductImage } from "./ProductImage";
 import { useShop } from "@/context/shop-context";
@@ -23,12 +24,21 @@ export function ProductCard({ product, variant = "default" }: { product: Product
   };
 
   const add = async () => {
-    const cartProduct = await checkoutProduct();
-    if (!cartProduct?.variantId) {
-      await navigate(linkProps);
-      return;
+    try {
+      const cartProduct = await checkoutProduct();
+      if (!cartProduct?.variantId) {
+        await navigate(linkProps);
+        return;
+      }
+      await addToCart(cartProduct, quantity);
+      toast.success("Added to cart", {
+        description: `${quantity} × ${product.name}`,
+      });
+    } catch (caught) {
+      toast.error("Could not add to cart", {
+        description: caught instanceof Error ? caught.message : "Please try again.",
+      });
     }
-    await addToCart(cartProduct, quantity);
   };
 
   const share = async () => {

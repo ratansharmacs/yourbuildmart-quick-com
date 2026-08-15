@@ -197,7 +197,7 @@ function ProductDetailPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-        <main className="mx-auto grid w-full max-w-[1440px] grid-cols-1 items-start px-4 py-8 md:px-8 lg:grid-cols-[400px_minmax(0,620px)] lg:justify-center lg:gap-16 lg:py-12">        
+        <main className="mx-auto grid w-full max-w-[1440px] grid-cols-1 items-start px-4 py-6 md:px-8 lg:grid-cols-[400px_minmax(0,620px)] lg:justify-center lg:gap-12 lg:py-7">
           <ProductGallery
           images={images}
           name={detail.name}
@@ -225,10 +225,10 @@ function ProductDetailPage() {
               </button>
             </div>
           </div>
-          <h1 className="mt-2 text-3xl md:text-5xl">{detail.name}</h1>
+          <h1 className="mt-1 text-3xl leading-tight md:text-4xl">{detail.name}</h1>
           <ExpandableDescription description={detail.description} />
 
-          <div className="mt-5 flex flex-wrap items-center gap-3">
+          <div className="mt-3 flex flex-wrap items-center gap-3">
             <span className="text-3xl font-semibold text-brand">
               ₹{typeof product.price === 'number' ? product.price.toFixed(2) : product.price}
             </span>
@@ -244,7 +244,7 @@ function ProductDetailPage() {
           </p>
 
           {detail.featureBadges?.length ? (
-            <div className="mt-5 grid grid-cols-2 gap-3">
+            <div className="mt-3 grid grid-cols-2 gap-2">
               {detail.featureBadges.map((badge) => (
                 <div key={badge} className="flex items-center gap-2 text-sm text-brand">
                   <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[#CFF08A]">
@@ -271,18 +271,18 @@ function ProductDetailPage() {
             }}
           />
 
-          <div className="mt-7 flex items-center gap-3">
+          <div className="mt-4 flex items-center gap-3">
             <div className="flex items-center rounded-full border border-border">
               <button
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="grid h-12 w-10 place-items-center"
+                className="grid h-10 w-9 place-items-center"
               >
                 <Minus className="h-4 w-4" />
               </button>
-              <span className="w-10 text-center">{quantity}</span>
+              <span className="w-8 text-center">{quantity}</span>
               <button
                 onClick={() => setQuantity(Math.min(maxQuantity, quantity + 1))}
-                className="grid h-12 w-10 place-items-center"
+                className="grid h-10 w-9 place-items-center"
               >
                 <Plus className="h-4 w-4" />
               </button>
@@ -290,7 +290,7 @@ function ProductDetailPage() {
             <button
               onClick={() => void handleAdd()}
               disabled={!selectedVariant?.inventory.available}
-              className="flex flex-1 items-center justify-center gap-2 rounded-full bg-brand py-3.5 text-white disabled:opacity-50"
+              className="flex min-h-10 flex-1 items-center justify-center gap-2 rounded-full bg-brand px-4 py-2.5 text-white disabled:opacity-50"
             >
               <ShoppingBag className="h-4 w-4" /> Add to Cart
             </button>
@@ -411,11 +411,11 @@ function VariantSelectors({
   };
 
   return (
-    <div className="mt-6 space-y-5">
+    <div className="mt-4 space-y-3">
       {detail.variants.some((variant) => variant.images.length > 0) ? (
         <div>
           <h2 className="text-sm font-semibold">Variant pictures</h2>
-          <div className="mt-2 flex max-w-full gap-2 overflow-x-auto pb-2">
+          <div className="mt-1.5 flex max-w-full gap-2 overflow-x-auto pb-1">
             {detail.variants
               .filter((variant) => variant.images.length > 0)
               .map((variant) => {
@@ -426,7 +426,7 @@ function VariantSelectors({
                     type="button"
                     onClick={() => onSelect(variant)}
                     title={variant.attrsCombo}
-                    className={`w-20 shrink-0 rounded-lg border p-1.5 text-left ${
+                    className={`w-[72px] shrink-0 rounded-lg border p-1 text-left ${
                       selectedVariant?.id === variant.id ? "border-brand bg-secondary" : "border-border"
                     }`}
                   >
@@ -443,7 +443,7 @@ function VariantSelectors({
         .map((attribute) => (
           <div key={attribute.attributeName}>
             <h2 className="text-sm font-semibold">{attribute.attributeName}</h2>
-            <div className="mt-2 flex flex-wrap gap-2">
+            <div className="mt-1.5 flex flex-wrap gap-2">
               {attribute.values.map((value) => {
                 const available = detail.variants.some(
                   (variant) =>
@@ -455,7 +455,7 @@ function VariantSelectors({
                     key={value}
                     onClick={() => selectAttribute(attribute.attributeName, value)}
                     disabled={!available}
-                    className={`rounded-lg border px-4 py-2 text-sm disabled:opacity-40 ${
+                    className={`rounded-lg border px-4 py-1.5 text-sm disabled:opacity-40 ${
                       selected[attribute.attributeName] === value
                         ? "border-brand bg-secondary font-semibold text-brand"
                         : "border-border"
@@ -482,7 +482,7 @@ function ExpandableDescription({ description }: { description?: string }) {
   const collapsed = shouldTruncate ? `${content.slice(0, 150).trimEnd()}...` : content;
 
   return (
-    <div className="mt-3 text-sm leading-relaxed text-muted-foreground">
+    <div className="mt-1.5 text-sm leading-snug text-muted-foreground">
       <p className={expanded ? "whitespace-pre-line" : ""}>
         {expanded ? content : collapsed}
         {shouldTruncate ? (
