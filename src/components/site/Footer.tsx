@@ -9,7 +9,8 @@ export function Newsletter() {
         <div className="max-w-md">
           <h3 className="text-xl">Subscribe our Newsletter</h3>
           <p className="mt-2 text-sm text-muted-foreground">
-            Pellentesque eu nibh eget mauris congue mattis mattis nec tellus. Phasellus imperdiet elit eu magna.
+            Pellentesque eu nibh eget mauris congue mattis mattis nec tellus. Phasellus imperdiet
+            elit eu magna.
           </p>
         </div>
         <form
@@ -25,10 +26,34 @@ export function Newsletter() {
           </button>
         </form>
         <div className="flex items-center gap-3 self-center md:self-auto">
-          <a href="#" aria-label="Facebook" className="grid h-8 w-8 place-items-center rounded-full bg-[#1877F2] text-white"><Facebook className="h-4 w-4 fill-current" /></a>
-          <a href="#" aria-label="X (formerly Twitter)" className="grid h-8 w-8 place-items-center rounded-full bg-black text-sm font-semibold text-white">X</a>
-          <a href="#" aria-label="Instagram" className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-[#833AB4] via-[#E1306C] to-[#FCAF45] text-white"><Instagram className="h-4 w-4" /></a>
-          <a href="#" aria-label="LinkedIn" className="grid h-8 w-8 place-items-center rounded-full bg-[#0A66C2] text-white"><Linkedin className="h-4 w-4 fill-current" /></a>
+          <a
+            href="#"
+            aria-label="Facebook"
+            className="grid h-8 w-8 place-items-center rounded-full bg-[#1877F2] text-white"
+          >
+            <Facebook className="h-4 w-4 fill-current" />
+          </a>
+          <a
+            href="#"
+            aria-label="X (formerly Twitter)"
+            className="grid h-8 w-8 place-items-center rounded-full bg-black text-sm font-semibold text-white"
+          >
+            X
+          </a>
+          <a
+            href="#"
+            aria-label="Instagram"
+            className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-[#833AB4] via-[#E1306C] to-[#FCAF45] text-white"
+          >
+            <Instagram className="h-4 w-4" />
+          </a>
+          <a
+            href="#"
+            aria-label="LinkedIn"
+            className="grid h-8 w-8 place-items-center rounded-full bg-[#0A66C2] text-white"
+          >
+            <Linkedin className="h-4 w-4 fill-current" />
+          </a>
         </div>
       </div>
     </section>
@@ -62,7 +87,8 @@ export function Footer() {
         <div className="space-y-4">
           <img src={footerLogo} alt="YourBuildMart" className="h-8 w-auto" />
           <p className="text-sm opacity-80">
-            Construction materials, trusted brands, and project support in one convenient marketplace.
+            Construction materials, trusted brands, and project support in one convenient
+            marketplace.
           </p>
           <p className="text-sm opacity-80">info@yourbuildmart.com</p>
         </div>
@@ -82,8 +108,13 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-white/10 py-4 text-center text-xs opacity-70">
-        © 2026 YourBuildMart. All rights reserved.
+      <div className="border-t border-white/10 px-4 py-4 text-center">
+        <p className="text-sm font-medium tracking-wide text-brand-foreground/90">
+          An initiative by VR YBM Private Limited
+        </p>
+        <p className="mt-1 text-xs text-brand-foreground/60">
+          © 2026 YourBuildMart. All rights reserved.
+        </p>
       </div>
     </footer>
   );
