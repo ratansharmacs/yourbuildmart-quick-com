@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { Facebook, Instagram, Linkedin } from "lucide-react";
+import { Facebook, Instagram, Linkedin, Plus } from "lucide-react";
+import { useState } from "react";
 import footerLogo from "@/assets/abh.png";
 
 export function Newsletter() {
@@ -9,8 +10,8 @@ export function Newsletter() {
         <div className="max-w-md">
           <h3 className="text-xl">Subscribe our Newsletter</h3>
           <p className="mt-2 text-sm text-muted-foreground">
-            Pellentesque eu nibh eget mauris congue mattis mattis nec tellus. Phasellus imperdiet
-            elit eu magna.
+            Get the latest product updates, building tips, and exclusive offers delivered straight
+            to your inbox.
           </p>
         </div>
         <form
@@ -102,9 +103,9 @@ export function Footer() {
           <img src={footerLogo} alt="YourBuildMart" className="h-7 w-auto" />
         </div>
         <div className="space-y-0.5 text-sm">
-          <MobileFooterRow title="Quick Links" />
-          <MobileFooterRow title="Policies" />
-          <MobileFooterRow title="Contact" />
+          <MobileFooterRow title="Quick Links" links={quickLinks} />
+          <MobileFooterRow title="Policies" links={policyLinks} />
+          <MobileFooterRow title="Contact" links={contactLinks} />
         </div>
       </div>
 
@@ -120,11 +121,42 @@ export function Footer() {
   );
 }
 
-function MobileFooterRow({ title }: { title: string }) {
+function MobileFooterRow({ title, links }: { title: string; links: readonly FooterLinkItem[] }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const contentId = `mobile-footer-${title.toLowerCase().replace(/\s+/g, "-")}`;
+
   return (
-    <div className="flex items-center justify-between border-t border-white/12 py-4">
-      <span className="font-medium text-brand-foreground">{title}</span>
-      <span className="text-lg leading-none text-brand-foreground">+</span>
+    <div className="border-t border-white/12">
+      <button
+        type="button"
+        aria-expanded={isOpen}
+        aria-controls={contentId}
+        onClick={() => setIsOpen((open) => !open)}
+        className="flex w-full items-center justify-between py-4 text-left"
+      >
+        <span className="font-medium text-brand-foreground">{title}</span>
+        <Plus
+          aria-hidden="true"
+          className={`h-4 w-4 text-brand-foreground transition-transform duration-200 ${isOpen ? "rotate-45" : ""}`}
+        />
+      </button>
+      <div id={contentId} hidden={!isOpen}>
+        <ul className="space-y-3 pb-4 text-sm text-brand-foreground/80">
+          {links.map((link) => (
+            <li key={link.label}>
+              {link.to ? (
+                <Link to={link.to} className="block py-0.5 transition hover:text-brand-foreground">
+                  {link.label}
+                </Link>
+              ) : (
+                <a href={link.href} className="block py-0.5 transition hover:text-brand-foreground">
+                  {link.label}
+                </a>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

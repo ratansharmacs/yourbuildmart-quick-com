@@ -13,7 +13,8 @@ const fallbackItems = [
     name: "Ava A.",
     role: "Marketing Manager",
     image: reviewerOne,
-    quote: "I've been consistently impressed with the quality of product provided by this company. They have exceeded my expectations and delivered exceptional results.",
+    quote:
+      "I've been consistently impressed with the quality of product provided by this company. They have exceeded my expectations and delivered exceptional results.",
     rating: 5,
   },
   {
@@ -21,7 +22,8 @@ const fallbackItems = [
     name: "Ava A.",
     role: "Marketing Manager",
     image: reviewerTwo,
-    quote: "I've been consistently impressed with the quality of product provided by this company. They have exceeded my expectations and delivered exceptional results.",
+    quote:
+      "I've been consistently impressed with the quality of product provided by this company. They have exceeded my expectations and delivered exceptional results.",
     rating: 5,
   },
   {
@@ -29,7 +31,8 @@ const fallbackItems = [
     name: "Ava A.",
     role: "Marketing Manager",
     image: reviewerThree,
-    quote: "I've been consistently impressed with the quality of product provided by this company. They have exceeded my expectations and delivered exceptional results.",
+    quote:
+      "I've been consistently impressed with the quality of product provided by this company. They have exceeded my expectations and delivered exceptional results.",
     rating: 5,
   },
   {
@@ -37,7 +40,8 @@ const fallbackItems = [
     name: "Noah K.",
     role: "Project Engineer",
     image: reviewerOne,
-    quote: "Consistent quality and reliable delivery timeline. The product support team is helpful and responsive.",
+    quote:
+      "Consistent quality and reliable delivery timeline. The product support team is helpful and responsive.",
     rating: 5,
   },
 ];
@@ -69,18 +73,25 @@ export function TestimonialsSection() {
 
   return (
     <section className="container-page max-w-[1320px] pb-2 pt-4 md:py-8">
-      <SectionHeader title="What Our Client Say About Us" subtitle="Real feedback from our valued customers" />
+      <SectionHeader
+        title="What Our Client Say About Us"
+        subtitle="Real feedback from our valued customers"
+      />
 
       <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 md:hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {items.map((item) => (
-          <TestimonialCard key={item.id} item={item} className="w-[82%] shrink-0 snap-start" />
+          <TestimonialCard
+            key={item.id}
+            item={item}
+            className="h-[230px] w-[82%] shrink-0 snap-start"
+          />
         ))}
       </div>
 
       <div className="relative hidden md:block">
         <div className="grid grid-cols-4 gap-5 px-2 pb-2">
           {visibleItems.map((item, slot) => (
-            <TestimonialCard key={`${item.id}-${slot}`} item={item} className="min-w-0" />
+            <TestimonialCard key={`${item.id}-${slot}`} item={item} className="h-[310px] min-w-0" />
           ))}
         </div>
 
@@ -132,8 +143,14 @@ function TestimonialCard({
   className?: string;
 }) {
   return (
-    <article className={`h-full rounded-xl border border-border bg-card px-3 py-3 shadow-sm md:rounded-2xl md:px-5 md:py-5 ${className}`}>
-      <img src={item.image} alt={item.name} className="mx-auto mb-2 h-10 w-10 rounded-full object-cover md:mb-4 md:h-16 md:w-16" />
+    <article
+      className={`flex flex-col rounded-xl border border-border bg-card px-3 py-3 shadow-sm md:rounded-2xl md:px-5 md:py-5 ${className}`}
+    >
+      <img
+        src={item.image}
+        alt={item.name}
+        className="mx-auto mb-2 h-10 w-10 rounded-full object-cover md:mb-4 md:h-16 md:w-16"
+      />
       <div className="mb-2 flex justify-center gap-0.5 md:mb-3">
         {Array.from({ length: 5 }).map((_, i) => (
           <Star
@@ -142,8 +159,10 @@ function TestimonialCard({
           />
         ))}
       </div>
-      <p className="line-clamp-3 text-center text-xs text-muted-foreground md:line-clamp-4 md:text-sm">"{item.quote}"</p>
-      <div className="mt-3 text-center md:mt-6">
+      <p className="line-clamp-3 text-center text-xs text-muted-foreground md:line-clamp-4 md:text-sm">
+        "{item.quote}"
+      </p>
+      <div className="mt-auto pt-3 text-center md:pt-6">
         <div className="font-display text-sm text-brand md:text-base">{item.name}</div>
         {item.role ? <div className="text-xs text-muted-foreground">{item.role}</div> : null}
       </div>
