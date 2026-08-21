@@ -1,13 +1,22 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star, UserRound } from "lucide-react";
 import { SectionHeader } from "@/components/site/SectionHeader";
 import { api, resolveApiImage } from "@/lib/api";
 import reviewerOne from "@/assets/Icon Strategy.png";
 import reviewerTwo from "@/assets/Icon Strategy (1).png";
 import reviewerThree from "@/assets/Icon Strategy (2).png";
 
-const fallbackItems = [
+type TestimonialItem = {
+  id: number;
+  name: string;
+  role: string;
+  image?: string;
+  quote: string;
+  rating: number;
+};
+
+const fallbackItems: TestimonialItem[] = [
   {
     id: 1,
     name: "Ava A.",
@@ -59,7 +68,7 @@ export function TestimonialsSection() {
       id: item.id,
       name: item.customerName,
       role: [item.designation, item.company].filter(Boolean).join(", "),
-      image: item.customerImage ? resolveApiImage(item.customerImage) : reviewerOne,
+      image: item.customerImage ? resolveApiImage(item.customerImage) : undefined,
       quote: item.content,
       rating: item.rating || 5,
     }));
@@ -135,22 +144,12 @@ export function TestimonialsSection() {
   );
 }
 
-function TestimonialCard({
-  item,
-  className = "",
-}: {
-  item: (typeof fallbackItems)[number];
-  className?: string;
-}) {
+function TestimonialCard({ item, className = "" }: { item: TestimonialItem; className?: string }) {
   return (
     <article
       className={`flex flex-col rounded-xl border border-border bg-card px-3 py-3 shadow-sm md:rounded-2xl md:px-5 md:py-5 ${className}`}
     >
-      <img
-        src={item.image}
-        alt={item.name}
-        className="mx-auto mb-2 h-10 w-10 rounded-full object-cover md:mb-4 md:h-16 md:w-16"
-      />
+      <TestimonialAvatar image={item.image} name={item.name} />
       <div className="mb-2 flex justify-center gap-0.5 md:mb-3">
         {Array.from({ length: 5 }).map((_, i) => (
           <Star
@@ -167,5 +166,31 @@ function TestimonialCard({
         {item.role ? <div className="text-xs text-muted-foreground">{item.role}</div> : null}
       </div>
     </article>
+  );
+}
+
+function TestimonialAvatar({ image, name }: { image?: string; name: string }) {
+  const [imageFailed, setImageFailed] = useState(false);
+  const className = "mx-auto mb-2 h-10 w-10 rounded-full md:mb-4 md:h-16 md:w-16";
+
+  if (!image || imageFailed) {
+    return (
+      <div
+        role="img"
+        aria-label={`${name} profile placeholder`}
+        className={`${className} grid place-items-center bg-secondary text-brand`}
+      >
+        <UserRound aria-hidden="true" className="h-6 w-6 md:h-9 md:w-9" />
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={image}
+      alt={name}
+      onError={() => setImageFailed(true)}
+      className={`${className} object-cover`}
+    />
   );
 }
