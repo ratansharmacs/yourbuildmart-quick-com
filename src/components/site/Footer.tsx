@@ -16,13 +16,13 @@ export function Newsletter() {
         </div>
         <form
           onSubmit={(e) => e.preventDefault()}
-          className="flex w-full max-w-md items-center gap-2 rounded-full border border-border bg-background p-1.5 pl-5"
+          className="flex w-full min-w-0 max-w-md items-center gap-2 overflow-hidden rounded-full border border-border bg-background p-1.5 pl-5"
         >
           <input
             placeholder="Your email address"
-            className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
+            className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           />
-          <button className="rounded-full bg-brand px-6 py-2.5 text-sm font-medium text-brand-foreground transition hover:opacity-90">
+          <button className="shrink-0 rounded-full bg-brand px-4 py-2.5 text-sm font-medium text-brand-foreground transition hover:opacity-90 sm:px-6">
             Subscribe
           </button>
         </form>
