@@ -85,13 +85,9 @@ export function Footer() {
   return (
     <footer className="bg-brand text-brand-foreground">
       <div className="container-page hidden gap-10 py-14 md:grid md:grid-cols-4">
-        <div className="space-y-4">
+        <div>
           <img src={footerLogo} alt="YourBuildMart" className="h-8 w-auto" />
-          <p className="text-sm opacity-80">
-            Construction materials, trusted brands, and project support in one convenient
-            marketplace.
-          </p>
-          <p className="text-sm opacity-80">info@yourbuildmart.com</p>
+          <FooterBrandMessage />
         </div>
         <FooterCol title="Quick Links" links={quickLinks} />
         <FooterCol title="Policies" links={policyLinks} />
@@ -99,9 +95,10 @@ export function Footer() {
       </div>
 
       <div className="container-page py-5 md:hidden">
-        <div className="flex justify-center pb-4">
+        <div className="flex justify-center">
           <img src={footerLogo} alt="YourBuildMart" className="h-7 w-auto" />
         </div>
+        <FooterBrandMessage mobile />
         <div className="space-y-0.5 text-sm">
           <MobileFooterRow title="Quick Links" links={quickLinks} />
           <MobileFooterRow title="Policies" links={policyLinks} />
@@ -118,6 +115,34 @@ export function Footer() {
         </p>
       </div>
     </footer>
+  );
+}
+
+function FooterBrandMessage({ mobile = false }: { mobile?: boolean }) {
+  return (
+    <div className={mobile ? "mx-auto max-w-sm py-5 text-center" : "mt-5 max-w-xs"}>
+      <p className="font-display text-lg font-semibold tracking-wide text-brand-foreground">
+        BUILD SMART. BUILD FAST.
+      </p>
+      <p className="mt-2 text-sm leading-relaxed text-brand-foreground/80">
+        Genuine construction materials, delivered when you need them.
+      </p>
+      <p className="mt-3 flex flex-wrap justify-center gap-x-1.5 gap-y-1 text-xs leading-relaxed text-brand-foreground/70 md:justify-start">
+        <span>For homeowners</span>
+        <span aria-hidden="true">•</span>
+        <span>Contractors</span>
+        <span aria-hidden="true">•</span>
+        <span>Architects</span>
+        <span aria-hidden="true">•</span>
+        <span>Designers</span>
+      </p>
+      <a
+        href="mailto:info@yourbuildmart.com"
+        className="mt-3 inline-block break-all text-sm text-brand-foreground/80 transition hover:text-brand-foreground hover:underline"
+      >
+        info@yourbuildmart.com
+      </a>
+    </div>
   );
 }
 
